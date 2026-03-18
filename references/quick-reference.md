@@ -4,13 +4,15 @@ One-page cheat sheet. For details, see referenced files.
 
 ---
 
-## The 5 Phases
+## Phase 0 + 5-Phase Workflow
 
 ```
-[SPECIFY] → [PLAN] → [TASKS] → [IMPLEMENT] → [VALIDATE]
-  spec.md    plan.md   tasks.md   per task     traceability
-             data-model commit     commit       drift report
-             contracts  after each after each
+[CONSTITUTION] ── (once per project)
+       ↓
+[SPECIFY] → [CLARIFY] → [PLAN] → [TASKS] → [IMPLEMENT] → [VALIDATE]
+ spec.md      resolve     plan.md   tasks.md   per task     traceability
+              ambiguities data-model commit     commit       drift report
+              edge cases  contracts  after each after each
 ```
 
 ---
@@ -18,8 +20,10 @@ One-page cheat sheet. For details, see referenced files.
 ## Directory Layout
 
 ```
+constitution.md      # Project-level: immutable principles (NEVER skip)
+
 specs/[feature]/
-├── spec.md          # WHAT + WHY (no tech details)
+├── spec.md          # WHAT + WHY (no tech details, MoSCoW priorities)
 ├── plan.md          # HOW (architecture, components)
 ├── data-model.md    # Entities, fields, constraints, indexes
 ├── contracts/       # API shapes, error codes (LOCKED during Phase 4)
@@ -34,8 +38,10 @@ specs/[feature]/
 
 | Command | Phase | Reads | Creates |
 |---------|-------|-------|---------|
+| `/sdd:init` | 0 | project context | `constitution.md` |
 | `/sdd:specify [description]` | 1 | user input | `spec.md` |
-| `/sdd:plan` | 2 | `spec.md` | `plan.md`, `data-model.md`, `contracts/` |
+| `/sdd:clarify` | 1.5 | `spec.md` | delta (new ACs, resolved questions) |
+| `/sdd:plan` | 2 | `spec.md` + `constitution.md` | `plan.md`, `data-model.md`, `contracts/` |
 | `/sdd:tasks` | 3 | `plan.md`, `contracts/` | `tasks.md` |
 | `/sdd:next-task` | 4 | `tasks.md` | — (extracts single task) |
 | `/sdd:validate` | 5 | all spec files + code | drift report |
@@ -46,12 +52,25 @@ specs/[feature]/
 
 | Rule | Why |
 |------|-----|
+| Constitution before any spec | Without it, every feature reinvents the wheel |
 | No implementation details in spec.md | Spec describes behavior, not mechanism |
+| Clarify before Plan | Ambiguous spec = wrong architecture |
 | Lock contracts/ before Phase 4 | Changing contracts mid-implementation = drift |
 | Fresh context per task | Accumulated assumptions corrupt later tasks |
 | Commit after each task | Clean rollback if task produced drift |
 | Code must match spec (never reverse) | Updating spec to match code destroys its value |
 | Human approves each phase gate | AI cannot approve its own output |
+
+---
+
+## MoSCoW Priority Labels
+
+| Label | Meaning | Use |
+|-------|---------|-----|
+| `[MUST]` | Required for launch | No AC = no shipping |
+| `[SHOULD]` | Important but not blocking | Ship if time allows |
+| `[COULD]` | Nice to have | Backlog if needed |
+| `[WONT]` | Explicitly out of scope | Documents decision |
 
 ---
 

@@ -4,6 +4,80 @@ Copy-paste templates for each SDD artifact. Remove placeholder comments before c
 
 ---
 
+## constitution.md Template
+
+*Created once per project at the root. Applied to every feature.*
+
+```markdown
+# Project Constitution
+
+Version: 1.0.0
+Last updated: [date]
+
+## Architecture Principles
+
+- [e.g., "API-first: all features expose a REST endpoint before any UI is built"]
+- [e.g., "Server Components by default; use client components only when required"]
+- [e.g., "No ORM other than Drizzle; raw SQL only for complex analytics queries"]
+
+## Technology Stack
+
+| Layer | Choice | Notes |
+|-------|--------|-------|
+| Language | TypeScript 5.x | Strict mode, no `any` |
+| Runtime | Node.js 20+ | |
+| Framework | [e.g., Next.js 15+] | App Router only |
+| Database | PostgreSQL + Drizzle | No direct SQL in route handlers |
+| Auth | [e.g., Better Auth] | No custom auth logic outside the auth module |
+| Testing | Vitest + Playwright | |
+
+## Security Constraints
+
+<!-- These constraints apply to ALL generated code. AI must never violate them. -->
+
+- Authentication: all endpoints require a valid session unless explicitly marked `[PUBLIC]`
+- Input validation: all external inputs validated with Zod at the route boundary
+- SQL injection: parameterized queries only — never string-concatenate user input into queries
+- Secrets: never log tokens, passwords, or PII; never hardcode secrets
+- CORS: allow-list only — no wildcard origins in production
+- Rate limiting: all public endpoints must declare a rate limit in their contract
+
+## Naming Conventions
+
+- Files: kebab-case (`user-repository.ts`)
+- Variables/functions: camelCase
+- Types/interfaces: PascalCase
+- DB columns: snake_case
+- Env vars: SCREAMING_SNAKE_CASE
+
+## Banned Patterns
+
+<!-- AI is strictly forbidden from introducing these patterns -->
+
+- No `any` type in TypeScript
+- No `console.log` in production code (use logger)
+- No synchronous file I/O in request handlers
+- No direct DOM manipulation (use React)
+- No [project-specific banned pattern]
+
+## File Structure Rules
+
+```
+src/
+  app/          # Next.js routes and pages
+  components/   # Shared UI components
+  lib/          # Business logic and utilities
+  db/           # Schema, migrations, repositories
+  types/        # Shared TypeScript types
+```
+
+## Open Questions / Deferred Decisions
+
+- [PENDING] [Decision 1]: [context and options]
+```
+
+---
+
 ## spec.md Template
 
 ```markdown
@@ -22,17 +96,30 @@ As a [role], I want [goal] so that [benefit].
 
 ## Acceptance Criteria
 
-### AC-1: [Short Title]
+<!-- MoSCoW priority: [MUST] = required for launch, [SHOULD] = important but not blocking,
+     [COULD] = nice to have, [WONT] = explicitly excluded from this iteration -->
+
+### AC-1: [Short Title] [MUST]
 Given [initial context]
 When [action is taken]
 Then [expected outcome]
 
-### AC-2: [Short Title]
+### AC-2: [Short Title] [MUST]
 Given [initial context]
 When [action is taken]
 Then [expected outcome]
 
-<!-- Add as many ACs as needed. Each must be independently testable. -->
+### AC-3: [Short Title] [SHOULD]
+Given [initial context]
+When [action is taken]
+Then [expected outcome]
+
+<!-- Error and edge case ACs are required. Don't only spec the happy path. -->
+
+### AC-E1: [Error Case Title] [MUST]
+Given [invalid or edge condition]
+When [action is taken]
+Then [expected error response or behavior]
 
 ## Out of Scope
 <!-- Explicitly list what this feature does NOT include -->
@@ -40,14 +127,16 @@ Then [expected outcome]
 - [Item 2]
 
 ## Open Questions
-<!-- Use [NEEDS CLARIFICATION] for unresolved items. Resolve before Phase 2. -->
+<!-- Use [NEEDS CLARIFICATION] for unresolved items. ALL must be resolved before Phase 2. -->
 - [NEEDS CLARIFICATION] [Question 1]
 - [RESOLVED] [Question 2] → Decision: [answer]
 
 ## Non-Functional Requirements
-<!-- Performance, security, accessibility, internationalization, etc. -->
+<!-- Performance, security, accessibility, internationalization, etc.
+     Be specific — "fast" is not a requirement, "< 200ms at p95" is. -->
 - Performance: [e.g., "search results in < 200ms at p95"]
-- Security: [e.g., "requires authenticated session"]
+- Security: [e.g., "requires authenticated session — see constitution.md"]
+- Accessibility: [e.g., "WCAG 2.1 AA for all interactive elements"]
 ```
 
 ---

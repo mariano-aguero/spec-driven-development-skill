@@ -4,6 +4,22 @@ Review checklists, confidence thresholds, and CI/CD integration patterns for SDD
 
 ---
 
+## Gate 0 — constitution.md Approval
+
+Run once per project before any feature work begins.
+
+| Check | Pass Criteria |
+|-------|--------------|
+| Stack coverage | All languages, frameworks, and databases listed with locked versions |
+| Security constraints | At least 5 explicit security rules covering input validation, auth, secrets, logging, CORS |
+| No banned patterns | Banned patterns list is specific and enforceable (not vague principles) |
+| File structure | Directory structure documented and matches actual project layout |
+| No `[PENDING]` items | All deferred decisions resolved or explicitly accepted as deferred |
+
+**Fail action:** Complete the constitution before creating any spec.
+
+---
+
 ## Per-Phase Checklists
 
 ### Gate 1 — spec.md Approval
@@ -12,15 +28,17 @@ Run before Phase 2. All items must pass.
 
 | Check | Pass Criteria |
 |-------|--------------|
-| Testability | Every AC can have an automated test written for it |
+| Testability | Every `[MUST]` AC can have an automated test written for it |
 | Implementation-free | No technology names, function names, or database terms |
 | NEEDS CLARIFICATION | All `[NEEDS CLARIFICATION]` items resolved |
-| Error coverage | Error scenarios are specified as ACs (not just happy path) |
+| Error coverage | Error/edge case ACs exist (not just happy path) |
 | Scope boundary | "Out of Scope" section is explicit and complete |
-| Non-functional requirements | Performance, security, and accessibility requirements stated if applicable |
+| MoSCoW prioritization | Every AC has a `[MUST]` / `[SHOULD]` / `[COULD]` / `[WONT]` label |
+| No vague terms | No "fast", "secure", "works correctly" without measurable thresholds |
+| Non-functional requirements | Performance and security requirements stated with specific values |
 | Stakeholder alignment | Relevant stakeholders have reviewed and agreed |
 
-**Fail action:** Return to Phase 1. Do not proceed to Phase 2.
+**Fail action:** Return to Phase 1 + Clarify step. Do not proceed to Phase 2.
 
 ---
 
@@ -30,7 +48,8 @@ Run before Phase 3. All items must pass.
 
 | Check | Pass Criteria |
 |-------|--------------|
-| AC traceability | Every AC in spec.md maps to at least one component in plan.md |
+| AC traceability | Every `[MUST]` AC maps to at least one component in plan.md |
+| Constitution compliance | Plan uses only stack items in constitution.md; no banned patterns |
 | Contract completeness | Every component that exposes an API has a corresponding contract file |
 | Error code completeness | Contracts define all error responses (not just 200) |
 | Data model completeness | All entities mentioned in spec.md appear in data-model.md |
@@ -70,6 +89,7 @@ Run per-task, before marking task complete and committing.
 | Schema match | Database schema matches data-model.md |
 | Scope adherence | No files modified outside the task's stated scope |
 | No silent failures | Error cases are handled, not swallowed |
+| Constitution check | No banned patterns introduced; security constraints respected |
 
 **Fail action:** Fix before committing. Do not mark task complete.
 
@@ -81,11 +101,12 @@ Run after Phase 4 completes, before merging.
 
 | Check | Pass Criteria |
 |-------|--------------|
-| Traceability matrix | Every AC has an identified test and implementation file |
+| Traceability matrix | Every `[MUST]` AC has an identified test and implementation file |
 | Full test suite | Complete test suite passes |
 | Drift report | Zero drift items found (spec.md vs. implementation) |
 | User story walkthrough | Human walked through each user story in running application |
 | Contract audit | All contract error codes have corresponding implementation and tests |
+| Constitution audit | No constitution violations detected in new code |
 
 **Fail action:** Fix drift before merge. No exceptions.
 

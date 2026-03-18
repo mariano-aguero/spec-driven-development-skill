@@ -173,3 +173,63 @@ were built on top of the drift.
 - Features that touch auth, DB schema, or public API: always use SDD
 - Bug fixes under 30 minutes: skip SDD, fix directly
 - Refactors with no behavior change: document intent in a commit message, skip SDD
+
+---
+
+## Anti-Pattern 10: No Constitution
+
+**Symptoms:**
+- Each feature spec re-establishes the same technology choices
+- AI introduces a new ORM, a different validation library, or a conflicting auth pattern
+- Security constraints need to be repeated in every prompt
+- One feature uses camelCase columns, another uses snake_case
+
+**Example (what happens without constitution.md):**
+```
+Feature A spec: "Use PostgreSQL for storage"
+Feature B spec: (forgot to mention) → AI uses SQLite
+Feature C spec: (forgot to mention auth rules) → AI adds unauthenticated endpoints
+```
+
+**Fix:** Create `constitution.md` once before the first feature spec. It becomes the
+shared context for every subsequent AI interaction, ensuring consistency without repetition.
+
+Every AI prompt for Phase 4 includes: `Constrained by: constitution.md (never violate)`.
+
+---
+
+## Anti-Pattern 11: Treating AI Like a Mind Reader
+
+**Symptoms:**
+- Prompt: "Add user authentication" → AI builds OAuth when you wanted sessions
+- Prompt: "Make it faster" → AI rewrites working code, introduces bugs
+- Prompt: "Add the missing validation" → AI adds it in the wrong layer
+
+**The root cause:** Without a spec, AI makes thousands of micro-decisions silently.
+It's not wrong — it's guessing. And some guesses will be wrong.
+
+**Fix:** Never prompt an AI coding agent for feature work without a spec. The spec is
+not overhead — it's the instruction set. A developer who can't be given detailed
+instructions is not a developer you can rely on.
+
+> "You wouldn't hire a junior dev without giving them specs. Why let an AI code without one?"
+
+---
+
+## Anti-Pattern 12: Skipping the Clarify Step
+
+**Symptoms:**
+- spec.md has `[NEEDS CLARIFICATION]` items that were never resolved
+- Plan was written with assumed answers that turned out to be wrong
+- "The spec says X but we actually meant Y" — discovered during implementation
+
+**The trap:** Spec looks complete enough. You move to Plan. Then in Phase 4 the AI asks
+"what should happen when the user is not found?" and you realize there's no AC for it.
+The AI picks an answer. It's wrong. Now you have drift baked into the implementation.
+
+**Fix:** The Clarify step is mandatory. Before Plan generation:
+1. Resolve every `[NEEDS CLARIFICATION]` item — no assumptions
+2. Run the spec validation pass (vague terms check)
+3. Add ACs for every error and edge case surfaced during clarification
+
+30 minutes on Clarify saves 3 hours of wrong implementation.

@@ -5,6 +5,49 @@ determines the quality of AI output — vague input = vague output.
 
 ---
 
+## Phase 0 — Constitution Prompts
+
+### Initial Constitution Generation Prompt
+
+```
+Generate a constitution.md for this project.
+
+Project context:
+- Name: [project name]
+- Purpose: [1-2 sentences]
+- Tech stack: [list languages, frameworks, databases, auth]
+- Team size: [1 dev / small team / larger org]
+- Domain: [e.g., fintech, e-commerce, internal tooling]
+- Special constraints: [security requirements, compliance, performance SLAs]
+
+The constitution should cover:
+1. Architecture principles (how code is organized)
+2. Technology stack (locked choices with rationale)
+3. Security constraints (non-negotiable rules for ALL generated code)
+4. Naming conventions
+5. Banned patterns (things AI must never introduce)
+6. File structure rules
+
+Format as constitution.md using the template in references/artifact-templates.md.
+Mark anything uncertain as [PENDING] for human review.
+```
+
+### Constitution Security Constraints Prompt
+
+```
+Enhance the security section of constitution.md for this domain: [domain]
+
+Add specific constraints to prevent the top CWE vulnerabilities relevant to this stack:
+- [e.g., "Node.js API": CWE-89 SQL injection, CWE-79 XSS, CWE-306 missing auth]
+- [e.g., "payment processing": PCI-DSS constraints, no logging of card data]
+
+For each constraint, write it as an explicit rule an AI agent can check:
+❌ Vague: "handle errors securely"
+✅ Specific: "never expose stack traces or internal error details in API responses"
+```
+
+---
+
 ## Phase 1 — Specify Prompts
 
 ### Initial Specification Prompt
@@ -20,15 +63,46 @@ Requirements:
 - Each acceptance criterion must be independently testable
 - Mark any ambiguous requirements with [NEEDS CLARIFICATION]
 - Explicitly list what is OUT OF SCOPE
+- Use MoSCoW priority on every AC: [MUST] / [SHOULD] / [COULD] / [WONT]
+- Include error/edge case ACs — not just the happy path
 
 Target users: [who uses this feature]
 Constraints: [any hard limits — performance, security, platform]
 ```
 
-### Spec Clarification Prompt
+### Clarify Phase Prompt
+
+*Run after generating spec.md, before creating the plan.*
 
 ```
-Review spec.md at specs/[feature]/spec.md and identify:
+You are a spec reviewer. Read specs/[feature]/spec.md and perform a full clarification pass.
+
+Step 1 — Resolve open questions:
+List every [NEEDS CLARIFICATION] item and propose a resolution for human approval.
+Do not resolve them unilaterally.
+
+Step 2 — Find missing edge cases:
+For each [MUST] AC, identify edge cases not yet covered:
+- What happens with empty/null inputs?
+- What happens with concurrent requests?
+- What happens when dependent services are unavailable?
+- What are the permission boundary cases?
+
+Step 3 — Automated validation:
+Flag any AC that contains vague terms:
+- "fast", "slow", "quickly", "efficiently" → needs a numeric threshold
+- "works correctly", "functions properly" → needs a specific testable outcome
+- "secure", "safe" → needs a specific constraint
+- "simple", "easy" → not a requirement
+
+Return: a list of proposed resolutions + a list of new ACs to add.
+Do NOT write a new spec.md. Return only the delta.
+```
+
+### Spec Clarification Prompt (targeted)
+
+```
+Review specs/[feature]/spec.md and identify:
 1. Acceptance criteria that are ambiguous or not independently testable
 2. Missing edge cases for AC-[N]
 3. Any implicit assumptions that should be made explicit
