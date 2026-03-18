@@ -324,3 +324,78 @@ Implements: `specs/[branch]/plan.md`
 - `[L]` Large — 3–6 hours (consider splitting)
 - `[P]` Parallelizable — can run concurrently with other `[P]` tasks at same level
 ```
+
+---
+
+## research.md Template
+
+*Optional artifact for documenting context and alternatives. Create when technology
+choices or architecture decisions need rationale preserved for future reference.*
+
+```markdown
+# Research: [Feature Name or Decision Topic]
+
+## Context
+<!-- Why was this research needed? What decision does it inform? -->
+
+## Options Considered
+
+### Option A: [Name]
+**Description:** [1-2 sentences]
+**Pros:**
+- [Advantage 1]
+- [Advantage 2]
+**Cons:**
+- [Disadvantage 1]
+**Estimated effort:** [S / M / L]
+
+### Option B: [Name]
+**Description:** [1-2 sentences]
+**Pros:**
+- [Advantage 1]
+**Cons:**
+- [Disadvantage 1]
+**Estimated effort:** [S / M / L]
+
+## Decision
+**Chosen:** Option [A/B]
+**Rationale:** [Why this option was selected over the others]
+**Date:** [YYYY-MM-DD]
+**Decided by:** [human / team / constraint]
+
+## References
+- [Link or document title]
+```
+
+---
+
+## decision_log.md Template
+
+*Optional artifact for recording key decisions made during any phase. Especially useful
+when AI suggests an alternative approach or when requirements change mid-implementation.*
+
+```markdown
+# Decision Log: [Feature Name]
+
+---
+
+## [YYYY-MM-DD] [Short Decision Title]
+
+**Context:** [What situation triggered this decision]
+**Options:**
+- Option A: [brief description]
+- Option B: [brief description]
+**Decision:** [What was decided]
+**Rationale:** [Why]
+**Impact:** [Which files or specs are affected]
+**Decided by:** [human / team]
+
+---
+
+## [YYYY-MM-DD] [Short Decision Title]
+
+**Context:** [...]
+**Decision:** [...]
+**Rationale:** [...]
+**Impact:** [...]
+```

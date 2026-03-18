@@ -4,6 +4,65 @@ Step-by-step execution guide for each SDD phase, including decision points and c
 
 ---
 
+## Phase 0 — Constitution
+
+### Goal
+Produce a `constitution.md` at the project root that encodes immutable constraints for
+all future feature work. Every AI prompt during implementation will include it. Every
+gate check will verify compliance with it. It is written once and updated only when
+a fundamental project decision changes.
+
+### Step-by-Step
+
+**Step 0.1 — Project intake**
+Before generating the constitution, gather:
+- Tech stack: languages, frameworks, databases, auth mechanism
+- Team conventions: naming, file structure, testing approach
+- Compliance or security requirements: OWASP, GDPR, PCI-DSS, etc.
+- Known anti-patterns to avoid (from past projects or code reviews)
+- Any existing CLAUDE.md, .cursorrules, or AGENTS.md files to incorporate
+
+**Step 0.2 — Generate constitution.md**
+Use the prompts in `references/prompt-patterns.md → Phase 0 → Initial Constitution Generation Prompt`.
+Place output at the project root: `constitution.md`.
+
+**Step 0.3 — Security section review**
+Pay special attention to the security constraints section:
+- Every rule must be specific and verifiable (not "handle errors securely")
+- At minimum, cover: auth requirements, input validation, secret handling, logging rules, CORS
+- For security-sensitive domains, run the Security Constraints Prompt to add CWE-targeted rules
+
+**Step 0.4 — Resolve PENDING items**
+All `[PENDING]` items must be resolved before writing the first feature spec.
+A pending tech decision (e.g., "do we use Redis for sessions?") will cause the first
+spec to have `[NEEDS CLARIFICATION]` items that could have been decided here.
+
+**Step 0.5 — Human review (Gate 0)**
+The constitution requires the same human approval gate as any other artifact.
+Review using the Gate 0 checklist in `references/quality-gates.md`.
+Common review feedback:
+- "This banned pattern is too vague" → make it a specific code example
+- "We haven't decided on X yet" → add as `[PENDING]` with a target date
+- "Security rule Y is missing" → add it now, not in the first feature spec
+
+**Step 0.6 — Commit**
+```bash
+git add constitution.md
+git commit -m "chore: add project constitution"
+```
+
+### When to Update
+- New major dependency added to the project
+- Security policy change (new compliance requirement, audit finding)
+- Architecture decision that invalidates an existing principle
+- Always: bump the Version field and note what changed with a date
+
+### Time Distribution
+Constitution takes 30–60 minutes for a new project. Skipping it means paying the same
+cost (resolving conflicting decisions) repeatedly across every feature spec.
+
+---
+
 ## Phase 1 — Specify
 
 ### Goal
@@ -149,6 +208,7 @@ each task to maintain clean rollback points.
 
 **Step 4.1 — Session setup per task**
 Start a fresh context window for each task. Include:
+- `constitution.md` (always — project-level constraints, never violate)
 - The task description from `tasks.md`
 - Relevant ACs from `spec.md`
 - Relevant section from `plan.md`
@@ -156,6 +216,7 @@ Start a fresh context window for each task. Include:
 - Relevant entities from `data-model.md`
 
 Do NOT paste the entire spec — include only what's relevant to the current task.
+`constitution.md` is the one exception: always include it in full, it is compact by design.
 
 **Step 4.2 — Use the single-task implementation prompt**
 See `references/prompt-patterns.md → Phase 4 → Single Task Implementation Prompt`.
@@ -218,10 +279,14 @@ If drift is found:
 Manually walk through each user story from `spec.md` in the running application.
 Check each AC as a user, not as a developer.
 
-**Step 5.5 — Archive specs**
-After validation passes, move specs to long-term storage:
+**Step 5.5 — Archive specs (optional)**
+After validation passes, consider archiving completed specs to keep `specs/` clean:
 ```bash
 mkdir -p .specs/[feature-name]
-mv specs/[feature-name]/* .specs/[feature-name]/
+cp -r specs/[feature-name]/* .specs/[feature-name]/
+# Verify copy succeeded before removing originals
+rm -rf specs/[feature-name]
 ```
-Keep `.specs/` in version control for future reference and regression analysis.
+Keep `.specs/` in version control — specs are invaluable for regression analysis when bugs
+appear in features implemented months earlier. Skip this step if your team prefers to
+keep all specs in `specs/` indefinitely.

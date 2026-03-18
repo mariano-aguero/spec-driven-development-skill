@@ -11,6 +11,7 @@ Navigation map for all SDD reference files.
 - One-page cheat sheet → `quick-reference.md`
 
 ### Templates (copy-paste ready)
+- constitution.md template → `artifact-templates.md#constitutionmd-template`
 - spec.md template → `artifact-templates.md#specmd-template`
 - plan.md template → `artifact-templates.md#planmd-template`
 - data-model.md template → `artifact-templates.md#data-modelmd-template`
@@ -18,6 +19,7 @@ Navigation map for all SDD reference files.
 - tasks.md template → `artifact-templates.md#tasksmd-template`
 
 ### Prompts (copy-paste ready)
+- Phase 0 — Constitution prompts → `prompt-patterns.md#phase-0--constitution-prompts`
 - Phase 1 — Specify prompts → `prompt-patterns.md#phase-1--specify-prompts`
 - Phase 2 — Plan prompts → `prompt-patterns.md#phase-2--plan-prompts`
 - Phase 3 — Tasks prompts → `prompt-patterns.md#phase-3--tasks-prompts`
@@ -26,6 +28,7 @@ Navigation map for all SDD reference files.
 - Multi-agent review → `prompt-patterns.md#multi-agent-review-pattern`
 
 ### Phase details (step-by-step)
+- Phase 0 — Constitution → `workflow-phases.md#phase-0--constitution`
 - Phase 1 — Specify → `workflow-phases.md#phase-1--specify`
 - Phase 2 — Plan → `workflow-phases.md#phase-2--plan`
 - Phase 3 — Tasks → `workflow-phases.md#phase-3--tasks`

@@ -63,7 +63,7 @@ SDD, requirements planning, or AI implementation guidance.
 | `references/workflow-phases.md` | Step-by-step instructions for each phase |
 | `references/quality-gates.md` | Per-phase checklists and CI/CD integration |
 | `references/ai-agent-patterns.md` | Multi-agent orchestration, context management |
-| `references/anti-patterns.md` | 9 common failure modes with fixes |
+| `references/anti-patterns.md` | 12 common failure modes with fixes |
 | `references/quick-reference.md` | One-page cheat sheet |
 
 ## When to Use SDD

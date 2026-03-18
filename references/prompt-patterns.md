@@ -203,26 +203,55 @@ Return only issues found, not a full rewrite.
 
 ### Single Task Implementation Prompt
 
+Two formats depending on your agent's file system access:
+
+**Format A — Agent with file access (Claude Code, Cursor, Windsurf)**
 ```
 Implement TASK-[N]: [task title]
 
-Specification:
-- Acceptance criteria: [paste relevant ACs from spec.md]
-- Technical design: [paste relevant section from plan.md]
-- API contract: [paste from contracts/file.md if applicable]
-- Data model: [paste relevant entities from data-model.md if applicable]
+Read and follow:
+- constitution.md (project-level rules — never violate)
+- Acceptance criteria: specs/[feature]/spec.md → [section heading]
+- Technical design: specs/[feature]/plan.md → [section heading]
+- API contract: specs/[feature]/contracts/[file].md
+- Data model: specs/[feature]/data-model.md → [EntityName]
 
-Constraints:
-- Match API signatures exactly as defined in the contract
-- Do not add functionality outside the acceptance criteria
-- Do not add abstractions not mentioned in plan.md
-- Follow project conventions: [reference CLAUDE.md or conventions]
+Do NOT:
+- Add functionality outside the acceptance criteria
+- Deviate from the API signatures in contracts/
+- Introduce abstractions not in plan.md
+- Violate any rule in constitution.md
 
 After implementation, verify:
 - [ ] All referenced ACs have test coverage
 - [ ] API signatures match contracts exactly
 - [ ] No new dependencies introduced without explicit justification
 ```
+
+**Format B — Stateless agent or web interface (paste content)**
+```
+Implement TASK-[N]: [task title]
+
+Project constitution (non-negotiable rules):
+[paste full constitution.md]
+
+Acceptance criteria (from spec.md):
+[paste only the ACs this task must satisfy]
+
+Technical design (from plan.md):
+[paste only the relevant component section]
+
+API contract (from contracts/[file].md):
+[paste the relevant endpoint definition]
+
+Data model (from data-model.md):
+[paste only the relevant entities]
+
+Do NOT add functionality beyond what the ACs and contract define.
+```
+
+Use Format A when the agent can `Read` files directly.
+Use Format B for web interfaces or agents without persistent file access.
 
 ### Mid-Implementation Correction Prompt (when AI drifts)
 

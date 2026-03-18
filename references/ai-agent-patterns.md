@@ -159,15 +159,20 @@ Wait for both. Verify no conflicts.
 
 ## AI Tool Selection Per Phase
 
-Different AI tools excel at different phases:
+Use the capability profile that matches each phase. Specific model names change with every
+release — the profiles below remain stable:
 
-| Phase | Best Tool | Why |
-|-------|-----------|-----|
-| Specify (Phase 1) | Claude Opus, GPT-4 | Better at understanding intent and generating testable criteria |
-| Plan (Phase 2) | Claude Sonnet, GPT-4 | Good at technical architecture with large context |
-| Tasks (Phase 3) | Claude Sonnet | Good at structured breakdown with dependencies |
-| Implement (Phase 4) | Cursor, Copilot, Claude Code | IDE-native, code completion, test running |
-| Validate (Phase 5) | Claude Sonnet | Good at compliance checking across multiple files |
+| Phase | Capability Profile Needed | IDE Integration? |
+|-------|--------------------------|-----------------|
+| Constitution (Phase 0) | Strong instruction-following, broad domain knowledge | No |
+| Specify (Phase 1) | Strong intent-understanding, good at ambiguity detection | No |
+| Plan (Phase 2) | Large context, technical architecture reasoning | No |
+| Tasks (Phase 3) | Structured output, dependency reasoning | No |
+| Implement (Phase 4) | File access, code completion, test execution, inline edits | **Yes** (Claude Code, Cursor, Copilot, Windsurf) |
+| Validate (Phase 5) | Multi-file comparison, compliance checking | Optional |
+
+**Rule of thumb:** Use your most capable model for Phases 0–2 (specs determine everything).
+Use IDE-native tools for Phase 4 (file access and test running matter more than raw intelligence).
 
 ---
 
@@ -218,3 +223,55 @@ Do not: Continue implementing with the new requirement in mind while the spec is
 Do not: "Adjust slightly" without updating the spec chain.
 
 This systematic approach to changes is what makes SDD resilient to pivot requests.
+
+---
+
+## Research Phase with Parallel Subagents
+
+For complex features where the right approach is unclear, run a research phase *before*
+Phase 1 to gather information via parallel subagents. This produces a richer spec.
+
+**When to use:**
+- Large refactors or migrations with external dependencies
+- Features requiring knowledge of unfamiliar libraries or patterns
+- Unclear architecture (multiple valid approaches worth evaluating)
+
+**Prompt:**
+```
+Spawn parallel subagents to research the following aspects of [feature]:
+
+Agent 1: Research [aspect A — e.g., "existing authentication patterns in this codebase"]
+Agent 2: Research [aspect B — e.g., "CRDT patterns for real-time sync"]
+Agent 3: Research [aspect C — e.g., "storage layer options and tradeoffs"]
+Agent 4: Research [aspect D — e.g., "existing similar features to reuse"]
+
+Each agent: read relevant code, search for patterns, summarize findings in 300 words.
+After all agents complete, consolidate into a research.md file at specs/[feature]/research.md.
+```
+
+**Then use the research as input to Phase 1:**
+```
+Using specs/[feature]/research.md as context, generate a spec.md for [feature].
+The spec should reflect the architectural findings and avoid approaches ruled out by research.
+```
+
+This pattern produced 14 tasks completed in ~45 minutes in real-world usage, with parallel
+research uncovering patterns not discoverable through sequential exploration.
+
+---
+
+## Spec as Recovery Point
+
+When an implementation session fails (context overflow, cascading errors, wrong direction):
+
+1. **Do not try to fix in the same session** — accumulated context is the problem
+2. Pin the current spec files: `git stash` or note the commit SHA
+3. Start a fresh session with only the spec artifacts as context
+4. Re-implement from the failing task using a clean context window
+
+The spec is not just a planning artifact — it is the recovery checkpoint. A session that
+goes wrong with a complete spec loses at most one task. A session that goes wrong without
+a spec loses everything and must restart from scratch.
+
+This is the most practical argument for writing specs even for experienced developers who
+feel they don't need them: you are buying recovery insurance, not just documentation.

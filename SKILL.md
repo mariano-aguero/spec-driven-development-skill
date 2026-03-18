@@ -24,6 +24,16 @@ regenerations rather than manual rewrites."*
 Why it works: without a spec, AI makes thousands of micro-decisions silently. With a spec,
 those decisions are made by you — explicitly, before any code is written.
 
+### Spec Levels
+
+| Level | What it means | Best for |
+|-------|--------------|---------|
+| **Spec-first** | Write spec upfront, implement immediately | Most features |
+| **Spec-anchored** | Maintain spec alongside code as it evolves | Long-lived features |
+| **Spec-as-source** | Spec is primary; code is generated, never hand-edited | Experimental, high-compliance |
+
+Start with spec-first. Move to spec-anchored when the feature stabilizes.
+
 ## When to Use
 
 Symptoms that signal SDD is needed:
