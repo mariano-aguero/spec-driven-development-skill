@@ -148,6 +148,7 @@ Creates in `specs/[feature]/`:
 - [ ] Plan respects all constraints in `constitution.md`
 - [ ] Data model covers all entities mentioned in spec
 - [ ] API contracts are complete (inputs, outputs, all error codes)
+- [ ] Migrations defined for any database schema changes (in `data-model.md`)
 - [ ] No unnecessary abstractions (use framework features directly)
 - [ ] Technology choices use existing stack unless justified
 

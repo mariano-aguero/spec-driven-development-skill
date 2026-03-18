@@ -207,6 +207,9 @@ Implements: `specs/[branch]/spec.md`
 ```markdown
 # Data Model: [Feature Name]
 
+## Spec Reference
+Implements: `specs/[branch]/spec.md`
+
 ## Entities
 
 ### [EntityName]

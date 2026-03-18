@@ -296,6 +296,52 @@ Do not use your judgment about what "makes sense" — follow the contract.
 
 ---
 
+## Amend Prompt (/sdd:amend — run when requirements change)
+
+Used when new information requires updating the spec chain mid-development. Amend propagates
+the change through all affected artifacts in the correct order instead of patching files manually.
+
+Two-step flow: assess impact first (human approves), then update.
+
+**Step 1 — Impact Assessment Prompt:**
+```
+A requirement has changed: [describe what changed and why]
+
+Current phase: [Phase N — TASK-NNN complete / not yet started]
+
+Assess the impact across all spec artifacts:
+- spec.md: which ACs need to be added, modified, or removed?
+- plan.md: which components are affected?
+- contracts/: which endpoint signatures or error codes change?
+- data-model.md: which entities, fields, or migrations change?
+- tasks.md: which tasks need to be regenerated (from which task ID forward)?
+
+Do NOT make any changes yet. Return the impact assessment only.
+Present as a list: [ARTIFACT] → [what changes and why]
+```
+
+Present the impact assessment to the human for approval before proceeding to Step 2.
+
+**Step 2 — Cascade Update Prompt** *(run after human approves the impact assessment)*:
+```
+The following impact was approved: [paste approved impact assessment]
+
+Update the affected artifacts in this order:
+1. spec.md — update ACs; annotate changes with <!-- AMENDED [date]: [reason] -->
+2. plan.md — update affected component descriptions
+3. contracts/ — update affected endpoint definitions and error codes
+4. data-model.md — update affected entities; add migration entry if schema changed
+5. tasks.md — regenerate from TASK-[first affected ID] forward
+
+Do NOT modify artifacts not listed in the approved impact assessment.
+Return a summary of what changed in each file.
+```
+
+Do not skip Step 1. Amending without an impact assessment produces partial updates
+that leave the spec chain inconsistent — the exact problem amend is designed to prevent.
+
+---
+
 ## Analyze Prompt (/sdd:analyze — run any time)
 
 Detects internal inconsistencies within the spec itself, before Plan generation.
@@ -343,6 +389,8 @@ Report:
 3. Database fields not in data-model.md
 4. Functionality in code not covered by spec.md
 5. Missing error handling for error codes defined in contracts/
+6. Constitution violations — banned patterns introduced or security constraints violated
+   (read constitution.md to identify the rules to check against)
 
 Format as a checklist. Mark each item PASS or FAIL with evidence.
 ```

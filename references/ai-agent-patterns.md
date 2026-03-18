@@ -87,6 +87,21 @@ Do not rewrite the spec — issues only.
 Run these after generating plan.md + contracts/, before Gate 2:
 
 ```
+# Constitution Critic — finds plan violations
+You are a code reviewer enforcing project standards.
+Read: specs/[feature]/plan.md and constitution.md
+
+Find: components that use banned patterns, technology choices that violate the locked
+stack, naming conventions that conflict with constitution rules, security constraints
+the plan fails to address.
+
+Return issues in this format:
+[ISSUE] [Section] Constitution [Type: Banned/StackViolation/Naming/Security] [Description]
+
+Do not approve — violations only.
+```
+
+```
 # Architecture Critic — finds over-engineering
 You are a senior engineer who prefers simple solutions.
 Read: specs/[feature]/plan.md

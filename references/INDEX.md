@@ -28,6 +28,7 @@ Navigation map for all SDD reference files.
 - Phase 4 — Implement prompts → `prompt-patterns.md#phase-4--implementation-prompts`
 - Phase 5 — Validate prompts → `prompt-patterns.md#phase-5--validate-prompts`
 - Multi-agent review (standardized output) → `prompt-patterns.md#multi-agent-review-pattern`
+- Amend (requirements change cascade) → `prompt-patterns.md#amend-prompt-sddamend--run-when-requirements-change`
 
 ### Phase details (step-by-step)
 - Phase 0 — Constitution → `workflow-phases.md#phase-0--constitution`

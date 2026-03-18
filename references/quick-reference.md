@@ -13,6 +13,7 @@ One-page cheat sheet. For details, see referenced files.
  spec.md      resolve     plan.md   tasks.md   per task     traceability
               ambiguities data-model commit     commit       drift report
               edge cases  contracts  after each after each
+              → spec.md
 ```
 
 ---
@@ -26,7 +27,7 @@ specs/[feature]/
 ├── spec.md          # WHAT + WHY (no tech details, MoSCoW priorities)
 ├── plan.md          # HOW (architecture, components)
 ├── data-model.md    # Entities, fields, constraints, indexes
-├── contracts/       # API shapes, error codes (LOCKED during Phase 4)
+├── contracts/       # API shapes, error codes (LOCKED after Phase 2 approval)
 ├── tasks.md         # Ordered, sized, dependency-mapped tasks
 ├── research.md      # Optional: alternatives considered
 └── decision_log.md  # Optional: key decisions and rationale
