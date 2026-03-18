@@ -8,6 +8,7 @@ Navigation map for all SDD reference files.
 
 ### Getting started
 - Overview and when to use → `SKILL.md`
+- Quick Start (3-step onboarding) → `SKILL.md#quick-start`
 - One-page cheat sheet → `quick-reference.md`
 
 ### Templates (copy-paste ready)
@@ -21,11 +22,12 @@ Navigation map for all SDD reference files.
 ### Prompts (copy-paste ready)
 - Phase 0 — Constitution prompts → `prompt-patterns.md#phase-0--constitution-prompts`
 - Phase 1 — Specify prompts → `prompt-patterns.md#phase-1--specify-prompts`
+- Phase 1 — Post-Clarify spec update → `prompt-patterns.md#post-clarify-spec-update-prompt`
 - Phase 2 — Plan prompts → `prompt-patterns.md#phase-2--plan-prompts`
 - Phase 3 — Tasks prompts → `prompt-patterns.md#phase-3--tasks-prompts`
 - Phase 4 — Implement prompts → `prompt-patterns.md#phase-4--implementation-prompts`
 - Phase 5 — Validate prompts → `prompt-patterns.md#phase-5--validate-prompts`
-- Multi-agent review → `prompt-patterns.md#multi-agent-review-pattern`
+- Multi-agent review (standardized output) → `prompt-patterns.md#multi-agent-review-pattern`
 
 ### Phase details (step-by-step)
 - Phase 0 — Constitution → `workflow-phases.md#phase-0--constitution`
@@ -53,6 +55,7 @@ Navigation map for all SDD reference files.
 - Spec drift causes → `anti-patterns.md#anti-pattern-2-contracts-modified-during-implementation`
 - Context contamination → `anti-patterns.md#anti-pattern-3-one-context-for-all-tasks`
 - Oversized tasks → `anti-patterns.md#anti-pattern-5-oversized-tasks`
+- Over-specified specs (HOW in spec, not WHAT) → `anti-patterns.md#anti-pattern-13-over-specified-specs`
 
 ---
 

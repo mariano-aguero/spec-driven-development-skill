@@ -223,6 +223,19 @@ Implements: `specs/[branch]/spec.md`
 
 ## Constraints
 - [e.g., `CHECK (status IN ('active', 'inactive', 'pending'))` on `users`]
+
+## Migrations
+
+<!-- Add one block per schema change. Migrations are append-only — never edit past entries. -->
+
+### [Migration 001] Initial schema
+- Create `[table_name]` table with all fields above
+- Add indexes from the Indexes section above
+- **Rollback:** drop `[table_name]` table
+
+### [Migration 002] [Short description] *(add when schema changes)*
+- [What this migration does]
+- **Rollback:** [how to undo]
 ```
 
 ---

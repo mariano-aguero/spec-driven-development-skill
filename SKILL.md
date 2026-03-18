@@ -34,6 +34,24 @@ those decisions are made by you — explicitly, before any code is written.
 
 Start with spec-first. Move to spec-anchored when the feature stabilizes.
 
+## Quick Start
+
+New to SDD? Three steps to your first spec-driven feature:
+
+1. **Create your constitution** (once per project):
+   `/sdd:init` — run this first, before any feature specs
+
+2. **Specify your first feature:**
+   `/sdd:specify [brief description]` — generates `spec.md` with MoSCoW-prioritized ACs
+
+3. **Follow the gates:**
+   Clarify → Plan → Tasks → Implement → Validate
+   Human approval required at each gate before the next phase
+
+For a full worked example, see `references/workflow-phases.md`.
+
+---
+
 ## When to Use
 
 Symptoms that signal SDD is needed:
@@ -162,7 +180,8 @@ See `references/artifact-templates.md` for the `tasks.md` template.
 
 Execute tasks from `tasks.md` sequentially (or in parallel where marked `[P]`).
 
-**AI prompt pattern for each task:**
+**AI prompt pattern for each task** *(abbreviated — see `references/prompt-patterns.md` for Format A
+with file access and Format B for stateless/web interfaces)*:
 
 ```
 Implement: [task title from tasks.md]

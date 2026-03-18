@@ -233,3 +233,39 @@ The AI picks an answer. It's wrong. Now you have drift baked into the implementa
 3. Add ACs for every error and edge case surfaced during clarification
 
 30 minutes on Clarify saves 3 hours of wrong implementation.
+
+---
+
+## Anti-Pattern 13: Over-Specified Specs
+
+**Symptoms:**
+- spec.md references specific technologies, algorithms, or data structures
+- Acceptance criteria can only be satisfied by one implementation approach
+- The plan has no decisions left to make — spec already made them
+- Changing the database engine requires rewriting acceptance criteria
+
+**Example (wrong):**
+```markdown
+## AC-1
+The system shall use a B-tree index and connection pooling to return search results
+in under 50ms. Results shall be sorted using a merge sort algorithm.
+```
+
+**Example (correct):**
+```markdown
+## AC-1
+Given a search query, when the user submits the form,
+then results appear within 50ms at p95 under 100 concurrent users.
+```
+
+**The trap:** Specs feel thorough when they include implementation details. But
+over-specification locks in decisions that belong in Phase 2 (Plan) — where tradeoffs
+can be evaluated with full technical context.
+
+**Fix:** Specs answer WHAT and WHY. Plans answer HOW.
+- Performance requirements: specify the threshold, not the mechanism
+- Storage requirements: specify capacity or behavior, not the technology
+- Algorithm requirements: specify the outcome (correctness, speed), not the approach
+
+If you find yourself writing "use X to achieve Y" in a spec, stop.
+Move "use X" to plan.md and keep only "achieve Y" in spec.md.

@@ -99,6 +99,35 @@ Return: a list of proposed resolutions + a list of new ACs to add.
 Do NOT write a new spec.md. Return only the delta.
 ```
 
+### Post-Clarify Spec Update Prompt
+
+*Run after the human has reviewed and approved the clarification output. Takes human answers
+and applies them to spec.md.*
+
+```
+You have received human-approved resolutions to the clarification questions for
+specs/[feature]/spec.md.
+
+Apply the approved resolutions:
+
+1. For each resolved [NEEDS CLARIFICATION] item:
+   - Change the marker from [NEEDS CLARIFICATION] to [RESOLVED]
+   - Append: → Decision: [human's answer]
+   - Keep the original question text — do not delete it
+
+2. For each new AC approved during clarification:
+   - Add it to the Acceptance Criteria section with the correct MoSCoW priority
+   - Assign the next available AC number (continuing the existing sequence)
+
+3. For each vague term replaced (e.g., "fast" → "< 200ms at p95"):
+   - Update the AC text with the specific threshold approved by the human
+
+Do NOT add, remove, or modify any AC that was not part of the clarification output.
+Return the full updated spec.md.
+```
+
+---
+
 ### Spec Clarification Prompt (targeted)
 
 ```
@@ -348,7 +377,16 @@ Review specs/[feature]/spec.md from the perspective of [role]:
 - Database Engineer: find schema issues, missing indexes, or N+1 risks
 - Frontend Engineer: find missing states, loading states, or error UX
 
-Return only specific, actionable issues. Do not approve or compliment.
+Return issues in this format:
+[ISSUE] [AC-N or Section] [Role] [Type: Untestable/Ambiguous/Missing/Risk/Schema/UX-Gap] [Description]
+
+Examples:
+[ISSUE] AC-3 QA Untestable "responds quickly" has no numeric threshold — specify ms target
+[ISSUE] AC-1 Security Missing No authentication requirement stated for this endpoint
+[ISSUE] Section:DataModel DB Schema Missing index on user_id + created_at for time-based queries
+
+If no issues found for your role, respond: "No issues found for [role]."
+Do not approve, summarize, or compliment — issues only.
 ```
 
 Use separate critic agents for each role. Aggregate their feedback before proceeding.

@@ -78,6 +78,20 @@ Ask the user (or gather from issue/PRD):
 - What does success look like?
 - What are hard constraints (performance, security, compatibility)?
 
+**Step 1.1a — Constitution [PENDING] check**
+Before generating spec.md, scan `constitution.md` for any `[PENDING]` items that
+intersect with this feature's domain. A [PENDING] item is blocking when the spec
+would need to make the same undecided choice.
+
+Common blocking cases:
+- Feature requires authentication → `[PENDING] auth: cookie vs. JWT` is blocking
+- Feature writes to the database → `[PENDING] ORM: Drizzle vs. raw SQL` is blocking
+- Feature exposes a public API → `[PENDING] rate limiting strategy` is blocking
+
+**Action:** List every [PENDING] item in constitution.md that touches the feature's scope.
+For each blocking item: resolve it in constitution.md first, then proceed.
+For non-intersecting [PENDING] items: proceed — they don't affect this spec.
+
 **Step 1.2 — Generate spec.md**
 Use the prompt in `references/prompt-patterns.md → Phase 1 → Initial Specification Prompt`.
 Place output at `specs/[feature-branch-name]/spec.md`.

@@ -31,6 +31,7 @@ Run before Phase 2. All items must pass.
 | Testability | Every `[MUST]` AC can have an automated test written for it |
 | Implementation-free | No technology names, function names, or database terms |
 | NEEDS CLARIFICATION | All `[NEEDS CLARIFICATION]` items resolved |
+| Constitution PENDING | No `[PENDING]` item in constitution.md directly affects this feature's domain |
 | Error coverage | Error/edge case ACs exist (not just happy path) |
 | Scope boundary | "Out of Scope" section is explicit and complete |
 | MoSCoW prioritization | Every AC has a `[MUST]` / `[SHOULD]` / `[COULD]` / `[WONT]` label |
