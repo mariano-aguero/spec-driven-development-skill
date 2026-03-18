@@ -100,4 +100,4 @@ approval before the next phase begins. AI cannot approve its own output.
 
 ## License
 
-MIT — Mariano Aguero
+MIT
