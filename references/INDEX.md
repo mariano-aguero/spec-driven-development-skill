@@ -50,9 +50,13 @@ Navigation map for all SDD reference files.
 ### AI and agent patterns
 - Context management → `ai-agent-patterns.md#context-management`
 - Subagent review pattern → `ai-agent-patterns.md#subagent-review-pattern`
+- Phase 2 Risks Critic → `ai-agent-patterns.md#phase-2-critic-agents`
 - Parallel task execution → `ai-agent-patterns.md#parallel-task-execution`
+- AI tool selection per phase → `ai-agent-patterns.md#ai-tool-selection-per-phase`
 - Handling AI resistance → `ai-agent-patterns.md#handling-ai-resistance`
 - Spec regeneration (when requirements change) → `ai-agent-patterns.md#spec-regeneration-pattern`
+- Research phase with parallel subagents → `ai-agent-patterns.md#research-phase-with-parallel-subagents`
+- Spec as recovery point → `ai-agent-patterns.md#spec-as-recovery-point`
 
 ### Troubleshooting
 - Common failure modes → `anti-patterns.md`
@@ -60,6 +64,7 @@ Navigation map for all SDD reference files.
 - Context contamination → `anti-patterns.md#anti-pattern-3-one-context-for-all-tasks`
 - Oversized tasks → `anti-patterns.md#anti-pattern-5-oversized-tasks`
 - Over-specified specs (HOW in spec, not WHAT) → `anti-patterns.md#anti-pattern-13-over-specified-specs`
+- Implicit assumptions baked into ACs → `anti-patterns.md#anti-pattern-14-implicit-assumptions-never-challenged`
 
 ---
 

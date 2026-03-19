@@ -139,6 +139,7 @@ assumptions about roles, permissions, error behavior, and scope explicit for hum
 Creates `specs/[feature]/spec.md` containing:
 - Feature overview (1–2 sentences, non-technical)
 - User stories: `As a [role] I want [goal] so that [benefit]`
+- Feature-level AI behavior constraints (Boundaries: Always do / Ask first / Never do)
 - Acceptance criteria (Given/When/Then) with MoSCoW priority: `[MUST]` / `[SHOULD]` / `[COULD]` / `[WONT]`
 - Explicit out-of-scope boundaries
 - Open questions marked `[NEEDS CLARIFICATION]`

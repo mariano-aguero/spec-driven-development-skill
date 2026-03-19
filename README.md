@@ -3,7 +3,7 @@
 [![skills.sh](https://img.shields.io/badge/skills.sh-spec--driven--development-blue?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMiAxNWwtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://skills.sh)
 [![npm](https://img.shields.io/badge/npx_skills_add-mariano--aguero%2Fspec--driven--development--skill-brightgreen)](https://github.com/mariano-aguero/spec-driven-development-skill)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.3.1-orange)](https://github.com/mariano-aguero/spec-driven-development-skill/releases)
+[![Version](https://img.shields.io/badge/version-1.3.2-orange)](https://github.com/mariano-aguero/spec-driven-development-skill/releases)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-purple)](https://claude.ai/code)
 [![Cursor](https://img.shields.io/badge/Cursor-compatible-purple)](https://cursor.sh)
 [![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-compatible-purple)](https://github.com/features/copilot)
@@ -107,6 +107,7 @@ approval before the next phase begins. AI cannot approve its own output.
 
 ## Version History
 
+- v1.3.2 — INDEX.md: AP-14 indexed, 4 missing ai-agent-patterns links added; SKILL.md Phase 1: Boundaries listed in spec.md contents; quick-reference + workflow-phases: research.md documented as optional Phase 2 input
 - v1.3.1 — Boundaries moved before ACs in spec.md template, Risks Critic added to Phase 2, Boundaries included in per-task context, /sdd:amend referenced in Spec Regeneration Pattern, research.md clarified as pre-existing input (not output of /sdd:plan), keywords expanded
 - v1.3.0 — Assumptions Surface Prompt (pre-Phase 1), Boundaries section in spec.md template, Risks section in plan.md template, Key Practice + Living Document sections in SKILL.md, "Surface assumptions" hard rule in quick-reference
 - v1.2.2 — `/sdd:amend` prompt (2-step cascade update), constitution.md in Drift Detection, Constitution Critic for Phase 2, contracts/ LOCKED label fixes, CLARIFY output artifact in diagram, Spec Reference in data-model template

@@ -147,7 +147,9 @@ inventing solutions. Every design decision must be explicit.
 
 **Step 2.1 — Generate plan.md**
 Use the Technical Plan Generation Prompt from `references/prompt-patterns.md`.
-Include your stack constraints and existing conventions. The plan must include a
+Include your stack constraints and existing conventions. If `specs/[feature]/research.md`
+exists (pre-generated via parallel subagents before Phase 1), include it as additional
+context — `/sdd:plan` reads it automatically if present. The plan must include a
 Risks section — identify implementation risks and a mitigation for every High-impact
 risk before Phase 3 begins (see template in `references/artifact-templates.md`).
 

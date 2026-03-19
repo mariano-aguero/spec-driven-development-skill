@@ -42,7 +42,7 @@ specs/[feature]/
 | `/sdd:init` | 0 | project context | `constitution.md` |
 | `/sdd:specify [description]` | 1 | user input | `spec.md` |
 | `/sdd:clarify` | 1 (sub-step) | `spec.md` | delta (new ACs, resolved questions) |
-| `/sdd:plan` | 2 | `spec.md` + `constitution.md` | `plan.md`, `data-model.md`, `contracts/` |
+| `/sdd:plan` | 2 | `spec.md` + `constitution.md` + `research.md` (if present) | `plan.md`, `data-model.md`, `contracts/` |
 | `/sdd:tasks` | 3 | `plan.md`, `contracts/` | `tasks.md` |
 | `/sdd:next-task` | 4 | `tasks.md` | — (extracts single task) |
 | `/sdd:analyze` | any | `spec.md` | inconsistency report |
