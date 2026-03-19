@@ -62,8 +62,11 @@ Never treat contracts as drafts during implementation.
 **Fix:** Start a fresh AI context for each task. Include only what's relevant:
 - The specific task from tasks.md
 - The specific ACs it covers from spec.md
-- The relevant contract section
-- The relevant plan section
+- The Boundaries section from spec.md (feature-level do/ask/never rules)
+- The relevant contract section from contracts/
+- The relevant plan section from plan.md
+- The relevant entities from data-model.md
+- Project conventions from constitution.md (always) and CLAUDE.md or equivalent
 
 More context ≠ better output. Focused context produces better output.
 

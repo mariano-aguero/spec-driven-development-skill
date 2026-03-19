@@ -72,6 +72,7 @@ Navigation map for all SDD reference files.
 
 | Phase | Templates | Prompts | Details | Quality |
 |-------|-----------|---------|---------|---------|
+| 0 — Constitution | constitution.md | constitution-prompts | workflow-phases#phase-0 | Gate 0 |
 | 1 — Specify | spec.md | specify-prompts | workflow-phases#phase-1 | Gate 1 |
 | 2 — Plan | plan.md, data-model.md, contracts | plan-prompts | workflow-phases#phase-2 | Gate 2 |
 | 3 — Tasks | tasks.md | tasks-prompts | workflow-phases#phase-3 | Gate 3 |

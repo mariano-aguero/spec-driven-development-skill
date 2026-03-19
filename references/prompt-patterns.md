@@ -214,6 +214,9 @@ Read specs/[feature]/spec.md and generate:
 2. data-model.md — entities, fields, relationships, indexes
 3. contracts/[name].md — API endpoints (one file per domain)
 
+If specs/[feature]/research.md exists, read it first as additional context
+(pre-generated alternatives analysis). Do not generate it — use it as input only.
+
 Constraints:
 - Use existing stack: [list your stack, e.g., TypeScript, Hono, Drizzle, PostgreSQL]
 - Do not introduce new dependencies unless justified in plan.md

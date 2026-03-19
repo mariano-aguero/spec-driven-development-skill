@@ -174,18 +174,24 @@ Every AC in `spec.md` must appear in at least one:
 
 If an AC has no technical implementation path, the plan is incomplete.
 
-**Step 2.5 — Human review**
+**Step 2.5 — Run critic agents (optional, recommended for complex features)**
+Before the human review, run the Phase 2 critic agents from
+`references/ai-agent-patterns.md → Phase 2 Critic Agents`:
+Constitution Critic, Architecture Critic, Contract Critic, Data Model Critic, Risks Critic.
+Aggregate their output and resolve issues before presenting to the human.
+
+**Step 2.6 — Human review**
 The human reviews `plan.md`, `data-model.md`, and `contracts/`. Particular focus:
 - Are contracts complete enough to implement without questions?
 - Does the data model handle all the spec's data requirements?
 - Are there simpler approaches to any components?
 - Does the Risks section cover all High-impact risks with concrete mitigations?
 
-**Step 2.6 — Lock contracts**
+**Step 2.7 — Lock contracts**
 Once approved, `contracts/` are **frozen** for the duration of Phase 4.
 Changing a contract during implementation is spec drift — plan first, then execute.
 
-**Step 2.7 — Commit**
+**Step 2.8 — Commit**
 ```bash
 git add specs/[feature-name]/plan.md specs/[feature-name]/data-model.md specs/[feature-name]/contracts/
 git commit -m "plan: [feature name] technical design"
