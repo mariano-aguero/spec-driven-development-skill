@@ -98,6 +98,24 @@ As a [role], I want [goal] so that [benefit].
 ### Secondary (optional)
 As a [role], I want [goal] so that [benefit].
 
+## Boundaries
+<!-- Optional. Use when AI behavior constraints at the feature level need to be
+     explicit — separate from project-level rules in constitution.md. -->
+
+**Always do:**
+- [e.g., "validate all inputs before processing"]
+- [e.g., "check permissions before returning data"]
+
+**Ask first (do not proceed unilaterally):**
+- [e.g., "adding a new database table or field not in this spec"]
+- [e.g., "introducing a new dependency"]
+- [e.g., "extending scope beyond these ACs"]
+
+**Never do:**
+- [e.g., "skip authentication for this endpoint"]
+- [e.g., "log sensitive user data"]
+- [e.g., "modify data or contracts owned by other features"]
+
 ## Acceptance Criteria
 
 <!-- MoSCoW priority: [MUST] = required for launch, [SHOULD] = important but not blocking,
@@ -146,24 +164,6 @@ Then [expected error response or behavior]
 - Performance: [e.g., "search results in < 200ms at p95"]
 - Security: [e.g., "requires authenticated session — see constitution.md"]
 - Accessibility: [e.g., "WCAG 2.1 AA for all interactive elements"]
-
-## Boundaries
-<!-- Optional. Use when AI behavior constraints at the feature level need to be
-     explicit — separate from project-level rules in constitution.md. -->
-
-**Always do:**
-- [e.g., "validate all inputs before processing"]
-- [e.g., "check permissions before returning data"]
-
-**Ask first (do not proceed unilaterally):**
-- [e.g., "adding a new database table or field not in this spec"]
-- [e.g., "introducing a new dependency"]
-- [e.g., "extending scope beyond these ACs"]
-
-**Never do:**
-- [e.g., "skip authentication for this endpoint"]
-- [e.g., "log sensitive user data"]
-- [e.g., "modify data or contracts owned by other features"]
 ```
 
 ---

@@ -22,10 +22,11 @@ paste relevant contract → implement → verify → commit → close conversati
 **What to include per task:**
 1. The task description from tasks.md
 2. The specific ACs it satisfies (from spec.md)
-3. The relevant contract section (from contracts/)
-4. The relevant plan section (from plan.md)
-5. The relevant entities (from data-model.md)
-6. Project conventions (from CLAUDE.md or equivalent)
+3. The Boundaries section (from spec.md) — sets explicit do/ask/never rules for this task
+4. The relevant contract section (from contracts/)
+5. The relevant plan section (from plan.md)
+6. The relevant entities (from data-model.md)
+7. Project conventions (from CLAUDE.md or equivalent)
 
 **What NOT to include:**
 - The entire spec.md (too much noise, dilutes focus)
@@ -139,6 +140,20 @@ Return issues in this format:
 Specific schema problems only.
 ```
 
+```
+# Risks Critic — finds unmitigated risks
+You are a tech lead reviewing a plan for operational and delivery risks.
+Read: specs/[feature]/plan.md
+
+Find: risks listed without concrete mitigations, high-impact items with no fallback,
+external dependencies with no failure handling, assumptions that could invalidate the plan.
+
+Return issues in this format:
+[ISSUE] [Section] Risks [Type: Unmitigated/Assumption/Dependency/Fallback] [Description]
+
+Risks without mitigations only — do not approve or summarize.
+```
+
 ---
 
 ## Tool: Individual Task Retrieval
@@ -244,7 +259,7 @@ If the AI suggestion is genuinely valuable:
 
 ## Spec Regeneration Pattern
 
-When requirements change mid-development (common in fast-moving projects):
+When requirements change mid-development (common in fast-moving projects), use `/sdd:amend`:
 
 ```
 CHANGE REQUEST: [description of what changed]
@@ -253,7 +268,7 @@ Current phase: Phase 4, TASK-006 complete
 
 Action required:
 1. Stop Phase 4 at current task
-2. Update spec.md: [specific ACs that change]
+2. Run /sdd:amend to update spec.md: [specific ACs that change]
 3. Assess plan.md impact: [which components are affected]
 4. Update contracts/ if signatures change
 5. Regenerate tasks.md from the affected task forward

@@ -1,6 +1,6 @@
 {
   "name": "@mariano-aguero/spec-driven-development-skill",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Spec-driven development skill for AI coding agents — structured specification-first workflow for Claude Code, Cursor, GitHub Copilot, JetBrains Junie, Windsurf, and similar tools.",
   "license": "MIT",
   "repository": {
