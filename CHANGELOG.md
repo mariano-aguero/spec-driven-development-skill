@@ -7,13 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] — 2026-05-10
+
+Repository infrastructure and documentation pass. No changes to the SDD methodology, prompts, templates, or workflow.
+
 ### Added
 
-- `CHANGELOG.md` extracted from the README.
-- Dynamic GitHub release/last-commit badges.
-- `.github/ISSUE_TEMPLATE/` and `PULL_REQUEST_TEMPLATE.md`.
-- CI workflow (`.github/workflows/lint.yml`) with markdownlint and lychee link check.
-- `examples/` directory with a complete reference feature spec.
+- `CHANGELOG.md` extracted from the README in Keep-a-Changelog format.
+- Dynamic GitHub release and last-commit badges in the README.
+- `examples/` directory with a complete reference feature: magic-link login covering `constitution.md`, `spec.md`, `plan.md`, `data-model.md`, `contracts/`, and `tasks.md`.
+- `.github/ISSUE_TEMPLATE/` with bug report, feature request, and anti-pattern submission forms.
+- `.github/PULL_REQUEST_TEMPLATE.md` with self-checklist and version-impact tags.
+- CI workflow (`.github/workflows/lint.yml`) running markdownlint-cli2 and lychee link check on every push and PR.
+- `.markdownlint.json` and `lychee.toml` workflow configs.
+- README "Why SDD?" comparison table, mermaid workflow diagram, AI tool compatibility table.
+
+### Changed
+
+- README hook and structure rewritten to surface Phase 0 (Constitution) in the workflow overview.
+- README version history collapsed in favor of a link to `CHANGELOG.md`.
+
+### Fixed
+
+- Markdownlint compliance across all existing markdown files (MD022, MD031, MD032, MD058 auto-fixes).
 
 ## [1.4.0] — 2026-05-09
 
@@ -137,7 +153,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prompt patterns for every phase and scenario.
 - Quality gate checklists with CI/CD integration examples.
 
-[Unreleased]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.3.1...v1.3.2
