@@ -7,6 +7,7 @@ Navigation map for all SDD reference files.
 ## By Topic
 
 ### Getting started
+
 - Overview and when to use → `SKILL.md`
 - Quick Start (4-step onboarding) → `SKILL.md#quick-start`
 - Key Practice: Reframe Vague Requirements → `SKILL.md#key-practice-reframe-vague-requirements`
@@ -14,6 +15,7 @@ Navigation map for all SDD reference files.
 - One-page cheat sheet → `quick-reference.md`
 
 ### Templates (copy-paste ready)
+
 - constitution.md template → `artifact-templates.md#constitutionmd-template`
 - spec.md template (incl. Boundaries section) → `artifact-templates.md#specmd-template`
 - plan.md template (incl. Risks section) → `artifact-templates.md#planmd-template`
@@ -22,6 +24,7 @@ Navigation map for all SDD reference files.
 - tasks.md template → `artifact-templates.md#tasksmd-template`
 
 ### Prompts (copy-paste ready)
+
 - Phase 0 — Constitution prompts → `prompt-patterns.md#phase-0--constitution-prompts`
 - Phase 1 — Surface assumptions (pre-spec) → `prompt-patterns.md#assumptions-surface-prompt`
 - Phase 1 — Specify prompts → `prompt-patterns.md#phase-1--specify-prompts`
@@ -36,6 +39,7 @@ Navigation map for all SDD reference files.
 - Cross-feature conflict detector → `prompt-patterns.md#cross-feature-conflict-detector`
 
 ### Phase details (step-by-step)
+
 - Phase 0 — Constitution → `workflow-phases.md#phase-0--constitution`
 - Phase 1 — Specify → `workflow-phases.md#phase-1--specify`
 - Phase 2 — Plan → `workflow-phases.md#phase-2--plan`
@@ -44,12 +48,14 @@ Navigation map for all SDD reference files.
 - Phase 5 — Validate → `workflow-phases.md#phase-5--validate`
 
 ### Quality and review
+
 - Per-phase checklists → `quality-gates.md#per-phase-checklists`
 - Confidence-based review thresholds → `quality-gates.md#confidence-based-review-thresholds`
 - CI/CD integration → `quality-gates.md#cicd-integration`
 - Drift classification → `quality-gates.md#spec-drift-classification`
 
 ### AI and agent patterns
+
 - Context management → `ai-agent-patterns.md#context-management`
 - Subagent review pattern → `ai-agent-patterns.md#subagent-review-pattern`
 - Phase 2 Risks Critic → `ai-agent-patterns.md#phase-2-critic-agents`
@@ -61,6 +67,7 @@ Navigation map for all SDD reference files.
 - Spec as recovery point → `ai-agent-patterns.md#spec-as-recovery-point`
 
 ### Troubleshooting
+
 - Common failure modes → `anti-patterns.md`
 - Spec drift causes → `anti-patterns.md#anti-pattern-2-contracts-modified-during-implementation`
 - Context contamination → `anti-patterns.md#anti-pattern-3-one-context-for-all-tasks`

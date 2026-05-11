@@ -63,12 +63,14 @@ Last updated: [date]
 ## File Structure Rules
 
 ```
+
 src/
   app/          # Next.js routes and pages
   components/   # Shared UI components
   lib/          # Business logic and utilities
   db/           # Schema, migrations, repositories
   types/        # Shared TypeScript types
+
 ```
 
 ## Open Questions / Deferred Decisions
@@ -309,6 +311,7 @@ Implements: `specs/[branch]/spec.md`
 ### Response
 
 **Success (200 OK):**
+
 ```json
 {
   "id": "uuid",
@@ -317,6 +320,7 @@ Implements: `specs/[branch]/spec.md`
 ```
 
 **Error Codes:**
+
 | Status | Code | When |
 |--------|------|------|
 | 400 | VALIDATION_ERROR | [condition] |
@@ -325,7 +329,9 @@ Implements: `specs/[branch]/spec.md`
 | 409 | CONFLICT | [condition] |
 
 ### AC Coverage
+
 - AC-1: [How this endpoint satisfies it]
+
 ```
 
 ---

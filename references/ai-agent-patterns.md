@@ -14,12 +14,14 @@ Each task in tasks.md gets its own AI context window. Never carry context across
 (possibly wrong) approach from TASK-003 and applies it without checking the contract.
 
 **How:**
+
 ```
 New conversation → paste task description → paste relevant spec sections →
 paste relevant contract → implement → verify → commit → close conversation
 ```
 
 **What to include per task:**
+
 1. The task description from tasks.md
 2. The specific ACs it satisfies (from spec.md)
 3. The Boundaries section (from spec.md) — sets explicit do/ask/never rules for this task
@@ -29,6 +31,7 @@ paste relevant contract → implement → verify → commit → close conversati
 7. Project conventions (from CLAUDE.md or equivalent)
 
 **What NOT to include:**
+
 - The entire spec.md (too much noise, dilutes focus)
 - Output from other tasks ("in the last task you created...")
 - Architectural summaries not related to this task
@@ -173,9 +176,11 @@ extract-task() {
 ```
 
 Or via Claude Code custom command:
+
 ```
 /sdd:next-task specs/[feature]/tasks.md
 ```
+
 Returns the next uncompleted task (by checking `- [ ]` vs `- [x]`).
 
 ---
@@ -185,6 +190,7 @@ Returns the next uncompleted task (by checking `- [ ]` vs `- [x]`).
 Tasks marked `[P]` in tasks.md can run in parallel AI sessions:
 
 ### Option A: Multiple Terminal Sessions
+
 ```
 Terminal 1: Implement TASK-003 [P] — UserRepository.create()
 Terminal 2: Implement TASK-004 [P] — EmailService.send()
@@ -193,7 +199,9 @@ Terminal 2: Implement TASK-004 [P] — EmailService.send()
 Each session has its own context. They commit independently.
 
 ### Option B: Agent Dispatch
+
 If using an orchestrator that supports multi-agent dispatch:
+
 ```
 Dispatch TASK-003 to Agent A:
   Context: [task + relevant spec sections]
@@ -207,6 +215,7 @@ Wait for both. Verify no conflicts.
 ```
 
 ### Parallel Task Rules
+
 - Parallelizable tasks MUST not write to the same files
 - Parallelizable tasks MUST not depend on each other's output
 - Merge conflicts from parallel tasks = a problem with the task decomposition (fix tasks.md)
@@ -235,6 +244,7 @@ Use IDE-native tools for Phase 4 (file access and test running matter more than 
 ## Handling AI Resistance
 
 Sometimes AI agents resist following the spec:
+
 - "I think a better approach would be..."
 - "The contract could be improved by..."
 - "Actually, this pattern is more maintainable..."
@@ -242,6 +252,7 @@ Sometimes AI agents resist following the spec:
 This is spec drift initiating from the AI side.
 
 **Response pattern:**
+
 ```
 Stop. The specification is not a suggestion. The contract is not negotiable during Phase 4.
 Your role in this task is to implement [task title] as specified.
@@ -250,6 +261,7 @@ Do not unilaterally change the approach.
 ```
 
 If the AI suggestion is genuinely valuable:
+
 1. Note it in `decision_log.md`
 2. Finish Phase 4 as specified
 3. Create a follow-up issue for the improvement
@@ -288,11 +300,13 @@ For complex features where the right approach is unclear, run a research phase *
 Phase 1 to gather information via parallel subagents. This produces a richer spec.
 
 **When to use:**
+
 - Large refactors or migrations with external dependencies
 - Features requiring knowledge of unfamiliar libraries or patterns
 - Unclear architecture (multiple valid approaches worth evaluating)
 
 **Prompt:**
+
 ```
 Spawn parallel subagents to research the following aspects of [feature]:
 
@@ -306,6 +320,7 @@ After all agents complete, consolidate into a research.md file at specs/[feature
 ```
 
 **Then use the research as input to Phase 1:**
+
 ```
 Using specs/[feature]/research.md as context, generate a spec.md for [feature].
 The spec should reflect the architectural findings and avoid approaches ruled out by research.

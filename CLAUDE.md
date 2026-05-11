@@ -39,26 +39,31 @@ spec-driven-development-skill/
 ## Maintenance Workflow
 
 ### Adding a new phase check
+
 1. Add the check to the relevant gate in `references/quality-gates.md`
 2. Add corresponding verification to `references/workflow-phases.md` in the relevant phase
 3. Update the gate summary in `references/quick-reference.md`
 4. Update `SKILL.md` if the change affects the phase overview
 
 ### Adding a new anti-pattern
+
 1. Add to `references/anti-patterns.md` with: symptom, example (wrong vs correct), fix
 2. Add to the relevant gate in `references/quality-gates.md` if it's checkable
 3. Update `references/INDEX.md` with a link to the new anti-pattern
 
 ### Adding a new prompt
+
 1. Add to `references/prompt-patterns.md` under the relevant phase section
 2. Reference it in `references/workflow-phases.md` in the corresponding step
 
 ### Updating templates
+
 1. Update `references/artifact-templates.md`
 2. Verify `references/workflow-phases.md` steps still match the new template
 3. Update examples in `references/anti-patterns.md` if they reference template fields
 
 ### Changing the workflow structure
+
 1. Update `SKILL.md` — the canonical workflow description
 2. Update `references/workflow-phases.md` — step-by-step details
 3. Update `references/quick-reference.md` — the summary tables

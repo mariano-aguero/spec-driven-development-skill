@@ -121,6 +121,7 @@ starter you can clone into a new project.
 ## When to Use SDD
 
 **Use it when:**
+
 - AI generates code that ignores your constraints
 - The same prompt produces different implementations across sessions
 - Requirements are complex or have multiple stakeholders
@@ -128,6 +129,7 @@ starter you can clone into a new project.
 - Your team needs shared technical understanding before writing code
 
 **Skip it for:**
+
 - Bug fixes under 30 minutes
 - Refactors with no behavior change
 - Throwaway prototypes

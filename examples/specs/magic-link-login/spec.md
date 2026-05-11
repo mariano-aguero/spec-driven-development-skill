@@ -30,16 +30,19 @@ generate millions of magic-link emails on my domain's reputation.
 ## Boundaries
 
 **Always do:**
+
 - Validate the email format with Zod before any side effect.
 - Hash magic-link tokens (SHA-256) before storing them; compare with constant-time equality.
 - Log only the email's domain and an opaque request ID — never the full address or the token.
 
 **Ask first (do not proceed unilaterally):**
+
 - Adding a new database table or column not in `data-model.md`.
 - Adding a new transactional email template.
 - Extending the magic-link payload to carry anything beyond the user identifier.
 
 **Never do:**
+
 - Skip authentication on `/auth/magic-link/verify`'s side effects (it must create a session).
 - Log the full email address, the raw token, or the hashed token.
 - Allow a magic link to be redeemed more than once.

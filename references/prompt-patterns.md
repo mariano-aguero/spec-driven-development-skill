@@ -75,6 +75,7 @@ Human will review and correct assumptions before the spec is written.
 After reviewing the AI's assumption list, pass your corrections into the Initial
 Specification Prompt below by adding a `Corrected assumptions:` block before the
 `Requirements:` section. Match the 6 areas from the surface prompt:
+
 ```
 Corrected assumptions:
 - Roles: [your correction or "confirmed"]
@@ -290,6 +291,7 @@ Return only issues found, not a full rewrite.
 Two formats depending on your agent's file system access:
 
 **Format A — Agent with file access (Claude Code, Cursor, Windsurf)**
+
 ```
 Implement TASK-[N]: [task title]
 
@@ -315,6 +317,7 @@ After implementation, verify:
 ```
 
 **Format B — Stateless agent or web interface (paste content)**
+
 ```
 Implement TASK-[N]: [task title]
 
@@ -364,6 +367,7 @@ the change through all affected artifacts in the correct order instead of patchi
 Two-step flow: assess impact first (human approves), then update.
 
 **Step 1 — Impact Assessment Prompt:**
+
 ```
 A requirement has changed: [describe what changed and why]
 
@@ -383,6 +387,7 @@ Present as a list: [ARTIFACT] → [what changes and why]
 Present the impact assessment to the human for approval before proceeding to Step 2.
 
 **Step 2 — Cascade Update Prompt** *(run after human approves the impact assessment)*:
+
 ```
 The following impact was approved: [paste approved impact assessment]
 
@@ -435,6 +440,7 @@ Do NOT rewrite the spec. Return issues only.
 ### Drift Detection Prompt
 
 **Format A — agent with file access (reads contracts to discover implementation files):**
+
 ```
 Read all contracts in specs/[feature]/contracts/ to identify which source files to check.
 For each contract endpoint, find the corresponding route/handler in src/.
