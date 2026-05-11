@@ -18,3 +18,8 @@ Thumbs.db
 
 .claude
 docs/
+
+# Lint tooling artifacts
+node_modules/
+.lycheecache
+lychee/
