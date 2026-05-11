@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or general discussion
+    url: https://github.com/mariano-aguero/spec-driven-development-skill/discussions
+    about: Ask questions, share usage patterns, or discuss the SDD methodology.
+  - name: skills.sh listing
+    url: https://skills.sh
+    about: Discover and install this skill via skills.sh.

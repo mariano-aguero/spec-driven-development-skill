@@ -1,0 +1,14 @@
+cache = true
+max_cache_age = "1d"
+
+exclude = [
+    "^https?://localhost",
+    "^https?://127\\.0\\.0\\.1",
+    "^https?://example\\.com",
+    "^https?://claude\\.ai/code$",
+]
+
+accept = [200, 203, 206, 429]
+timeout = 20
+max_retries = 2
+no_progress = true

@@ -1,0 +1,83 @@
+name: Bug report
+description: Something in the skill produces wrong, broken, or misleading output.
+title: "[bug] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please include enough context that someone can reproduce the issue.
+
+  - type: input
+    id: skill-version
+    attributes:
+      label: Skill version
+      description: Version installed (see `package.json` or `npx skills list`).
+      placeholder: "1.4.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ai-tool
+    attributes:
+      label: AI tool / environment
+      options:
+        - Claude Code
+        - Cursor
+        - GitHub Copilot Chat
+        - JetBrains Junie
+        - Windsurf
+        - ChatGPT (manual)
+        - Other (specify below)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Affected SDD phase
+      options:
+        - Phase 0 — Constitution
+        - Phase 1 — Specify
+        - Clarify step
+        - Phase 2 — Plan
+        - Phase 3 — Tasks
+        - Phase 4 — Implement
+        - Phase 5 — Validate
+        - Reference file (templates / prompts / anti-patterns / etc.)
+        - Not phase-specific
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: What output or behavior did you expect from the skill?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened
+      description: Paste the actual AI output, error message, or unexpected behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal prompt or workflow that triggers the issue.
+      placeholder: |
+        1. Run `/sdd:specify "add 2FA"`
+        2. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Screenshots, links to relevant spec files, or anything else helpful.

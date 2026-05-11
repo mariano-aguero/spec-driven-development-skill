@@ -1,0 +1,59 @@
+name: Anti-pattern submission
+description: Document a real SDD failure mode others should avoid.
+title: "[anti-pattern] "
+labels: ["anti-pattern", "documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Anti-patterns are the most valuable contributions to this skill. Real-world failure modes
+        (with concrete examples) help every future user. See `references/anti-patterns.md` for the format.
+
+  - type: input
+    id: name
+    attributes:
+      label: Anti-pattern name
+      description: Short, memorable name (e.g., "Implicit Assumptions Never Challenged").
+      placeholder: "Tasks Without AC References"
+    validations:
+      required: true
+
+  - type: textarea
+    id: symptom
+    attributes:
+      label: Symptom
+      description: What does this look like in practice? How do you notice it's happening?
+    validations:
+      required: true
+
+  - type: textarea
+    id: wrong-example
+    attributes:
+      label: Wrong example
+      description: Concrete example showing the anti-pattern (code, spec snippet, prompt, etc.).
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: correct-example
+    attributes:
+      label: Correct example
+      description: The same scenario done right.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: fix
+    attributes:
+      label: Fix / mitigation
+      description: How to recover when you discover this in an existing project. What checklist item or gate would have caught it?
+    validations:
+      required: true
+
+  - type: textarea
+    id: phase
+    attributes:
+      label: SDD phase(s) where this occurs
+      description: Which phase(s) is this anti-pattern most associated with?

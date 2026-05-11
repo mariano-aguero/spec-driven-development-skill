@@ -1,0 +1,53 @@
+name: Feature request
+description: Propose a new template, prompt, workflow step, or improvement.
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggest an addition or improvement to the skill. The clearer the use case, the easier to evaluate.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - New template (artifact-templates.md)
+        - New prompt (prompt-patterns.md)
+        - New workflow step (workflow-phases.md)
+        - New quality gate (quality-gates.md)
+        - New AI-agent pattern (ai-agent-patterns.md)
+        - Quick reference / INDEX
+        - New SDD phase or command
+        - Tooling / CI / skills.sh integration
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem this solves
+      description: What pain point or gap motivates this? What goes wrong without it?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Concrete description of what should be added or changed. If possible, draft the actual text/template/prompt.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you weighed and why this is better.
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
