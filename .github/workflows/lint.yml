@@ -46,7 +46,6 @@ jobs:
             --cache
             --max-cache-age 1d
             --no-progress
-            --exclude-mail
             --accept 200,203,206,429
             --exclude-path node_modules
             './**/*.md'
