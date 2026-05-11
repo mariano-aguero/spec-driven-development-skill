@@ -3,7 +3,8 @@
 [![skills.sh](https://img.shields.io/badge/skills.sh-spec--driven--development-blue?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMiAxNWwtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://skills.sh)
 [![npm](https://img.shields.io/badge/npx_skills_add-mariano--aguero%2Fspec--driven--development--skill-brightgreen)](https://github.com/mariano-aguero/spec-driven-development-skill)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.4.0-orange)](https://github.com/mariano-aguero/spec-driven-development-skill/releases)
+[![Latest release](https://img.shields.io/github/v/release/mariano-aguero/spec-driven-development-skill?label=release&color=orange)](https://github.com/mariano-aguero/spec-driven-development-skill/releases/latest)
+[![Last commit](https://img.shields.io/github/last-commit/mariano-aguero/spec-driven-development-skill?color=informational)](https://github.com/mariano-aguero/spec-driven-development-skill/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/mariano-aguero/spec-driven-development-skill?style=social)](https://github.com/mariano-aguero/spec-driven-development-skill/stargazers)
 
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-purple)](https://claude.ai/code)
@@ -110,6 +111,13 @@ Other commands: `/sdd:analyze` (cross-feature conflict check), `/sdd:amend` (cas
 | `references/quick-reference.md` | One-page cheat sheet |
 | `references/INDEX.md` | Topic navigation across all references |
 
+## Complete Example
+
+See [`examples/`](examples/) for a full end-to-end demonstration of every SDD artifact:
+a magic-link login feature with `constitution.md`, `spec.md`, `plan.md`, `data-model.md`,
+locked `contracts/`, and a dependency-mapped `tasks.md`. Use it as a reference or as a
+starter you can clone into a new project.
+
 ## When to Use SDD
 
 **Use it when:**
@@ -160,24 +168,12 @@ approval before the next phase begins. AI cannot approve its own output.
 | Windsurf | ✅ Supported | Skill activates on SDD keyword triggers |
 | Any LLM (ChatGPT, Gemini, etc.) | ✅ Manual | Copy reference files into context; use Format B prompts |
 
-## Version History
+## Changelog
 
-- **v1.4.0** — AP-15 (Critics in generating context), AP-16 (Tasks without AC references); new prompts: Constitution from Existing Codebase, Cross-Feature Conflict Detector; Gate 3 updated with implementation task AC traceability check
-- **v1.3.3** — INDEX.md: Phase 0 added to By Phase table; `research.md` documented as optional Plan input; critic agents step added before Gate 2; AP-3 fix list updated to 7-item canonical context
-- **v1.3.0** — Assumptions Surface Prompt (pre-Phase 1), Boundaries section in spec.md, Risks section in plan.md, Living Document section in SKILL.md, "Surface assumptions" hard rule in quick-reference
+See [CHANGELOG.md](CHANGELOG.md) for a full history of changes per version.
 
-<details>
-<summary>Older versions</summary>
-
-- **v1.3.2** — INDEX.md: AP-14 indexed, 4 missing ai-agent-patterns links added; Boundaries listed in spec.md; research.md documented as optional Phase 2 input
-- **v1.3.1** — Boundaries moved before ACs in spec.md template, Risks Critic added to Phase 2, Boundaries included in per-task context, `/sdd:amend` referenced in Spec Regeneration Pattern
-- **v1.2.2** — `/sdd:amend` prompt (2-step cascade update), constitution.md in Drift Detection, Constitution Critic for Phase 2, CLARIFY output artifact in diagram
-- **v1.2.1** — contracts/ LOCKED phase label fix, critic agent output format standardized, Gate 1 summary, Clarify→Gate 1 references, Gate 2 migrations check, `[WONT]` AC example
-- **v1.2.0** — Post-Clarify spec update prompt, Migrations section in data-model template, constitution `[PENDING]` blocking check, standardized critic agent output format, Anti-Pattern 13 (Over-Specified Specs), Quick Start onboarding
-- **v1.1.0** — Constitution phase, MoSCoW priorities, Clarify step, spec levels taxonomy, research subagents, spec recovery point, `/sdd:analyze` command, 12 anti-patterns
-- **v1.0.0** — Initial release: 5-phase workflow, 8 reference files, templates and prompts
-
-</details>
+Latest: **v1.4.0** — AP-15, AP-16, Constitution from Existing Codebase, Cross-Feature Conflict Detector.
+See the [latest release](https://github.com/mariano-aguero/spec-driven-development-skill/releases/latest) for full notes.
 
 ## Contributing
 
