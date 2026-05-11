@@ -4,25 +4,60 @@
 [![npm](https://img.shields.io/badge/npx_skills_add-mariano--aguero%2Fspec--driven--development--skill-brightgreen)](https://github.com/mariano-aguero/spec-driven-development-skill)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.4.0-orange)](https://github.com/mariano-aguero/spec-driven-development-skill/releases)
+[![GitHub stars](https://img.shields.io/github/stars/mariano-aguero/spec-driven-development-skill?style=social)](https://github.com/mariano-aguero/spec-driven-development-skill/stargazers)
+
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-purple)](https://claude.ai/code)
 [![Cursor](https://img.shields.io/badge/Cursor-compatible-purple)](https://cursor.sh)
 [![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-compatible-purple)](https://github.com/features/copilot)
+[![JetBrains Junie](https://img.shields.io/badge/JetBrains_Junie-compatible-purple)](https://www.jetbrains.com/junie/)
+[![Windsurf](https://img.shields.io/badge/Windsurf-compatible-purple)](https://codeium.com/windsurf)
 
-An **Agent Skill** for structured, specification-first development with AI coding agents.
+> **Stop vibe-coding. Specify, then implement.**
+> An **Agent Skill** that turns informal prompts into structured, traceable, drift-resistant
+> specifications — so AI coding agents build what you actually asked for.
+
 Compatible with Claude Code, Cursor, GitHub Copilot, JetBrains Junie, Windsurf, and similar tools.
+
+---
+
+## Why Spec-Driven Development?
+
+Without a spec, AI agents make thousands of micro-decisions silently. Each one is a
+potential divergence from intent — and they compound.
+
+| Without SDD | With SDD |
+|---|---|
+| "Add user auth" → AI picks a stack, invents schema, guesses error behavior | Constitution + spec + contracts define every decision upfront |
+| Same prompt, three sessions, three different implementations | Specs are the source of truth — regeneration is deterministic |
+| Drift discovered in code review (or production) | Drift detected in Phase 5 against the locked contracts |
+| Pivots = manual rewrites | Pivots = systematic re-specification |
+| Implicit assumptions baked into acceptance criteria | Assumptions surfaced and corrected *before* the spec is written |
 
 ## What is Spec-Driven Development?
 
-SDD makes specifications the source of truth. Instead of prompting an AI with vague
-descriptions and hoping for the right output, you:
+SDD makes **specifications the source of truth**. The workflow:
 
-1. **Specify** what to build (requirements, acceptance criteria)
-2. **Plan** how to build it (architecture, data model, API contracts)
-3. **Break down** work into atomic, dependency-mapped tasks
-4. **Implement** with AI constrained by the spec
-5. **Validate** that the implementation satisfies the spec
+0. **Constitution** — project-level immutable constraints (one-time per project)
+1. **Specify** — requirements, MoSCoW acceptance criteria, boundaries
+2. **Plan** — architecture, data model, locked API contracts
+3. **Tasks** — atomic, dependency-mapped, test-first
+4. **Implement** — AI runs with fresh context per task, constrained by all artifacts above
+5. **Validate** — drift detection + traceability matrix
 
-The result: predictable output, traceable decisions, and resilience to pivot requests.
+```mermaid
+flowchart LR
+    P0["Phase 0<br/><b>/sdd:init</b><br/>constitution.md"]:::once --> P1
+    P1["Phase 1<br/><b>/sdd:specify</b><br/>spec.md"] --> CL["Clarify<br/>resolve [NEEDS CLARIFICATION]"]
+    CL --> G1{Gate 1}
+    G1 -->|approved| P2["Phase 2<br/><b>/sdd:plan</b><br/>plan + data-model + contracts"]
+    P2 --> G2{Gate 2}
+    G2 -->|approved & contracts LOCKED| P3["Phase 3<br/><b>/sdd:tasks</b><br/>tasks.md"]
+    P3 --> G3{Gate 3}
+    G3 -->|approved| P4["Phase 4<br/>Implement<br/>fresh context per task"]
+    P4 --> P5["Phase 5<br/><b>/sdd:validate</b><br/>drift detection"]
+
+    classDef once fill:#f0e6ff,stroke:#7c3aed,stroke-width:2px
+```
 
 ## Installation
 
@@ -35,44 +70,53 @@ SDD, requirements planning, or AI implementation guidance.
 
 ## Workflow at a Glance
 
-```
+```text
+/sdd:init                                 # once per project
+  → creates constitution.md
+
 /sdd:specify "add user authentication"
-  → creates specs/user-auth/spec.md
+  → creates specs/user-auth/spec.md       (MoSCoW ACs + Boundaries + open questions)
+
+/sdd:clarify
+  → resolves [NEEDS CLARIFICATION] before Plan
 
 /sdd:plan
-  → creates specs/user-auth/plan.md
-  → creates specs/user-auth/data-model.md
-  → creates specs/user-auth/contracts/auth-api.md
+  → specs/user-auth/plan.md               (architecture, risks)
+  → specs/user-auth/data-model.md         (entities + migrations)
+  → specs/user-auth/contracts/auth-api.md (LOCKED after Gate 2 approval)
 
 /sdd:tasks
-  → creates specs/user-auth/tasks.md (ordered, with dependencies)
+  → specs/user-auth/tasks.md              (ordered, test-first, [P] for parallel)
 
-[implement each task with fresh AI context, commit after each]
+# implement each task with fresh AI context; commit after each
 
 /sdd:validate
-  → produces traceability matrix and drift report
+  → traceability matrix + drift report
 ```
+
+Other commands: `/sdd:analyze` (cross-feature conflict check), `/sdd:amend` (cascade spec updates).
 
 ## What's Included
 
 | File | Contents |
 |------|---------|
-| `SKILL.md` | Entry point: workflow, phase descriptions, reference index |
-| `references/artifact-templates.md` | Copy-paste templates for all 5 artifact types |
-| `references/prompt-patterns.md` | Prompts for every phase and scenario |
-| `references/workflow-phases.md` | Step-by-step instructions for each phase |
-| `references/quality-gates.md` | Per-phase checklists and CI/CD integration |
-| `references/ai-agent-patterns.md` | Multi-agent orchestration, context management |
-| `references/anti-patterns.md` | 16 common failure modes with fixes |
+| `SKILL.md` | Entry point: 6-phase workflow, spec levels, reference index |
+| `references/artifact-templates.md` | Templates for `constitution.md`, `spec.md`, `plan.md`, `data-model.md`, `contracts/`, `tasks.md`, `research.md`, `decision_log.md` |
+| `references/prompt-patterns.md` | Prompts for every phase + Assumptions Surface, Clarify, Critics, `/sdd:analyze`, `/sdd:amend`, Constitution-from-Codebase |
+| `references/workflow-phases.md` | Step-by-step instructions for Phases 0–5 |
+| `references/quality-gates.md` | Gate 0–5 checklists + CI/CD integration (AC coverage, drift detection) |
+| `references/ai-agent-patterns.md` | Multi-agent orchestration, context management, critic subagents, capability profiles |
+| `references/anti-patterns.md` | 16 common failure modes with wrong/correct examples and fixes |
 | `references/quick-reference.md` | One-page cheat sheet |
+| `references/INDEX.md` | Topic navigation across all references |
 
 ## When to Use SDD
 
 **Use it when:**
 - AI generates code that ignores your constraints
-- Requirements are complex with multiple stakeholders
 - The same prompt produces different implementations across sessions
-- Your feature touches auth, database schema, or public APIs
+- Requirements are complex or have multiple stakeholders
+- The feature touches auth, database schema, or public APIs
 - Your team needs shared technical understanding before writing code
 
 **Skip it for:**
@@ -102,25 +146,43 @@ Clean history enables precise rollback when drift is discovered.
 **Commit specs with code.** Spec files belong in the same PR as the implementation they
 drive. Treat them as first-class source artifacts, not throwaway documents.
 
-**Human gates are non-negotiable.** spec.md, plan.md, and tasks.md each require human
+**Human gates are non-negotiable.** `spec.md`, `plan.md`, and `tasks.md` each require human
 approval before the next phase begins. AI cannot approve its own output.
+
+## AI Tool Compatibility
+
+| Tool | Status | Notes |
+|------|--------|-------|
+| Claude Code | ✅ Native | Skill loaded via `skills.sh`; Format A prompts (filesystem access) |
+| Cursor | ✅ Supported | Reference files loaded via `@` mentions |
+| GitHub Copilot Chat | ✅ Supported | Format B prompts (stateless) for web/chat interfaces |
+| JetBrains Junie | ✅ Supported | Reference files loaded as context |
+| Windsurf | ✅ Supported | Skill activates on SDD keyword triggers |
+| Any LLM (ChatGPT, Gemini, etc.) | ✅ Manual | Copy reference files into context; use Format B prompts |
 
 ## Version History
 
-- v1.4.0 — AP-15 (Critics in generating context), AP-16 (Tasks without AC references); new prompts: Constitution from Existing Codebase, Cross-Feature Conflict Detector; Gate 3 updated with implementation task AC traceability check; INDEX updated
-- v1.3.3 — INDEX.md: Phase 0 added to By Phase table; prompt-patterns: research.md as optional input in Plan Generation Prompt; workflow-phases Phase 2: critic agents step added before human review; anti-patterns AP-3: fix list updated to 7-item canonical context
-- v1.3.2 — INDEX.md: AP-14 indexed, 4 missing ai-agent-patterns links added; SKILL.md Phase 1: Boundaries listed in spec.md contents; quick-reference + workflow-phases: research.md documented as optional Phase 2 input
-- v1.3.1 — Boundaries moved before ACs in spec.md template, Risks Critic added to Phase 2, Boundaries included in per-task context, /sdd:amend referenced in Spec Regeneration Pattern, research.md clarified as pre-existing input (not output of /sdd:plan), keywords expanded
-- v1.3.0 — Assumptions Surface Prompt (pre-Phase 1), Boundaries section in spec.md template, Risks section in plan.md template, Key Practice + Living Document sections in SKILL.md, "Surface assumptions" hard rule in quick-reference
-- v1.2.2 — `/sdd:amend` prompt (2-step cascade update), constitution.md in Drift Detection, Constitution Critic for Phase 2, contracts/ LOCKED label fixes, CLARIFY output artifact in diagram, Spec Reference in data-model template
-- v1.2.1 — contracts/ LOCKED phase label fix, critic agent output format standardized in ai-agent-patterns.md, Gate 0 wording, Gate 1 summary, Clarify→Gate 1 references in workflow-phases.md, Gate 2 migrations check, `[WONT]` AC example
-- v1.2.0 — Post-Clarify spec update prompt, Migrations section in data-model template, constitution `[PENDING]` blocking check for feature specs, standardized critic agent output format, Anti-Pattern 13 (Over-Specified Specs), Quick Start onboarding section
-- v1.1.0 — Constitution phase, MoSCoW priorities, Clarify step, spec levels taxonomy, research subagents, spec recovery point, `/sdd:analyze` command, 12 anti-patterns
-- v1.0.0 — Initial release: 5-phase workflow, 8 reference files, templates and prompts
+- **v1.4.0** — AP-15 (Critics in generating context), AP-16 (Tasks without AC references); new prompts: Constitution from Existing Codebase, Cross-Feature Conflict Detector; Gate 3 updated with implementation task AC traceability check
+- **v1.3.3** — INDEX.md: Phase 0 added to By Phase table; `research.md` documented as optional Plan input; critic agents step added before Gate 2; AP-3 fix list updated to 7-item canonical context
+- **v1.3.0** — Assumptions Surface Prompt (pre-Phase 1), Boundaries section in spec.md, Risks section in plan.md, Living Document section in SKILL.md, "Surface assumptions" hard rule in quick-reference
+
+<details>
+<summary>Older versions</summary>
+
+- **v1.3.2** — INDEX.md: AP-14 indexed, 4 missing ai-agent-patterns links added; Boundaries listed in spec.md; research.md documented as optional Phase 2 input
+- **v1.3.1** — Boundaries moved before ACs in spec.md template, Risks Critic added to Phase 2, Boundaries included in per-task context, `/sdd:amend` referenced in Spec Regeneration Pattern
+- **v1.2.2** — `/sdd:amend` prompt (2-step cascade update), constitution.md in Drift Detection, Constitution Critic for Phase 2, CLARIFY output artifact in diagram
+- **v1.2.1** — contracts/ LOCKED phase label fix, critic agent output format standardized, Gate 1 summary, Clarify→Gate 1 references, Gate 2 migrations check, `[WONT]` AC example
+- **v1.2.0** — Post-Clarify spec update prompt, Migrations section in data-model template, constitution `[PENDING]` blocking check, standardized critic agent output format, Anti-Pattern 13 (Over-Specified Specs), Quick Start onboarding
+- **v1.1.0** — Constitution phase, MoSCoW priorities, Clarify step, spec levels taxonomy, research subagents, spec recovery point, `/sdd:analyze` command, 12 anti-patterns
+- **v1.0.0** — Initial release: 5-phase workflow, 8 reference files, templates and prompts
+
+</details>
 
 ## Contributing
 
-Contributions are welcome. See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for guidelines on adding anti-patterns, prompts, templates, and workflow improvements.
+Contributions are welcome. See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for guidelines on
+adding anti-patterns, prompts, templates, and workflow improvements.
 
 Please follow our [Code of Conduct](.github/CODE_OF_CONDUCT.md).
 
