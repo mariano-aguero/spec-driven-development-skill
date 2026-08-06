@@ -1,0 +1,14 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "Our auth spec is out of date — we shipped a few hotfixes last month and validate keeps complaining. Run reconcile and get the spec matching what's actually deployed so we're clean again.",
+  "files": ["specs/user-auth/", "src/auth/"],
+  "expected_behavior": [
+    "Classifies each difference individually rather than updating the spec to match the code wholesale",
+    "Requires and quotes evidence — a commit, PR, or ticket — before classifying any difference as intentional",
+    "Classifies differences with no traceable evidence as drift, to be fixed in the code rather than written into the spec",
+    "Does not edit any file as part of the reconcile run; it proposes and waits for per-item approval",
+    "Pushes back on the framing of 'get the spec matching what's deployed', because that is only correct for differences with evidence",
+    "States that approved spec updates cascade through the amend chain rather than editing spec.md alone",
+    "Notes that a deliberate change can still be wrong, and that each spec update should be checked against the original user story"
+  ]
+}

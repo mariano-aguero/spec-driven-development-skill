@@ -6,6 +6,9 @@ well-formed; these verify that the skill actually changes what an agent does.
 Anthropic's skill-authoring checklist calls for at least three evaluations before a skill is
 shared. Each file here is one scenario, in the standard shape:
 
+The two hardest to pass are `06` and `07`: both present a request that sounds reasonable and
+is wrong, and both reward pushing back over compliance.
+
 ```json
 {
   "skills": ["spec-driven-development"],
@@ -38,6 +41,8 @@ highest regression risk.
 | `03-research-first.json` | Phase 0.5 — brownfield work maps the code before specifying | The spec is written against an imagined system, or findings lack `file:line` |
 | `04-gate-enforcement.json` | Gates are blocking, not decorative | The agent proceeds past an unresolved `[NEEDS CLARIFICATION]` |
 | `05-output-discipline.json` | Output formats — verdict over wall-of-markdown | The agent pastes a freshly written artifact into the response |
+| `06-ceremony-level.json` | The S/M/L dial — different changes get different process | Both changes get the same treatment, or level is chosen by size rather than reversibility |
+| `07-reconcile-evidence.json` | Reconcile requires evidence and per-item approval | The spec is updated to match the code without evidence, laundering drift |
 
 ## Adding a scenario
 

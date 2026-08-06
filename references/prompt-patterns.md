@@ -7,11 +7,11 @@ determines the quality of AI output — vague input = vague output.
 
 - Phase 0 — Constitution: initial generation, security constraints
 - Phase 0.5 — Research: codebase research (Format A/B), consolidation, verification
-- Phase 1 — Specify: assumptions surface, initial spec, clarify, post-clarify update, completeness check
+- Phase 1 — Specify: assumptions surface, initial spec, delta spec (brownfield), clarify, post-clarify update, completeness check
 - Phase 2 — Plan: technical plan generation, plan review
 - Phase 3 — Tasks: task breakdown, task validation
 - Phase 4 — Implementation: single task (Format A/B), context handover, session resume, mid-implementation correction
-- Amend (`/sdd:amend`) · Analyze (`/sdd:analyze`) · Status (`/sdd:status`)
+- Reconcile (`/sdd:reconcile`) · Amend (`/sdd:amend`) · Analyze (`/sdd:analyze`) · Status (`/sdd:status`)
 - Phase 5 — Validate: drift detection, post-implementation validation, linear walkthrough
 - Multi-agent review pattern · Constitution from existing codebase · Cross-feature conflict detector
 
@@ -227,6 +227,40 @@ Requirements:
 
 Target users: [who uses this feature]
 Constraints: [any hard limits — performance, security, platform]
+```
+
+### Delta Specification Prompt (brownfield changes)
+
+*Use instead of the Initial Specification Prompt when changing behavior that already ships.
+Requires a resolvable baseline — a prior spec, or research.md findings.*
+
+```
+Write a DELTA spec for this change. Do not respecify existing behavior.
+
+Change: [1-2 sentences describing what should be different]
+Baseline: [specs/archive/[feature]/spec.md @ v2.1  OR  specs/[feature]/research.md]
+
+Use the delta-mode spec.md template from references/artifact-templates.md.
+
+Method:
+1. Read the baseline first. Write the Baseline Assertion section: what this change depends
+   on being true today, one line each, every line citing the baseline (a prior AC, or a
+   research finding with its file:line).
+2. Write only the ACs that move. Label each [ADDED], [MODIFIED], [REMOVED], or [UNCHANGED],
+   in addition to its MoSCoW label.
+3. For [MODIFIED] and [REMOVED], quote the previous behavior verbatim from the baseline —
+   never paraphrase it. Add a Migration line for [MODIFIED] and a deprecation timing line
+   for [REMOVED].
+4. Fill [UNCHANGED] with behavior that shares code paths with what you are changing. This is
+   the regression suite; it is what makes a short spec safe.
+5. Map the blast radius: for each thing being modified, what depends on it and which AC
+   verifies it still works. Derive this from the baseline, not from assumption.
+
+Hard rules:
+- If you cannot cite the baseline for a Baseline Assertion line, do not write the line —
+  list it under Open Questions instead.
+- Do not restate behavior that is not changing, except in [UNCHANGED].
+- If more than half your ACs are [ADDED], stop and tell me this should be a full spec.
 ```
 
 ### Clarify Phase Prompt
@@ -508,6 +542,48 @@ You implemented: [describe what was generated]
 Roll back this change and re-implement following the spec exactly.
 Do not use your judgment about what "makes sense" — follow the contract.
 ```
+
+---
+
+## Reconcile Prompt (/sdd:reconcile — run when code changed outside the workflow)
+
+*The spec is behind because the code moved: a hotfix, a dependency upgrade, another team's
+refactor. This prompt proposes a direction per difference; it never edits anything.*
+
+```
+Reconcile specs/[feature]/ against the current implementation.
+
+Baseline commit: [sha of the last validation, or of the last spec.md change]
+Changes since:   git log --oneline [sha]..HEAD -- [feature source paths]
+
+For every difference between the spec artifacts and the code, classify it:
+
+INTENTIONAL — a commit, PR, incident ticket, or changelog entry shows the change was
+              deliberate. Quote the evidence. Direction: update the spec.
+EXTERNAL    — the cause is outside our code (dependency upgrade, platform behavior change,
+              upstream API). Name the cause. Direction: update the spec.
+DRIFT       — no such evidence exists. Direction: fix the code.
+AMBIGUOUS   — evidence exists but does not clearly cover this difference. Direction: none;
+              the human decides.
+
+Hard rules:
+- Absence of evidence is DRIFT, not INTENTIONAL. Never infer intent from the fact that code
+  exists and works — that is the assumption this whole workflow exists to eliminate.
+- Quote evidence, do not summarize it. "Commit a3f9c21: hotfix expired-token 500" is
+  evidence; "this looks intentional" is not.
+- A commit that authorizes one change does not authorize adjacent ones. Scope the evidence
+  to the specific difference.
+- Do NOT edit any file. Do not produce an updated spec. Propose only.
+- If most differences classify as DRIFT or AMBIGUOUS, say so explicitly: the feature was
+  likely rebuilt outside the process and should be re-specified rather than patched.
+
+Present the result using the Reconcile Report format in references/output-formats.md.
+```
+
+**After the human approves items**, apply them through the normal chain — approved spec
+updates cascade via `/sdd:amend` (spec → plan → contracts → data model), and approved code
+fixes become tasks. Record the evidence for each spec update in `decision_log.md`. See
+`workflow-phases.md → Reconcile`.
 
 ---
 

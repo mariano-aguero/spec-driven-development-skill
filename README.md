@@ -35,6 +35,8 @@ potential divergence from intent — and they compound.
 | Implicit assumptions baked into acceptance criteria | Assumptions surfaced and corrected *before* the spec is written |
 | Specs written against an imagined codebase | Phase 0.5 research maps the real one first, with `file:line` citations |
 | Code ships faster than anyone can read it | Comprehension gate: the team reviews ~400 dense lines instead of a 2000-line diff |
+| Changing one rule means respecifying a subsystem | Delta specs declare a baseline and list only what moves |
+| Hotfixes quietly turn the spec into fiction | `/sdd:reconcile` classifies each difference with evidence — a human decides each one |
 
 ## What is Spec-Driven Development?
 
@@ -69,6 +71,38 @@ flowchart LR
 Every arrow is a **compaction boundary**: each phase reads the previous artifact, never the
 raw material behind it. That is what keeps agents inside a productive context window instead
 of drowning in their own search results.
+
+## Pick the Level That Fits the Change
+
+The most common reason spec-driven development gets abandoned is running one intensity for
+everything. Choose per change:
+
+| | **S — Light** | **M — Standard** | **L — Full** |
+|---|---|---|---|
+| Use when | 1 session, ≤3 files, no schema/contract/auth change, revertible | New endpoint, table, or user-visible behavior | Auth, payments, migrations, regulated domains, unfamiliar code |
+| Artifacts | ACs in the PR body | `spec.md`, `plan.md`, `contracts/`, `tasks.md` | + `research.md`, `decision_log.md`, `walkthrough.md` |
+| Gates | Self-check before merge | 1, 2, 3, 5 | 0, R, 1–5, C |
+
+Start at M. Drop to S only if every S condition holds; move to L if any L condition holds.
+The tiebreaker is **reversibility, not size** — a one-line change to a permission check
+outranks a large change to a report layout.
+
+And for brownfield work, a **delta spec** respecifies nothing: it declares a baseline and
+lists only what moves, with ACs labelled `[ADDED]` / `[MODIFIED]` / `[REMOVED]` /
+`[UNCHANGED]`. A delta spec's length tracks the size of the *change*, not the size of the
+subsystem — so the savings grow with how much behavior already exists.
+
+## How Long a Spec Stays Alive
+
+| Level | What it means | Best for |
+|-------|--------------|---------|
+| **Spec-first** | Write the spec upfront, implement immediately | Most features |
+| **Spec-anchored** | Maintain the spec alongside the code as it evolves | Long-lived features |
+| **Spec-as-source** | Spec is primary; code is generated, never hand-edited | Experimental, high-compliance |
+
+Start with spec-first; move to spec-anchored once the feature stabilizes. Spec-anchored is
+where `/sdd:reconcile` earns its place — it is the sanctioned path back to a trustworthy spec
+after a hotfix or an upstream change moved the code without touching the spec.
 
 ## Installation
 
@@ -111,7 +145,7 @@ SDD, requirements planning, or AI implementation guidance.
 ```
 
 Other commands: `/sdd:status` (where am I?), `/sdd:analyze` (cross-feature conflict check),
-`/sdd:amend` (cascade spec updates).
+`/sdd:amend` (cascade spec updates), `/sdd:reconcile` (code changed outside the workflow).
 
 ## What It Costs
 
@@ -142,7 +176,7 @@ proportionally less. If you only want the cheat sheet, `references/quick-referen
 | `references/quality-gates.md` | Gate 0, R, 1–5 and C checklists + CI/CD integration (AC coverage, drift detection) |
 | `references/output-formats.md` | Formats and line budgets for everything the user reads: gate verdicts, traceability matrix, drift report, status, walkthrough |
 | `references/ai-agent-patterns.md` | Context engineering (compaction, budget, progressive disclosure), multi-agent orchestration, critic subagents, capability profiles |
-| `references/anti-patterns.md` | 19 common failure modes with wrong/correct examples and fixes |
+| `references/anti-patterns.md` | 22 common failure modes with wrong/correct examples and fixes |
 | `references/quick-reference.md` | One-page cheat sheet |
 | `references/INDEX.md` | Topic navigation across all references |
 | `evals/` | Five behavioral scenarios for verifying the skill actually changes agent behavior |

@@ -25,6 +25,9 @@ The most common SDD failure modes, their symptoms, and how to fix them.
 | 17 | Specifying against an imagined system | 0.5 / 1 |
 | 18 | Letting the context window fill up | 4 |
 | 19 | Shipping code nobody understands | 5 |
+| 20 | Delta spec without a baseline | 1 |
+| 21 | Reconciling drift instead of fixing it | reconcile |
+| 22 | Running one ceremony level for everything | 0 |
 
 ---
 
@@ -591,3 +594,168 @@ and the only available debugging strategy is to ask an agent to re-read its own 
 **The distinction that matters:** a spec nobody reads is documentation theater. SDD converts
 review effort into comprehension only if the artifacts are actually read — by humans, before
 merge.
+
+---
+
+## Anti-Pattern 20: Delta Spec Without a Baseline
+
+**Symptoms:**
+
+- The spec says "currently the system does X" with nothing to check X against
+- Reviewers cannot tell whether a `[MODIFIED]` AC actually changes anything
+- The `[UNCHANGED]` section is empty, or absent
+- Two people read the same delta spec and disagree about what ships
+- A later change writes a delta against a delta, against a delta
+
+**The trap:** Delta mode is chosen for the right reason — the change is small, respecifying
+the subsystem would be ceremony — but the baseline is left implicit. The document reads fine
+because assertions about current behavior are stated with the same confidence as the changes.
+Nothing in the spec can contradict them, which is exactly what a full spec's redundancy would
+have caught.
+
+**Example (wrong):**
+
+```markdown
+Mode: Delta
+
+## Acceptance Criteria
+
+### AC-1: Shorten token expiry [MODIFIED] [MUST]
+Tokens now expire after 5 minutes instead of the current expiry.
+```
+
+"The current expiry" is unverifiable. If the author believed it was 15 minutes and it is
+actually 12, the migration note, the tests, and the reviewer's mental model are all wrong —
+and nothing in the document reveals it.
+
+**Example (correct):**
+
+```markdown
+Mode: Delta
+Baseline: specs/archive/magic-link-login/spec.md @ v1.2
+
+## Baseline Assertion
+- Magic-link tokens expire after 15 minutes — baseline AC-4
+  (`research.md` F-2, `src/lib/tokens.ts:22`)
+
+## Acceptance Criteria
+
+### AC-1: Shorten token expiry [MODIFIED] [MUST]
+**Was:** "Given a magic link issued more than 15 minutes ago, when the user clicks it,
+then verification fails with 410 Gone." — baseline AC-4
+**Now:** Given a magic link issued more than 5 minutes ago, when the user clicks it,
+then verification fails with 410 Gone.
+**Migration:** Links already issued keep their original 15-minute window; the change
+applies to tokens created after deploy.
+
+### AC-4: Single-use enforcement [UNCHANGED] [MUST]
+Redeemed tokens remain unusable — baseline AC-E2. Must still hold.
+```
+
+**Fix:**
+
+- Every delta spec resolves its `Baseline:` header to a prior spec version or specific
+  `research.md` findings. If neither exists, run Phase 0.5 — that is the most common
+  legitimate reason a brownfield change needs research.
+- Quote previous behavior verbatim. A paraphrase hides whether the author read the baseline.
+- Fill `[UNCHANGED]` with the behavior sharing code paths with the change. It is the
+  regression suite, and it is what makes a short spec safe to be short.
+- Fold deltas back into the baseline. **At most two unfolded deltas** — by the third,
+  reviewers are reconstructing current behavior by replaying history.
+
+---
+
+## Anti-Pattern 21: Reconciling Drift Instead of Fixing It
+
+**Symptoms:**
+
+- `/sdd:reconcile` output is approved wholesale rather than item by item
+- Spec updates classified `INTENTIONAL` cite no commit, PR, or ticket
+- `/sdd:validate` is always clean, yet nobody remembers approving the current behavior
+- The spec drifts steadily toward whatever the code does
+- "We reconciled it" is the answer to why the spec says something surprising
+
+**The trap:** This one is dangerous precisely because it feels like diligence. You ran the
+tool, the report was clean, the spec now matches reality — that all reads as good hygiene.
+But reconcile is the one command that can edit the spec to match the code, which is
+Anti-Pattern 6 with a command name. The difference between maintenance and laundering is
+entirely in whether each item had **evidence** and a **human decision**.
+
+**Example (wrong):**
+
+> "Ran `/sdd:reconcile` on the auth feature — 9 differences, all look intentional from the
+> commit history. Applied them. Spec is current again, validate is clean."
+
+Nine differences, one glance, no per-item evidence. Any genuine drift in that batch is now
+permanently specified as intended behavior, and the audit trail says it was approved.
+
+**Example (correct):**
+
+> "Ran `/sdd:reconcile` — 6 differences. Two INTENTIONAL with commits cited (7d21e0f,
+> PR #218), one EXTERNAL (framework 4.2 changed the SameSite default). Two DRIFT with no
+> evidence in 14 commits — the rate-limit key is per-IP but AC-E3 says per-email; that's a
+> real bug, filed as TASK-014. One AMBIGUOUS: 'copy tweaks' doesn't authorize dropping the
+> expiry notice, so defaulting to DRIFT. Approved the three spec updates through
+> `/sdd:amend`, logged the evidence in `decision_log.md`."
+
+**Fix:**
+
+- **Absence of evidence is drift.** No commit, PR, incident, or changelog entry means the
+  difference gets fixed in the code — never specified as intended.
+- Approve item by item. There is no "accept all", and a report of nine differences takes
+  nine decisions.
+- Scope evidence to the difference. A commit authorizing one change does not authorize
+  adjacent ones that shipped alongside it.
+- Ask the second question: even a deliberate change can be wrong. Does the new behavior still
+  satisfy the original user story?
+- Log the evidence in `decision_log.md`, so six months later "why does the spec say this?"
+  has an answer better than "someone reconciled it once".
+- If most differences are `DRIFT` or `AMBIGUOUS`, stop reconciling — the feature was rebuilt
+  outside the process and needs re-specifying, not patching.
+
+---
+
+## Anti-Pattern 22: Running One Ceremony Level for Everything
+
+**Symptoms:**
+
+- A copy change produces `spec.md`, `plan.md`, `contracts/`, and `tasks.md`
+- Or: a payment flow ships with acceptance criteria written in a PR comment
+- The team quietly stops using the workflow after a few oversized rituals
+- "SDD is too heavy" — or, from the same team, "SDD didn't catch this"
+- Gates at M are habitually skipped rather than the level being lowered
+
+**The trap:** Picking one intensity and applying it uniformly is easier than deciding per
+change, and both uniform choices fail. Always-heavy produces the "drowning in a sea of
+markdown" reaction that gets the practice abandoned — usually right before it would have paid
+off. Always-light works until the first change that touches money, auth, or a migration,
+where it fails in the exact way the process existed to prevent.
+
+**Example (wrong):**
+
+> "We do spec-driven development here, so every change gets a spec."
+
+Six weeks later the team has 40 spec files, most of them for changes that took twenty minutes,
+and reviewers have learned to approve spec PRs without reading them. The gates still exist on
+paper and verify nothing.
+
+**Example (correct):**
+
+> "Copy fix — level S: ACs in the PR body, tests pass, merged.
+> New export endpoint — level M: spec, plan, contract, tasks.
+> Payment provider migration — level L: research first, all critics, walkthrough before merge."
+
+**Fix:**
+
+- Choose the level per change, at the start, using the decision rule in `SKILL.md`: start at
+  M, drop to S only if *all* of one-session / ≤3 files / no contract or schema change /
+  trivially revertible hold, move to L if *any* of auth-or-payments / irreversible migration /
+  regulated domain / unread code holds.
+- Use **reversibility** as the tiebreaker, not size. A one-line change to a permission check
+  outranks a large change to a report layout.
+- Promote mid-flight when the ground shifts — S to M once research reveals a schema change is
+  normal and healthy. Demoting mid-flight is not: it discards a gate you already decided you
+  needed.
+- If you are skipping gates at M, you picked the wrong level. Drop to S deliberately and
+  record why. Running M with holes in it is indistinguishable from having no process, except
+  that it also generates paperwork.

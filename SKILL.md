@@ -16,23 +16,11 @@ description: >
 SDD makes **specifications the source of truth** — code serves specs, not the other way
 around. Instead of prompting an AI with vague descriptions and hoping for the right output,
 you define precise specifications first, then let AI generate code strictly constrained by
-those specs.
-
-Core principle: *"When specifications drive implementation, pivots become systematic
-regenerations rather than manual rewrites."*
+them.
 
 Without a spec, AI makes thousands of micro-decisions silently. With a spec, those decisions
-are made by you — explicitly, before any code is written.
-
-### Spec Levels
-
-| Level | What it means | Best for |
-|-------|--------------|---------|
-| **Spec-first** | Write spec upfront, implement immediately | Most features |
-| **Spec-anchored** | Maintain spec alongside code as it evolves | Long-lived features |
-| **Spec-as-source** | Spec is primary; code is generated, never hand-edited | Experimental, high-compliance |
-
-Start with spec-first. Move to spec-anchored when the feature stabilizes.
+are made by you — explicitly, before any code is written, which is what turns a pivot into a
+systematic regeneration rather than a manual rewrite.
 
 ## Quick Start
 
@@ -54,42 +42,61 @@ Symptoms that signal SDD is needed:
 - Team needs shared technical understanding before writing code
 - Feature touches auth, data model, API contracts, or database schema
 
-**Skip SDD for:** one-line fixes, typos, trivial bugs, disposable prototypes, and solo
-exploration spikes lasting less than a day.
+**Skip entirely for:** one-line fixes, typos, disposable prototypes, and solo exploration
+spikes lasting less than a day.
+
+## Choosing the Ceremony Level
+
+Not every change deserves the same process. Pick the lightest level that covers the risk.
+
+| | **S — Light** | **M — Standard** | **L — Full** |
+|---|---|---|---|
+| Use when | Fits one session, ≤3 files, no schema/contract/auth change | New endpoint, table, or user-visible behavior; spans sessions | Auth, payments, migrations, regulated domains, unfamiliar code |
+| Artifacts | ACs in the issue or PR body | `spec.md`, `plan.md`, `contracts/`, `tasks.md` | + `research.md`, `decision_log.md`, `walkthrough.md` |
+| Gates | Self-check before merge | 1, 2, 3, 5 | 0, R, 1–5, C |
+| Critics | none | optional | required |
+
+**Decision rule:** start at M. Drop to S only if *all* of these hold — one session, ≤3 files,
+no contract or schema change, trivially revertible. Move to L if *any* of these hold — auth
+or payments, irreversible data migration, regulated domain, or code nobody on the call has
+read.
+
+Two failure modes, equally costly: L ceremony on an S change is where "drowning in markdown"
+comes from, and S ceremony on an L change is the reason this skill exists. When genuinely
+unsure, the tiebreaker is **reversibility**, not size — a small change to an auth check
+outranks a large change to a report layout.
+
+Levels are per change, not per project. Moving up mid-flight is normal — promoting S to M
+once a schema change appears. Moving down is not: it discards a gate you already decided
+you needed.
 
 ## Key Practice: Reframe Vague Requirements
 
-Before writing any AC, convert vague requirements into measurable targets:
-
-| Vague | Concrete |
-|-------|---------|
-| "make it faster" | "LCP < 2.5s on a 4G connection" |
-| "it should be secure" | "requires authenticated session; all inputs validated before processing" |
-| "handle errors properly" | "returns 4xx with structured error code, never exposes stack traces" |
-| "should scale" | "handles 1000 concurrent users at < 500ms p95" |
-| "works correctly" | "Given X, When Y, Then Z — independently verifiable" |
-
-If you cannot write a passing test for an AC, the AC is not concrete enough.
+Before writing any AC, convert vague requirements into measurable targets — "make it faster"
+becomes "LCP < 2.5s on a 4G connection". **If you cannot write a failing test for an AC, the
+AC is not concrete enough.** Worked conversions:
+`references/artifact-templates.md → Writing Concrete Acceptance Criteria`.
 
 ---
 
 ## Directory Structure
 
 ```text
-constitution.md              # Project-level: immutable principles (one per project)
+constitution.md            # Immutable project principles (one per project)
 
 specs/
   [feature-branch-name]/
-    research.md          # How the system works TODAY — written before the spec (Phase 0.5)
-    spec.md              # Requirements — WHAT and WHY (MoSCoW prioritized)
-    plan.md              # Implementation strategy — HOW
-    data-model.md        # Data entities, relationships, schemas
-    contracts/           # API and interface definitions (LOCKED after Phase 2 approval)
-    tasks.md             # Atomic executable task list
-    progress.md          # Optional: state across context resets (Phase 4)
-    walkthrough.md       # Optional: execution-ordered narration for reviewers (Phase 5)
-    decision_log.md      # Optional: rationale for key decisions
-  archive/               # Completed feature specs (move here after feature ships)
+    research.md        # How the system works TODAY, cited file:line   (0.5)
+    spec.md            # Requirements — WHAT and WHY, MoSCoW           (1)
+    plan.md            # Implementation strategy — HOW                 (2)
+    data-model.md      # Entities, relationships, schemas              (2)
+    contracts/         # Interfaces — LOCKED after Gate 2              (2)
+    tasks.md           # Atomic executable task list                   (3)
+    progress.md        # Optional: state across context resets         (4)
+    validation.md      # Traceability matrix                           (5)
+    walkthrough.md     # Optional: narration for reviewers             (5)
+    decision_log.md    # Optional: rationale for key decisions
+  archive/             # Completed specs, kept after the feature ships
 ```
 
 Every artifact is also a **compaction checkpoint** — a phase's messy exploration distilled
@@ -131,9 +138,8 @@ from memory with confidence.
 - **Cap it at ~200 lines.** Past that it is a raw dump, not a compaction.
 
 **Why this phase has the highest leverage:** reviewing ~200 lines of research prevents
-thousands of wrong lines of code; reviewing the code itself prevents one wrong line at a
-time. Bad research produces a confident spec built on a false model of the system — which is
-why Gate R is the one gate where reading the actual code yourself is worth the time.
+thousands of wrong lines of code; reviewing the code prevents one wrong line at a time. Gate R
+is the one gate where reading the actual code yourself is worth the time.
 
 Details: `references/workflow-phases.md → Phase 0.5`.
 
@@ -153,15 +159,15 @@ Details: `references/workflow-phases.md → Phase 0.5`.
 **Every gate is a human approval point.** AI cannot approve its own output. Full checklists
 for Gates 0, R, 1–5 and C live in `references/quality-gates.md`.
 
-### What each phase must not do
+### One rule and one prohibition per phase
 
-| Phase | Prohibited |
-|-------|-----------|
-| 1 — Specify | Implementation details — no technology names, function names, or database terms |
-| 2 — Plan | Abstractions not justified by an AC; technology outside `constitution.md` |
-| 3 — Tasks | Tasks over ~3 files, implementation tasks without a preceding test task, tasks without AC references |
-| 4 — Implement | Touching `contracts/` (frozen after Gate 2), adding behavior outside `spec.md`, carrying context between tasks |
-| 5 — Validate | Editing the spec to match the code |
+| Phase | The rule | Never |
+|-------|----------|-------|
+| 1 — Specify | Every `[MUST]` AC is independently testable | Implementation details — no technology, function, or table names |
+| 2 — Plan | Every `[MUST]` AC maps to at least one component | Abstractions no AC justifies; technology outside `constitution.md` |
+| 3 — Tasks | Every task declares the ACs it satisfies, tests first | Tasks over ~3 files or without AC references |
+| 4 — Implement | One fresh context per task — `constitution.md` in full, plus only that task's ACs, contract, plan section, and entities | Touching `contracts/`, adding behavior outside `spec.md`, carrying context between tasks |
+| 5 — Validate | Fix the code to match the spec, then produce a walkthrough | Editing the spec to match the code |
 
 ### Phase 1 — Specify
 
@@ -174,53 +180,37 @@ acceptance criteria in Given/When/Then with `[MUST]` `[SHOULD]` `[COULD]` `[WONT
 explicit out-of-scope items, and open questions. Error and edge-case ACs are required —
 the happy path alone never passes Gate 1.
 
-### Phase 2 — Plan
+**Full spec or delta spec.** Modifying behavior that already exists does not require
+respecifying it. A delta spec declares a baseline and then lists only what changes:
 
-`plan.md` (architecture, components, tradeoffs, risks with mitigations), `data-model.md`
-(entities, constraints, indexes, migrations), and `contracts/` (request and response shapes,
-every error code). Every `[MUST]` AC must map to at least one component.
+| Mode | Use when | Header |
+|------|----------|--------|
+| **Full** | New capability with no existing behavior to preserve | `Mode: Full` |
+| **Delta** | Changing, extending, or removing behavior that already ships | `Mode: Delta` + `Baseline:` |
 
-**`contracts/` are frozen once Gate 2 passes.** Changing one during implementation is drift.
+A delta spec's ACs are labelled `[ADDED]`, `[MODIFIED]`, `[REMOVED]`, or `[UNCHANGED]` —
+the last one for behavior the change must not break. Its baseline is either a prior spec or,
+when none exists, the cited findings in `research.md`. **A delta spec without a resolvable
+baseline is not reviewable** — see `references/workflow-phases.md → Delta Specs`.
 
-### Phase 3 — Tasks
-
-Atomic tasks sized for a single AI session (~30–60 min), each declaring the ACs it satisfies
-and the contract it implements. Test tasks precede their implementation counterparts.
-Parallelizable tasks are marked `[P]`; dependencies must form a valid DAG.
-
-### Phase 4 — Implement
-
-One fresh context per task, holding `constitution.md` in full plus only the task's own ACs,
-contract, plan section, and entities. Commit after each task. Prompt formats — A for agents
-with file access, B for stateless interfaces — are in `references/prompt-patterns.md`.
-
-Keep context utilization in the **40–60%** band. If a task outlives its window, write
-`progress.md` and resume in a clean session rather than pushing through a degraded one.
-
-### Phase 5 — Validate
-
-Checks every `[MUST]` AC for test coverage, implemented signatures against `contracts/`,
-schema against `data-model.md`, and the whole diff for behavior that appears in code but
-not in `spec.md`. Then produces a linear walkthrough so a human can confirm the team
-understands what shipped.
-
-Output formats for the traceability matrix, drift report, and walkthrough:
-`references/output-formats.md`.
+`contracts/` freeze the moment Gate 2 passes. Step-by-step detail lives in
+`references/workflow-phases.md`; prompt formats (A for agents with file access, B for
+stateless interfaces) in `references/prompt-patterns.md`; formats for the traceability
+matrix, drift report, and walkthrough in `references/output-formats.md`.
 
 ---
 
-## Spec Drift: Why It Happens and How to Prevent It
+## Spec Drift
 
-Drift occurs when AI makes "reasonable assumptions" that weren't specified.
+Drift occurs when AI makes "reasonable assumptions" that were never specified. Every rule
+above exists to remove one class of assumption: the constitution removes project-level ones,
+research removes assumptions about the existing system, clarify removes ambiguity before it
+becomes architecture, frozen contracts remove interface guesses, and one-context-per-task
+removes assumptions inherited from earlier work.
 
-1. **Constitution first** — project-level constraints prevent drift at the root
-2. **Research before specifying** — a spec built on a wrong model drifts by construction
-3. **Surface assumptions before specifying** — wrong assumptions become wrong ACs become wrong code
-4. **Clarify before planning** — unresolved ambiguities become wrong architecture
-5. **Specificity beats verbosity** — "returns 404 when resource not found" beats 3 paragraphs
-6. **Lock contracts before implementation** — never modify `contracts/` during Phase 4
-7. **One context per task** — a fresh session eliminates accumulated assumptions
-8. **Commit gates** — only proceed after the current task passes tests
+Two habits carry the rest: **specificity beats verbosity** — "returns 404 when the resource
+is not found" beats three paragraphs — and **commit after every task**, so drift is always
+one revert away.
 
 Failure modes in detail: `references/anti-patterns.md`.
 
@@ -249,14 +239,11 @@ understands**. Agents generate code several times faster than humans read it, so
 sharply more pull requests while understanding measurably less of what they ship. The debt
 costs nothing until the first incident, onboarding, or refactor.
 
-SDD only pays this back if the artifacts are actually read:
-
-| Practice | Effect |
-|----------|--------|
-| Review the spec and plan, not just the diff | Moves attention to ~400 high-density lines instead of ~2000 low-density ones |
-| Keep specs in the same PR as the code | The reviewer reads intent before mechanism |
-| Request a linear walkthrough after Phase 4 | Execution-ordered narration of what was built and why |
-| Archive specs instead of deleting them | The next person inherits the reasoning, not just the result |
+SDD only pays this back if the artifacts are actually read. Review the spec and plan rather
+than skimming the diff — that moves attention to ~400 high-density lines instead of ~2000
+low-density ones. Keep specs in the same PR so the reviewer reads intent before mechanism,
+request a linear walkthrough after Phase 4, and archive specs instead of deleting them so
+the next person inherits the reasoning.
 
 Gate C enforces this before merge.
 
@@ -264,8 +251,8 @@ Gate C enforces this before merge.
 
 ## Talking to the User
 
-This workflow generates a lot of markdown. Most of it is for the *next phase*, not for the
-human — and confusing the two is how SDD earns its reputation for ceremony.
+This workflow generates a lot of markdown, most of it for the *next phase* rather than the
+human. Confusing the two is how SDD earns its reputation for ceremony.
 
 - **Write artifacts to files. Show the human a verdict.** Never paste a full artifact into
   the response when it was just written to disk.
@@ -283,12 +270,25 @@ Formats for every output the human reads: `references/output-formats.md`.
 ## Living Document
 
 - **When decisions change:** run `/sdd:amend` — never patch files manually
+- **When code changed outside the workflow:** run `/sdd:reconcile`
 - **Commit specs with code:** spec files belong in the same PR as the implementation
 - **Version your specs:** each `spec.md` carries a `Status` and `Version` header
 - **Archive when done:** move completed specs to `specs/archive/` after the feature ships
 
-Treating the spec as disposable after implementation defeats its purpose — it becomes the
-source of truth for future changes, onboarding, and drift detection.
+### Three ways a spec and its code disagree
+
+Confusing these is how specs quietly become fiction. The command differs, and so does which
+side gets edited:
+
+| Situation | Cause | Command | What changes |
+|-----------|-------|---------|--------------|
+| **Drift** | Implementation diverged from an approved spec by mistake | `/sdd:validate` | The **code** |
+| **Amendment** | A requirement genuinely changed | `/sdd:amend` | The **spec chain**, then the code |
+| **Reconciliation** | Code changed deliberately outside the workflow — hotfix, upstream refactor, another team | `/sdd:reconcile` | Decided **per difference**, by a human |
+
+`/sdd:reconcile` never edits anything on its own: it classifies each difference and proposes
+a direction, and a human approves each one. Auto-accepting its proposals turns it into a
+laundering machine for drift — see `references/anti-patterns.md → Anti-Pattern 21`.
 
 ---
 

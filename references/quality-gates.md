@@ -4,14 +4,44 @@ Review checklists, confidence thresholds, and CI/CD integration patterns for SDD
 
 ## Contents
 
+- Which gates apply at which ceremony level
 - Gate 0 — `constitution.md` approval
-- Per-phase checklists: Gate R (research), Gates 1–5, Gate C (comprehension)
+- Per-phase checklists: Gate R (research), Gates 1–5 (incl. delta-mode checks), Gate C
 - Confidence-based review thresholds
 - CI/CD integration: research citation check, AC coverage, drift detection, spec completeness
 - Spec drift classification
 
 Gate results are reported to the user in a fixed format — see
 `output-formats.md → Gate Verdict`.
+
+---
+
+## Which Gates Apply at Which Ceremony Level
+
+Gates are not optional at the level you chose — they are what the level *means*. Choosing S
+is a decision to accept less verification; skipping a gate at M is not.
+
+| Gate | S — Light | M — Standard | L — Full |
+|------|-----------|--------------|----------|
+| Gate 0 — constitution | inherited | inherited | required |
+| Gate R — research | — | if research was run | required |
+| Gate 1 — spec | ACs reviewed in the PR body | required | required |
+| Gate 2 — plan + contracts | — | required | required |
+| Gate 3 — tasks | — | required | required |
+| Gate 4 — per task | tests pass | required | required |
+| Gate 5 — validation | tests pass, diff reviewed | required | required |
+| Gate C — comprehension | — | if the diff exceeds one sitting | required |
+| Critic agents | — | optional | required |
+
+"Inherited" means the constitution already exists and applies — you do not re-approve it per
+change.
+
+**The one rule that holds at every level:** a human approves before the next phase begins.
+S has fewer gates, not self-approving ones.
+
+If you find yourself skipping gates at M, you picked the wrong level. Drop to S deliberately
+and record why, rather than running M with holes in it — the second is indistinguishable from
+having no process, except that it produces paperwork.
 
 ---
 
@@ -73,6 +103,20 @@ Run before Phase 2. All items must pass.
 | Non-functional requirements | Performance and security requirements stated with specific values |
 | Boundaries (optional) | If feature has complex AI behavior constraints, Boundaries section is populated |
 | Stakeholder alignment | Relevant stakeholders have reviewed and agreed |
+
+**Additional checks when `Mode: Delta`:**
+
+| Check | Pass Criteria |
+|-------|--------------|
+| Baseline resolves | The `Baseline:` header points at a prior spec version or specific `research.md` findings — a reviewer can open it |
+| Baseline Assertion verified | Every assertion line is checked against the cited source; a false line invalidates the spec, not just that line |
+| Change labels complete | Every AC carries `[ADDED]` / `[MODIFIED]` / `[REMOVED]` / `[UNCHANGED]` in addition to its MoSCoW label |
+| Previous behavior quoted | `[MODIFIED]` and `[REMOVED]` ACs quote the baseline verbatim, not paraphrased |
+| Migration stated | Every `[MODIFIED]` AC says what happens to data, sessions, or clients created under the old behavior |
+| Deprecation stated | Every `[REMOVED]` AC states what callers see now and the deprecation timing |
+| Regression coverage | `[UNCHANGED]` covers the behavior sharing code paths with the change — not left empty |
+| Blast radius mapped | Each modified item lists its dependents and the AC that verifies them |
+| Mode is right | Fewer than roughly half the ACs are `[ADDED]` — otherwise this is a full spec |
 
 **Fail action:** Return to Phase 1 + Clarify step. Do not proceed to Phase 2.
 

@@ -17,6 +17,8 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 - Overview and when to use → `SKILL.md`
 - Quick Start (4-step onboarding) → `SKILL.md#quick-start`
 - Key Practice: Reframe Vague Requirements → `SKILL.md#key-practice-reframe-vague-requirements`
+- Choosing the ceremony level (S / M / L) → `SKILL.md#choosing-the-ceremony-level`
+- Three ways a spec and its code disagree → `SKILL.md#three-ways-a-spec-and-its-code-disagree`
 - Context is the real constraint (compaction model) → `SKILL.md#context-is-the-real-constraint`
 - Comprehension debt (code nobody understands) → `SKILL.md#comprehension-debt`
 - Living Document (spec versioning, commit, archive) → `SKILL.md#living-document`
@@ -27,7 +29,9 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 - constitution.md template → `artifact-templates.md#constitutionmd-template`
 - research.md template (Phase 0.5, cited findings) → `artifact-templates.md#researchmd-template`
 - progress.md template (context handover) → `artifact-templates.md#progressmd-template`
+- Writing concrete acceptance criteria → `artifact-templates.md#writing-concrete-acceptance-criteria`
 - spec.md template (incl. Boundaries section) → `artifact-templates.md#specmd-template`
+- spec.md delta mode (brownfield changes) → `artifact-templates.md#specmd-template--delta-mode`
 - plan.md template (incl. Risks section) → `artifact-templates.md#planmd-template`
 - data-model.md template → `artifact-templates.md#data-modelmd-template`
 - contracts/[endpoint].md template → `artifact-templates.md#contractsendpointmd-template`
@@ -50,7 +54,9 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 - Phase 5 — Linear walkthrough (comprehension) → `prompt-patterns.md#linear-walkthrough-prompt`
 - Status (`/sdd:status`) → `prompt-patterns.md#status-prompt-sddstatus--run-any-time`
 - Multi-agent review (standardized output) → `prompt-patterns.md#multi-agent-review-pattern`
+- Delta specification (brownfield) → `prompt-patterns.md#delta-specification-prompt-brownfield-changes`
 - Amend (requirements change cascade) → `prompt-patterns.md#amend-prompt-sddamend--run-when-requirements-change`
+- Reconcile (code changed outside the workflow) → `prompt-patterns.md#reconcile-prompt-sddreconcile--run-when-code-changed-outside-the-workflow`
 - Constitution from existing codebase → `prompt-patterns.md#constitution-from-existing-codebase`
 - Cross-feature conflict detector → `prompt-patterns.md#cross-feature-conflict-detector`
 
@@ -59,6 +65,8 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 - Phase 0 — Constitution → `workflow-phases.md#phase-0--constitution`
 - Phase 0.5 — Research → `workflow-phases.md#phase-05--research`
 - Phase 1 — Specify → `workflow-phases.md#phase-1--specify`
+- Delta specs (brownfield) → `workflow-phases.md#delta-specs`
+- Reconcile (code changed outside the workflow) → `workflow-phases.md#reconcile--when-code-changed-outside-the-workflow`
 - Phase 2 — Plan → `workflow-phases.md#phase-2--plan`
 - Phase 3 — Tasks → `workflow-phases.md#phase-3--tasks`
 - Phase 4 — Implement → `workflow-phases.md#phase-4--implement`
@@ -71,6 +79,7 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 - Critic findings (binary confidence) → `output-formats.md#critic-findings`
 - Traceability matrix → `output-formats.md#traceability-matrix`
 - Drift report → `output-formats.md#drift-report`
+- Reconcile report (`/sdd:reconcile`) → `output-formats.md#reconcile-report`
 - Analyze report → `output-formats.md#analyze-report`
 - Status report (`/sdd:status`) → `output-formats.md#status-report`
 - Linear walkthrough → `output-formats.md#linear-walkthrough`
@@ -78,7 +87,8 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 
 ### Quality and review
 
-- Per-phase checklists → `quality-gates.md#per-phase-checklists`
+- Which gates apply at which ceremony level → `quality-gates.md#which-gates-apply-at-which-ceremony-level`
+- Per-phase checklists (incl. delta-mode Gate 1) → `quality-gates.md#per-phase-checklists`
 - Confidence-based review thresholds → `quality-gates.md#confidence-based-review-thresholds`
 - CI/CD integration → `quality-gates.md#cicd-integration`
 - Drift classification → `quality-gates.md#spec-drift-classification`
@@ -110,6 +120,9 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 - Specifying against an imagined system → `anti-patterns.md#anti-pattern-17-specifying-against-an-imagined-system`
 - Letting the context window fill up → `anti-patterns.md#anti-pattern-18-letting-the-context-window-fill-up`
 - Shipping code nobody understands → `anti-patterns.md#anti-pattern-19-shipping-code-nobody-understands`
+- Delta spec without a baseline → `anti-patterns.md#anti-pattern-20-delta-spec-without-a-baseline`
+- Reconciling drift instead of fixing it → `anti-patterns.md#anti-pattern-21-reconciling-drift-instead-of-fixing-it`
+- Running one ceremony level for everything → `anti-patterns.md#anti-pattern-22-running-one-ceremony-level-for-everything`
 
 ---
 

@@ -10,6 +10,7 @@ files; this file defines what to show the person running the workflow.
 - Critic findings — issue lines with confidence markers
 - Traceability matrix — `/sdd:validate`
 - Drift report — `/sdd:validate`
+- Reconcile report — `/sdd:reconcile`
 - Analyze report — `/sdd:analyze`
 - Status report — `/sdd:status`
 - Linear walkthrough — `walkthrough.md`
@@ -164,6 +165,51 @@ item without both is not actionable and must be marked `[VERIFY]`.
 
 Drift types are fixed: `SIGNATURE`, `SCHEMA`, `BEHAVIOR`, `SCOPE`, `SPEC ERROR`. Only
 `SPEC ERROR` results in editing an artifact; everything else means fixing the code.
+
+---
+
+## Reconcile Report
+
+**Budget: one line per difference plus its evidence line, 30 lines maximum.** Output of
+`/sdd:reconcile`. This report proposes; it never applies.
+
+```text
+Reconcile — magic-link-login vs HEAD (baseline a3f9c21, 14 commits since)
+6 differences: 2 intentional, 1 external, 2 drift, 1 ambiguous
+
+INTENTIONAL  Token TTL is 5min in code, spec AC-4 says 15min
+             evidence: commit 7d21e0f "hotfix: shorten magic link TTL after INC-482"
+             → update spec                                          [CONFIRMED]
+INTENTIONAL  Verify endpoint returns 410 on reuse; contract says 409
+             evidence: PR #218 "align reuse response with expiry semantics"
+             → update contract                                      [CONFIRMED]
+EXTERNAL     Session cookie now SameSite=Strict, spec says Lax
+             cause: framework 4.2 changed the default — CHANGELOG.md:88
+             → update spec, record cause                            [CONFIRMED]
+DRIFT        Rate limit key is per-IP in code; AC-E3 specifies per-email
+             evidence: none found in 14 commits
+             → fix code                                             [CONFIRMED]
+DRIFT        Endpoint DELETE /auth/sessions exists, absent from spec
+             evidence: none found
+             → fix code or specify                                  [CONFIRMED]
+AMBIGUOUS    Email template omits the expiry notice from AC-5
+             evidence: commit 1b904cc "copy tweaks" — does not mention expiry
+             → human decides (defaults to DRIFT)                    [VERIFY]
+
+Nothing has been changed. Approve items individually.
+Apply approved spec updates via /sdd:amend; approved code fixes become tasks.
+```
+
+Rules:
+
+- **Every `INTENTIONAL` and `EXTERNAL` row carries a quoted evidence line.** A row without
+  quoted evidence is `DRIFT` — never `INTENTIONAL` on the strength of the code existing.
+- Evidence is quoted, not summarized. `commit 7d21e0f "hotfix: shorten TTL after INC-482"`
+  is evidence; "appears deliberate" is not.
+- The closing two lines are mandatory. They are what stop a reader from treating the report
+  as an applied change.
+- If `DRIFT` plus `AMBIGUOUS` exceeds half the rows, add a line stating that the feature was
+  likely rebuilt outside the process and should be re-specified rather than patched.
 
 ---
 

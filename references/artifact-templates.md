@@ -6,7 +6,9 @@ Copy-paste templates for each SDD artifact. Remove placeholder comments before c
 
 - `constitution.md` — project-level immutable constraints (Phase 0)
 - `research.md` — how the system works today, cited `file:line` (Phase 0.5)
+- Writing concrete acceptance criteria — vague-to-measurable conversions
 - `spec.md` — requirements, MoSCoW ACs, Boundaries (Phase 1)
+- `spec.md` delta mode — brownfield changes: baseline, ADDED/MODIFIED/REMOVED/UNCHANGED, blast radius
 - `plan.md` — architecture, AC coverage map, risks (Phase 2)
 - `data-model.md` — entities, indexes, migrations (Phase 2)
 - `contracts/[endpoint].md` — request/response shapes, error codes (Phase 2)
@@ -92,6 +94,27 @@ src/
 
 - [PENDING] [Decision 1]: [context and options]
 ```
+
+---
+
+## Writing Concrete Acceptance Criteria
+
+Every AC must survive one test: could someone write a failing automated test from this
+sentence alone? Convert before you write, not during review.
+
+| Vague | Concrete |
+|-------|---------|
+| "make it faster" | "LCP < 2.5s on a 4G connection" |
+| "it should be secure" | "requires an authenticated session; all inputs validated before processing" |
+| "handle errors properly" | "returns 4xx with a structured error code, never exposes stack traces" |
+| "should scale" | "handles 1000 concurrent users at < 500ms p95" |
+| "works correctly" | "Given X, When Y, Then Z — independently verifiable" |
+| "good UX" | "every interactive element reachable by keyboard; focus visible at 3:1 contrast" |
+| "reliable" | "retries 3× with exponential backoff, then fails with RETRY_EXHAUSTED" |
+
+Two words that almost always signal an unfinished AC: **"properly"** and **"appropriate"**.
+Both mean the writer deferred the decision to whoever implements it — which, in this
+workflow, is an agent that will decide silently.
 
 ---
 
@@ -182,6 +205,89 @@ Then [expected error response or behavior]
 - Security: [e.g., "requires authenticated session — see constitution.md"]
 - Accessibility: [e.g., "WCAG 2.1 AA for all interactive elements"]
 ```
+
+---
+
+## spec.md Template — Delta Mode
+
+*Use when changing behavior that already ships. A delta spec respecifies nothing: it declares
+a baseline and lists only what moves.*
+
+*Its length tracks the size of the **change**, not the size of the subsystem. Against a
+150-line baseline the saving is modest; against a mature auth spec it is the difference
+between a document reviewers read and one they skim. That is the point — not brevity for its
+own sake.*
+
+```markdown
+# [Change Name]
+
+Status: Draft
+Version: 1.0
+Mode: Delta
+Baseline: [specs/archive/user-auth/spec.md @ v2.1]  ← or: [specs/[feature]/research.md F-1..F-8]
+Last updated: [YYYY-MM-DD]
+
+## Change Summary
+<!-- 1-2 sentences: what behavior changes and for whom. Not why the feature exists. -->
+
+## Baseline Assertion
+<!-- What the system does TODAY that this change depends on. Every line cites the baseline —
+     a prior spec's AC, or a research.md finding with its file:line. If a line here turns out
+     to be false, this spec is invalid, not merely incomplete. -->
+
+- [Sessions expire after 12h] — baseline AC-4 / `research.md` F-2 (`src/auth/middleware.ts:40`)
+- [Rate limiting is per-IP] — `research.md` F-3 (`lib/rate-limit.ts:22`)
+
+## Acceptance Criteria
+
+<!-- Every AC carries a change label AND a MoSCoW label. -->
+
+### AC-1: [Short Title] [ADDED] [MUST]
+Given [context]
+When [action]
+Then [outcome]
+
+### AC-2: [Short Title] [MODIFIED] [MUST]
+**Was:** [previous behavior, quoted from the baseline — not paraphrased]
+**Now:** Given [context] When [action] Then [outcome]
+**Migration:** [what happens to data, sessions, or clients created under the old behavior]
+
+### AC-3: [Short Title] [REMOVED]
+**Was:** [behavior being removed, quoted from the baseline]
+**Callers now see:** [the new observable result — an error, a default, nothing]
+**Deprecation:** [immediate / behind flag until DATE / announced on DATE]
+
+### AC-4: [Short Title] [UNCHANGED]
+<!-- Behavior this change must NOT break. These are the regression tests. Include every
+     behavior that shares code paths with what you are changing — this section is the
+     cheapest insurance in a brownfield change. -->
+[Behavior, quoted from the baseline] — must still hold after this change.
+
+## Blast Radius
+<!-- Everything that touches what you are modifying. Derived from research.md, not guessed. -->
+
+| Changing | What depends on it | Verified by |
+|----------|--------------------|-------------|
+| `createSession()` | 4 call sites — `src/app/auth/*.ts` | AC-4 regression tests |
+| `sessions.expires_at` | reporting export job | AC-5, manual check before merge |
+
+## Out of Scope
+- [Adjacent thing you are deliberately not touching]
+
+## Open Questions
+- [NEEDS CLARIFICATION] [question]
+```
+
+**Rules for delta specs:**
+
+- The `Baseline:` header must resolve to something a reviewer can open. "The current code" is
+  not a baseline; `research.md` findings with `file:line` citations are.
+- `[MODIFIED]` and `[REMOVED]` ACs quote the old behavior verbatim from the baseline. A
+  paraphrase hides whether the author actually read it.
+- `[UNCHANGED]` is not filler. It is the regression suite, and it is what makes a delta spec
+  safe enough to be short.
+- If more than roughly half the ACs are `[ADDED]`, you are writing a new feature — switch to
+  a full spec.
 
 ---
 

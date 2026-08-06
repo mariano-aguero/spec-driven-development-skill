@@ -7,10 +7,12 @@ Step-by-step execution guide for each SDD phase, including decision points and c
 - Phase 0 — Constitution: intake, generation, security review, `[PENDING]` resolution, Gate 0
 - Phase 0.5 — Research: run/skip decision, subagent dispatch, consolidation, citation verification, Gate R
 - Phase 1 — Specify: intake, `[PENDING]` check, assumptions, generation, clarify, Gate 1
+- Delta specs — brownfield mode: baseline, change labels, blast radius, folding deltas back
 - Phase 2 — Plan: plan, data model, contracts, AC tracing, critics, contract lock, Gate 2
 - Phase 3 — Tasks: breakdown, test-first ordering, sizing, parallelism, Gate 3
 - Phase 4 — Implement: per-task session setup, verification, commits, context budget, handover
 - Phase 5 — Validate: traceability, drift detection, acceptance run, linear walkthrough, archive
+- Reconcile — when code changed outside the workflow: classification rules, evidence, cascade
 
 ---
 
@@ -260,6 +262,90 @@ git commit -m "spec: [feature name] requirements"
 
 Expect to spend 30–60% of total feature time on Phases 1–2. This is correct.
 Reduced execution time more than compensates.
+
+---
+
+## Delta Specs
+
+Most real work is brownfield: you are not building auth, you are changing how auth expires.
+Respecifying the whole subsystem to change one rule produces a long document whose reviewers
+skim — and skimmed specs are the mechanism by which SDD becomes ceremony.
+
+A delta spec declares a **baseline** and lists only what moves.
+
+### Choosing the mode
+
+| Signal | Mode |
+|--------|------|
+| No existing behavior to preserve — new surface entirely | Full |
+| Changing, extending, or removing behavior that already ships | Delta |
+| Rewriting a subsystem end to end | Full — the old spec becomes the baseline for comparison, not for reuse |
+| More than roughly half the ACs would be `[ADDED]` | Full — this is a new feature wearing a change's clothes |
+
+Mode is recorded in the `Mode:` header of `spec.md`. Everything downstream — plan, tasks,
+validation — works identically; only the spec's shape differs.
+
+### Step-by-Step
+
+**Step D.1 — Establish the baseline**
+
+A delta spec is meaningless without a resolvable baseline. Two legitimate sources:
+
+| Source | Use when | Cite as |
+|--------|----------|---------|
+| A prior spec | The feature was previously specified | `specs/archive/[feature]/spec.md @ v2.1` |
+| `research.md` | The behavior predates SDD adoption | `research.md F-2 (src/auth/middleware.ts:40)` |
+
+There is no third option. "The current behavior" as an unstated premise is how a delta spec
+silently encodes a misunderstanding — and unlike a full spec, there is nothing else in the
+document to contradict it.
+
+If neither source exists, run Phase 0.5 first. This is the most common reason a brownfield
+change needs research: not to design, but to have something to write `Baseline:` against.
+
+**Step D.2 — Write the Baseline Assertion**
+
+List what the change depends on being true today, each line citing the baseline. Keep it
+short — only what this change actually leans on.
+
+This section has a property worth understanding: **if a line here is false, the spec is
+invalid rather than incomplete.** That is a stronger failure than a missing AC, and it is
+why Gate 1 verifies these lines against the code rather than accepting them.
+
+**Step D.3 — Label every AC**
+
+Each AC carries a change label and a MoSCoW label:
+
+| Label | Means | Also requires |
+|-------|-------|---------------|
+| `[ADDED]` | New behavior | — |
+| `[MODIFIED]` | Existing behavior changes | `Was:` quoted verbatim, and a `Migration:` line |
+| `[REMOVED]` | Existing behavior goes away | `Was:`, what callers see now, deprecation timing |
+| `[UNCHANGED]` | Must not break | Nothing — but this is the regression suite |
+
+`[UNCHANGED]` is the section people skip and the one that earns the mode. A delta spec is
+only safe to be short if it is explicit about what it is *not* allowed to disturb.
+
+**Step D.4 — Map the blast radius**
+
+For each thing you are modifying, list what depends on it and which AC verifies it still
+works. Derive this from `research.md`, never from memory — the whole risk of brownfield work
+is the caller you forgot.
+
+**Step D.5 — Gate 1 (delta variant)**
+
+Standard Gate 1 checks apply, plus the delta-specific ones in
+`quality-gates.md → Gate 1 — spec.md Approval`.
+
+### After the change ships
+
+Fold the delta into the baseline: update the prior spec to its new version, or promote the
+delta to a full spec if the baseline was `research.md`. A chain of five delta specs against
+one baseline is unreadable by the sixth change — reviewers end up reconstructing current
+behavior by replaying history.
+
+Rule of thumb: **at most two unfolded deltas against a baseline.** The third is a signal to
+consolidate.
 
 ---
 
@@ -520,3 +606,96 @@ rm -rf specs/[feature-name]
 Keep `specs/archive/` in version control — specs are invaluable for regression analysis
 when bugs appear in features implemented months earlier. Skip this step if your team
 prefers to keep all specs in `specs/` indefinitely.
+
+---
+
+## Reconcile — When Code Changed Outside the Workflow
+
+**Invoke:** `/sdd:reconcile [feature]`
+
+Real codebases move outside the process. A 3am hotfix ships, a dependency upgrade changes
+behavior, another team refactors a shared module, someone merges a PR that never saw a spec.
+The spec is now stale documentation, and every future `/sdd:validate` run reports the same
+noise until someone resolves it.
+
+Reconcile is the only sanctioned path from "the code is right and the spec is behind" back to
+a trustworthy spec. It is also the single most dangerous command in this skill, because it is
+one careless step from Anti-Pattern 6 — adjusting the spec to match the code.
+
+### The safeguard
+
+**Reconcile never edits anything.** It classifies each difference, states the evidence, and
+proposes a direction. A human approves each item individually. There is no "accept all".
+
+The classification rule is what keeps it honest:
+
+| Classification | Requires | Direction |
+|----------------|----------|-----------|
+| `INTENTIONAL` | **Evidence** — a commit, PR, incident ticket, or changelog entry showing the change was deliberate | Update the spec |
+| `EXTERNAL` | The cause is outside your code — dependency upgrade, platform change, upstream API | Update the spec, record the cause |
+| `DRIFT` | No such evidence exists | Fix the **code** |
+| `AMBIGUOUS` | Evidence exists but does not clearly cover this difference | Human decides; **defaults to `DRIFT`** |
+
+**Absence of evidence is evidence of drift.** A difference nobody can trace to a deliberate
+decision is drift, and drift gets fixed in the code. Without this rule, reconcile degrades
+into a machine for retroactively legitimizing whatever the code happens to do — which is
+exactly the failure specs exist to prevent.
+
+### Step-by-Step
+
+**Step R.1 — Establish what to compare**
+
+```bash
+# The commit the spec was last validated against
+git log --oneline -1 -- specs/[feature]/validation.md
+# Everything that touched the feature's code since
+git log --oneline [that-sha]..HEAD -- src/[feature paths]
+```
+
+If `validation.md` does not exist, the baseline is the commit that last modified
+`specs/[feature]/spec.md`.
+
+**Step R.2 — Run the reconcile prompt**
+
+`references/prompt-patterns.md → Reconcile Prompt`. It produces one row per difference with
+a classification and the evidence behind it.
+
+**Step R.3 — Human decides, item by item**
+
+Review each row. The two questions per item:
+
+- Does the cited evidence actually authorize this change? A commit message saying "fix login"
+  does not authorize a changed error code.
+- If the spec is updated, does the new behavior still satisfy the original user story? A
+  hotfix can be both deliberate *and* wrong.
+
+An item can be reclassified in either direction during review. That is the point of the step.
+
+**Step R.4 — Apply approved changes through the normal chain**
+
+Reconcile does not get to shortcut the workflow it is repairing:
+
+- Items resolved as **fix the code** become tasks in `tasks.md` and run through Phase 4
+- Items resolved as **update the spec** cascade through `/sdd:amend`: spec → plan → contracts
+  → data model. Never edit `spec.md` alone and call it reconciled.
+
+**Step R.5 — Record why**
+
+Every approved spec update gets a `decision_log.md` entry naming the evidence. Six months
+later, "why does the spec say 401 here when the user story implies 403?" must have an answer
+that is not "someone reconciled it once".
+
+**Step R.6 — Re-validate and commit**
+
+```bash
+git add specs/[feature]/ && git commit -m "reconcile: [feature] spec to shipped behavior"
+```
+
+Then run `/sdd:validate` — a clean run is what proves the reconciliation is complete.
+
+### When not to reconcile
+
+- **The requirement changed** → `/sdd:amend`. Reconcile is for code that moved, not intent.
+- **You are mid-Phase 4** → that is drift; fix it now rather than legitimizing it later.
+- **You cannot find evidence for most differences** → the feature was rebuilt outside the
+  process. Re-specify it rather than patching a spec that no longer describes anything.

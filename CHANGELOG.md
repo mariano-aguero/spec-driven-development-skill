@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-08-06
+
+Brownfield release. Three additions that answer the standing criticism of spec-driven
+development — that it is greenfield-shaped, that specs go stale, and that it applies the same
+ceremony to a copy fix and a payment migration.
+
+### Added
+
+- **Ceremony levels S / M / L.** Process intensity is now chosen per change, with an objective
+  decision rule (start at M; drop to S only if *all* of one-session / ≤3 files / no contract or
+  schema change / trivially revertible hold; move to L if *any* of auth-or-payments /
+  irreversible migration / regulated domain / unread code holds). The tiebreaker is
+  reversibility, not size.
+  - A gate matrix in `quality-gates.md` maps each level to the gates it requires. Gates are not
+    optional at the level you chose — choosing S is a decision to accept less verification,
+    while skipping a gate at M is not.
+- **Delta specs for brownfield changes.** `spec.md` gains a `Mode:` header. In delta mode the
+  spec declares a `Baseline:` and lists only what moves, with every AC labelled `[ADDED]`,
+  `[MODIFIED]`, `[REMOVED]`, or `[UNCHANGED]` alongside its MoSCoW label.
+  - `[MODIFIED]` and `[REMOVED]` quote the previous behavior verbatim and state migration and
+    deprecation; `[UNCHANGED]` is the regression suite that makes a short spec safe to be short.
+  - A **Blast Radius** table maps each modified item to its dependents and the AC verifying them.
+  - A baseline must resolve to a prior spec version or cited `research.md` findings — never
+    "the current code". Nine delta-specific checks added to Gate 1.
+  - Folding rule: at most two unfolded deltas per baseline before consolidating.
+- **`/sdd:reconcile`** — the missing half of the drift loop, for code that changed outside the
+  workflow via hotfix, dependency upgrade, or another team's refactor.
+  - Classifies each difference as `INTENTIONAL`, `EXTERNAL`, `DRIFT`, or `AMBIGUOUS`. The
+    governing rule: **absence of evidence is drift.** `INTENTIONAL` requires a quoted commit,
+    PR, or ticket; without one the difference gets fixed in the code, not written into the spec.
+  - **Proposes only.** It edits nothing, there is no "accept all", and approved spec updates
+    cascade through `/sdd:amend` rather than editing `spec.md` alone.
+  - Reconcile report format with a 30-line budget in `output-formats.md`.
+- Three anti-patterns: **AP-20** Delta Spec Without a Baseline, **AP-21** Reconciling Drift
+  Instead of Fixing It, **AP-22** Running One Ceremony Level for Everything.
+- Two evals: `06-ceremony-level` (two changes, different levels) and `07-reconcile-evidence`
+  (a reasonable-sounding request to launder drift).
+- `examples/specs/magic-link-shorten-ttl/spec.md` — a worked delta spec against the existing
+  magic-link example, with baseline assertions, migration notes, and a blast radius table.
+- "Writing Concrete Acceptance Criteria" in `artifact-templates.md`, with vague-to-measurable
+  conversions and the two words that signal an unfinished AC: *properly* and *appropriate*.
+
+### Changed
+
+- `SKILL.md` gains the ceremony dial, delta mode, and the spec-vs-code disagreement table while
+  **staying under budget at 309 lines / ~3,935 tokens** — achieved by merging two overlapping
+  per-phase tables into one, compressing the drift-prevention list that duplicated the phase
+  rules, and moving the vague-requirements table to `artifact-templates.md` where ACs are written.
+- Spec levels (spec-first / spec-anchored / spec-as-source) moved from `SKILL.md` to the README.
+  It is a positioning taxonomy, and having two three-level scales in the entry point invited
+  confusion with the ceremony dial.
+
 ## [1.5.0] — 2026-08-05
 
 Research becomes a first-class phase, context management becomes an explicit discipline, and

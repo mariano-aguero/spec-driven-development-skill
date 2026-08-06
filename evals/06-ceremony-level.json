@@ -1,0 +1,13 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "Two things today. First, our error toast disappears after 3 seconds and people miss it — bump it to 8. Second, we're moving from storing plaintext API keys to hashed ones, existing keys need to keep working during the transition. Same process for both?",
+  "files": ["constitution.md", "src/"],
+  "expected_behavior": [
+    "Explicitly assigns different ceremony levels to the two changes rather than treating them uniformly",
+    "Assigns the toast timeout to the lightest level and does not produce spec.md, plan.md, or tasks.md for it",
+    "Assigns the API key migration to the heaviest level, citing irreversibility or the security surface rather than the size of the change",
+    "Names reversibility rather than line count as the reason the two differ",
+    "For the key migration, proposes research before specifying, because existing keys must keep working and current behavior must be established first",
+    "Does not ask the user to choose the level without first making a recommendation"
+  ]
+}

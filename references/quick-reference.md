@@ -4,9 +4,9 @@ One-page cheat sheet. For details, see referenced files.
 
 ## Contents
 
-Workflow diagram · Directory layout · Phase commands · Hard rules · MoSCoW labels ·
-AC format · Task sizes · Drift types · Gate checklist · Context budget · Output budgets ·
-When not to use SDD
+Workflow diagram · Directory layout · Phase commands · Ceremony levels · Spec modes ·
+Spec vs. code disagreements · Hard rules · MoSCoW labels · AC format · Task sizes ·
+Drift types · Gate checklist · Context budget · Output budgets · When not to use SDD
 
 ---
 
@@ -64,7 +64,49 @@ specs/[feature]/
 | `/sdd:analyze` | any | `spec.md` | inconsistency report |
 | `/sdd:status` | any | all artifacts on disk | phase state + next action (12 lines) |
 | `/sdd:amend [what changed]` | any | all spec files | updated spec chain |
+| `/sdd:reconcile [feature]` | any | spec files + git history | classified differences — **proposes only** |
 | `/sdd:validate` | 5 | all spec files + code | `validation.md`, drift report, `walkthrough.md` |
+
+---
+
+## Ceremony Levels
+
+| | **S — Light** | **M — Standard** | **L — Full** |
+|---|---|---|---|
+| Use when | 1 session, ≤3 files, no schema/contract/auth change, revertible | New endpoint, table, or user-visible behavior | Auth, payments, migrations, regulated, unfamiliar code |
+| Artifacts | ACs in the PR body | spec, plan, contracts, tasks | + research, decision log, walkthrough |
+| Gates | self-check | 1, 2, 3, 5 | 0, R, 1–5, C |
+| Critics | — | optional | required |
+
+Start at M. Drop to S only if **all** the S conditions hold; move to L if **any** L condition
+holds. Tiebreaker is reversibility, not size. Promote mid-flight, never demote.
+
+---
+
+## Spec Modes
+
+| Mode | Use when | Header |
+|------|----------|--------|
+| **Full** | New capability, no existing behavior to preserve | `Mode: Full` |
+| **Delta** | Changing behavior that already ships | `Mode: Delta` + `Baseline:` |
+
+Delta ACs carry `[ADDED]` / `[MODIFIED]` / `[REMOVED]` / `[UNCHANGED]` alongside MoSCoW.
+`[UNCHANGED]` is the regression suite. Baseline must resolve to a prior spec or cited
+`research.md` findings — never "the current code". Max **two** unfolded deltas per baseline.
+
+---
+
+## Spec vs. Code Disagreements
+
+| Situation | Cause | Command | What changes |
+|-----------|-------|---------|--------------|
+| Drift | Implementation diverged by mistake | `/sdd:validate` | the **code** |
+| Amendment | A requirement changed | `/sdd:amend` | the **spec chain**, then code |
+| Reconciliation | Code changed outside the workflow | `/sdd:reconcile` | per difference, **human decides** |
+
+Reconcile classifications: `INTENTIONAL` / `EXTERNAL` need quoted evidence → update spec ·
+`DRIFT` (no evidence) → fix code · `AMBIGUOUS` → human, defaults to DRIFT.
+**Absence of evidence is drift.**
 
 ---
 
@@ -73,6 +115,9 @@ specs/[feature]/
 | Rule | Why |
 |------|-----|
 | Constitution before any spec | Without it, every feature reinvents the wheel |
+| Pick the ceremony level per change | Uniform-heavy kills adoption; uniform-light fails on auth and money |
+| A delta spec needs a resolvable baseline | "The current code" is an assumption, not a reference |
+| Absence of evidence is drift | Otherwise reconcile legitimizes whatever the code happens to do |
 | Research before specifying unfamiliar code | A spec built on a wrong model of the system drifts by construction |
 | Every research claim cites `file:line` | An uncited finding is a guess wearing a fact's clothes |
 | Compact at 60–80%, never at 100% | Auto-compaction discards details you chose to keep |
