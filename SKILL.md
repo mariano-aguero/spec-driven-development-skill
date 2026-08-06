@@ -26,7 +26,7 @@ systematic regeneration rather than a manual rewrite.
 
 1. `/sdd:init` — create `constitution.md` (once per project, before any feature spec)
 2. `/sdd:research [description]` — map how the existing code works, cited `file:line` (skip on greenfield)
-3. Surface the AI's implicit assumptions about roles, permissions, error behavior, and scope — correct them *before* any AC is written
+3. Surface and correct the AI's implicit assumptions *before* any AC is written
 4. `/sdd:specify [description]` — generate `spec.md` with MoSCoW-prioritized ACs
 5. Follow the gates: Clarify → Plan → Tasks → Implement → Validate, with human approval at each
 
@@ -62,9 +62,8 @@ or payments, irreversible data migration, regulated domain, or code nobody on th
 read.
 
 Two failure modes, equally costly: L ceremony on an S change is where "drowning in markdown"
-comes from, and S ceremony on an L change is the reason this skill exists. When genuinely
-unsure, the tiebreaker is **reversibility**, not size — a small change to an auth check
-outranks a large change to a report layout.
+comes from, and S ceremony on an L change is the reason this skill exists. The tiebreaker is
+**reversibility**, not size.
 
 Levels are per change, not per project. Moving up mid-flight is normal — promoting S to M
 once a schema change appears. Moving down is not: it discards a gate you already decided
@@ -124,10 +123,9 @@ Update only when a fundamental project decision changes — never per-feature.
 A compacted map of how the relevant part of the system works **today**, written before any
 requirement is drafted.
 
-**Run it when** the feature touches code you did not write or do not remember, multiple
-valid architectures exist, the work is a refactor or migration, or the codebase is too large
-to read in one session. **Skip it** on greenfield code, or when you can name every touchpoint
-from memory with confidence.
+**Run it when** the feature touches code you did not write or do not remember, several valid
+architectures exist, or the work is a refactor or migration. **Skip it** on greenfield code,
+or when you can name every touchpoint from memory.
 
 **Four rules:**
 
@@ -157,7 +155,14 @@ Details: `references/workflow-phases.md → Phase 0.5`.
 | **5 — Validate** | `/sdd:validate` | all artifacts + code | traceability matrix, drift report, walkthrough | Gate 5 + Gate C |
 
 **Every gate is a human approval point.** AI cannot approve its own output. Full checklists
-for Gates 0, R, 1–5 and C live in `references/quality-gates.md`.
+for Gates 0, R, 1–5 and C live in `references/quality-gates.md`, along with
+`/sdd:checklist [domain]` — generated per-feature checklists that test the *spec* rather than
+the software.
+
+Rules that are objectively decidable should stop being requests: a pre-write hook can make
+the `contracts/` freeze real, and `constitution.md` can be derived into an `AGENTS.md` that
+tools read automatically. See `references/enforcement.md` — including what must *not* be
+mechanized.
 
 ### One rule and one prohibition per phase
 
@@ -261,9 +266,7 @@ human. Confusing the two is how SDD earns its reputation for ceremony.
 - **Mark uncertainty as binary.** `[CONFIRMED]` when verified against code or a cited
   artifact, `[VERIFY]` when inferred. Never invent a confidence percentage.
 - **Respect the line budgets.** Every user-facing output in `references/output-formats.md`
-  has one.
-
-Formats for every output the human reads: `references/output-formats.md`.
+  has one, along with its format.
 
 ---
 
@@ -301,7 +304,8 @@ All reference files are one level deep from here. Load only what the current pha
 | Templates for every artifact | `references/artifact-templates.md` |
 | Prompts for each phase interaction | `references/prompt-patterns.md` |
 | Detailed phase-by-phase instructions | `references/workflow-phases.md` |
-| Review checklists and CI/CD integration | `references/quality-gates.md` |
+| Review checklists, generated per-domain checklists, CI/CD | `references/quality-gates.md` |
+| Hooks, contract locks, worktrees, `AGENTS.md` bridge | `references/enforcement.md` |
 | Formats for everything the user reads | `references/output-formats.md` |
 | Context engineering and multi-agent patterns | `references/ai-agent-patterns.md` |
 | Common failure modes and fixes | `references/anti-patterns.md` |

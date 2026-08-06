@@ -35,6 +35,7 @@ spec-driven-development-skill/
 | `workflow-phases.md` | Detailed step-by-step for each phase (0, 0.5, 1–5) | Phase details change |
 | `quality-gates.md` | Review checklists (Gate 0, R, 1–5, C), CI/CD scripts, drift classification | New quality checks needed |
 | `output-formats.md` | Formats and line budgets for everything the user reads | A command gains user-facing output |
+| `enforcement.md` | Hooks, contract locks, worktrees, `AGENTS.md` bridge | A rule becomes mechanically enforceable |
 | `ai-agent-patterns.md` | Context engineering, subagent patterns, parallel tasks | New AI agent patterns emerge |
 | `anti-patterns.md` | Failure modes with examples and fixes | New failure patterns identified |
 | `quick-reference.md` | Summary tables and cheat sheet | Any structural changes |

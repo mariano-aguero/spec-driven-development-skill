@@ -5,8 +5,9 @@ One-page cheat sheet. For details, see referenced files.
 ## Contents
 
 Workflow diagram · Directory layout · Phase commands · Ceremony levels · Spec modes ·
-Spec vs. code disagreements · Hard rules · MoSCoW labels · AC format · Task sizes ·
-Drift types · Gate checklist · Context budget · Output budgets · When not to use SDD
+Spec vs. code disagreements · Enforcement ladder · Hard rules · MoSCoW labels · AC format ·
+Task sizes · Drift types · Gate checklist · Context budget · Output budgets ·
+When not to use SDD
 
 ---
 
@@ -61,6 +62,7 @@ specs/[feature]/
 | `/sdd:plan` | 2 | `spec.md` + `constitution.md` + `research.md` (if present) | `plan.md`, `data-model.md`, `contracts/` |
 | `/sdd:tasks` | 3 | `plan.md`, `contracts/` | `tasks.md` |
 | `/sdd:next-task` | 4 | `tasks.md` | — (extracts single task) |
+| `/sdd:checklist [domain]` | 1 | `spec.md` | `checklists/[domain].md` — tests the spec, not the code |
 | `/sdd:analyze` | any | `spec.md` | inconsistency report |
 | `/sdd:status` | any | all artifacts on disk | phase state + next action (12 lines) |
 | `/sdd:amend [what changed]` | any | all spec files | updated spec chain |
@@ -107,6 +109,22 @@ Delta ACs carry `[ADDED]` / `[MODIFIED]` / `[REMOVED]` / `[UNCHANGED]` alongside
 Reconcile classifications: `INTENTIONAL` / `EXTERNAL` need quoted evidence → update spec ·
 `DRIFT` (no evidence) → fix code · `AMBIGUOUS` → human, defaults to DRIFT.
 **Absence of evidence is drift.**
+
+---
+
+## Enforcement Ladder
+
+| Rung | Mechanism | Use for |
+|------|-----------|---------|
+| 1 — Asked | The prompt states the rule | Judgment calls: testability, over-engineering, comprehension |
+| 2 — Checked | CI detects the violation after the fact | AC coverage, citations, unresolved clarifications |
+| 3 — Blocked | A hook prevents the action | `contracts/` freeze, banned patterns, tests-before-commit |
+
+Promote a rule only when it is objectively decidable **and** has been violated more than once.
+Mechanical checks verify that rules were followed — never that the rules were right.
+
+`constitution.md` → derive `AGENTS.md` (60–150 lines, never edited directly). Cut every line
+an agent would follow anyway; the value is entirely in the surprising rules.
 
 ---
 

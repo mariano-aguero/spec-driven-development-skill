@@ -7,6 +7,7 @@ Review checklists, confidence thresholds, and CI/CD integration patterns for SDD
 - Which gates apply at which ceremony level
 - Gate 0 — `constitution.md` approval
 - Per-phase checklists: Gate R (research), Gates 1–5 (incl. delta-mode checks), Gate C
+- Generated checklists (`/sdd:checklist [domain]`) — unit tests for the spec
 - Confidence-based review thresholds
 - CI/CD integration: research citation check, AC coverage, drift detection, spec completeness
 - Spec drift classification
@@ -219,6 +220,84 @@ adopt them without a comprehension gate merge substantially more pull requests w
 understanding substantially less of what they ship — a debt that stays invisible until the
 first incident, onboarding, or refactor. SDD only pays this back if the artifacts are
 actually read.
+
+---
+
+## Generated Checklists — Unit Tests for the Spec
+
+Gates are universal: the same checks run for every feature, which is what makes them
+reliable and also what makes them generic. A gate cannot know that *this* feature touches
+timezone arithmetic, or handles money, or is the first thing a new user sees.
+
+A **checklist** is generated per feature and per domain to cover exactly that: the risk
+surface this feature has and the last one didn't.
+
+**Invoke:** `/sdd:checklist [domain]` → `specs/[feature]/checklists/[domain].md`
+
+| | Gates | Checklists |
+|---|-------|-----------|
+| Scope | Every feature, fixed | This feature, generated |
+| Source | This skill | The spec's own content and domain |
+| Changes | Only when the workflow changes | Every feature |
+| Blocking | Yes | No — they inform the human at the gate |
+
+Useful domains: security, UX, accessibility, performance, data integrity,
+internationalization, observability, migration safety, compliance.
+
+### The one rule that makes them work
+
+**A checklist validates the requirements, never the behavior.** This is the distinction
+people get wrong, and getting it wrong turns a checklist into a duplicate test plan.
+
+| ✅ Tests the requirement | ❌ Tests the behavior |
+|--------------------------|----------------------|
+| "Is the timeout for expired sessions specified with a numeric value?" | "Does the session expire after 30 minutes?" |
+| "Are requirements stated for what happens when the payment provider is unreachable?" | "Does it show an error when payment fails?" |
+| "Is 'sensitive data' defined in the spec or constitution?" | "Does it redact sensitive data correctly?" |
+
+Banned verbs in checklist items: *displays*, *renders*, *loads*, *executes*, *clicks*,
+*navigates*, *works*. Any item containing one has drifted into testing the implementation —
+which is what the ACs and the test suite already do.
+
+The check to apply while writing: **could this item be answered by reading only the spec?**
+If answering it requires running the code, it belongs in `tasks.md`, not a checklist.
+
+### Item markers
+
+Each finding carries one:
+
+| Marker | Means |
+|--------|-------|
+| `[Gap]` | A requirement that should exist for this domain and does not |
+| `[Ambiguity]` | A requirement exists but admits more than one reading |
+| `[Conflict]` | Two requirements cannot both hold |
+| `[Assumption]` | The spec depends on something unstated |
+
+### Scenario coverage
+
+Generate items across all five scenario classes, not just the happy one. A domain checklist
+that only covers the primary path reproduces the spec's blind spot instead of exposing it:
+
+| Class | Question the checklist asks |
+|-------|----------------------------|
+| Primary | Are the requirements for the main path complete and measurable? |
+| Alternate | Are the valid-but-secondary paths specified, or silently assumed? |
+| Exception | Is every failure mode in this domain given a specified outcome? |
+| Recovery | After a failure, is the required system and user state stated? |
+| Non-functional | Are this domain's quality attributes given numeric thresholds? |
+
+An item may legitimately resolve as **intentionally excluded** — that is a passing answer,
+provided the exclusion is written in the spec's Out of Scope section rather than living in
+someone's head.
+
+### When to run them
+
+At level L, before Gate 1, for every domain the feature touches. At level M, for one domain
+— the one carrying the feature's real risk. At level S, not at all.
+
+Checklists do not block a gate. They surface what the human should look at while running one,
+and an unresolved `[Gap]` from a security checklist is a Gate 1 finding by way of the
+"error coverage" check, not by way of the checklist itself.
 
 ---
 

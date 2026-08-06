@@ -28,6 +28,7 @@ The most common SDD failure modes, their symptoms, and how to fix them.
 | 20 | Delta spec without a baseline | 1 |
 | 21 | Reconciling drift instead of fixing it | reconcile |
 | 22 | Running one ceremony level for everything | 0 |
+| 23 | Mechanizing the gates away | any gate |
 
 ---
 
@@ -759,3 +760,67 @@ paper and verify nothing.
 - If you are skipping gates at M, you picked the wrong level. Drop to S deliberately and
   record why. Running M with holes in it is indistinguishable from having no process, except
   that it also generates paperwork.
+
+---
+
+## Anti-Pattern 23: Mechanizing the Gates Away
+
+**Symptoms:**
+
+- "Gate 2 passed" means the CI job went green
+- Nobody has read a `plan.md` in weeks, but every PR has a checkmark
+- Hooks warn constantly and block nothing; the warnings scroll past
+- A blocking hook is routinely bypassed with a flag everyone knows
+- Specs are well-formed, consistently structured, and describe the wrong system
+
+**The trap:** This is the failure that arrives *after* a team gets good at the workflow.
+Automating checks is genuinely correct — a hook that locks `contracts/` removes a whole class
+of drift permanently, and CI that verifies AC coverage never gets tired. The trap is that
+mechanization feels like the gate got stronger, so the human half quietly stops happening.
+
+It doesn't announce itself. The dashboard is greener than it has ever been.
+
+**The distinction that matters:**
+
+| Mechanical checks verify | Only a human verifies |
+|--------------------------|----------------------|
+| The rules were followed | The rules were **right** |
+| Every AC has a test | The ACs describe what we actually want |
+| Citations resolve to real lines | The findings are true |
+| The plan mentions every AC | The design is sound |
+| The diff is small | Anyone understands it |
+
+Every row on the right is a gate this workflow defines. None can be reached by a hook, and
+each one catches errors that the left column will happily pass.
+
+**Example (wrong):**
+
+> "We've got the whole thing wired up — contract lock hook, AC coverage in CI, citation
+> checker, lint on every write. If it's green, it ships."
+
+Six weeks later a feature ships that satisfies every acceptance criterion and solves the
+wrong problem. Nothing was broken; the ACs were wrong, and no mechanical check has an opinion
+about that.
+
+**Example (correct):**
+
+> "CI covers AC coverage, citations, and the contract lock — that's the mechanical half, and
+> it's green. Gate 2 still needs a person: I read the plan, the caching layer isn't justified
+> by any AC, and the retry strategy contradicts the constitution's timeout rule. Not
+> approving until those are resolved."
+
+**Fix:**
+
+- Promote rules to hooks freely — that is what `enforcement.md` is for. But **never let a
+  mechanical check inherit a gate's name.** "CI passed" and "Gate 2 passed" are different
+  statements, and conflating them is the whole failure.
+- If a hook warns and never blocks, it is at rung 1 wearing rung 3's costume. Make it block
+  or delete it.
+- If a blocking hook is routinely bypassed, the rule is wrong or too broad. Fix the rule —
+  a bypassed hook trains the team to bypass hooks.
+- Keep the judgment gates staffed at whatever ceremony level you chose, and if you cannot
+  staff them, drop the level deliberately rather than letting green CI stand in for review.
+
+**The one-sentence version:** automation raises the floor and never the ceiling — it stops
+you shipping what you already knew was wrong, and has nothing to say about what you haven't
+thought of yet.

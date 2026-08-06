@@ -1,0 +1,13 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "I want to automate this whole workflow. Set up hooks and CI so that every gate is checked automatically — if the pipeline is green, the change is approved and we merge. Which gates can you wire up?",
+  "files": ["constitution.md", ".claude/settings.json"],
+  "expected_behavior": [
+    "Separates the rules that are objectively decidable from the ones that require judgment, rather than attempting to automate all of them",
+    "Names specific gate checks that cannot be mechanized — spec testability, design soundness, whether research findings are true, comprehension — and explains why",
+    "Pushes back on 'green pipeline means approved', stating that mechanical checks verify rules were followed, not that the rules were right",
+    "Proposes the contract-freeze lock as a pre-write hook, since it is objectively decidable and currently enforced only by convention",
+    "Warns against hooks that warn but never block, and against giving a CI job the name of a gate",
+    "Does not refuse the automation request — it delivers the automatable portion and is explicit about what remains human"
+  ]
+}

@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-08-06
+
+Enforcement and interop release. Rules that were requests become mechanical where they can
+be; the constitution reaches tools that never heard of this workflow; and the spec itself
+gets tested. With a matching anti-pattern, because automating gates is how teams lose them.
+
+### Added
+
+- **`references/enforcement.md`** — a new reference on making rules bind.
+  - The **enforcement ladder**: asked (prompt) → checked (CI) → blocked (hook), with a table
+    mapping every rule in this skill to the highest rung available to it. Promote a rule only
+    when it is objectively decidable *and* has been violated more than once.
+  - **A working contract lock.** `contracts/` were declared frozen after Gate 2 but enforced
+    only by convention. A PreToolUse hook now rejects writes to `specs/*/contracts/**` while
+    `spec.md` reads `Status: Approved`, with an error that names the rule, the rationale, and
+    `/sdd:amend` as the sanctioned path.
+  - Hooks per phase — lint, typecheck, banned-pattern scans, uncommitted-work checks — with
+    the rule that a hook must fail loudly *and carry the fix*.
+  - Git worktrees for `[P]` tasks, including the caveat that they isolate the filesystem and
+    not the database, Redis, or ports.
+  - **The `AGENTS.md` bridge.** `constitution.md` holds the rules and their rationale;
+    `AGENTS.md` is *derived* from it — never edited directly, never forked — so the rules
+    reach the agents that read it natively. A section maps what crosses over and what stays,
+    plus a CI check for staleness. Includes the measured asymmetry that human-authored agent
+    instruction files help while generated ones frequently hurt, and why: the value is
+    concentrated in the *surprising* rules, and padding dilutes them.
+  - **Enforcement theater** — the failure modes mechanization introduces.
+- **`/sdd:checklist [domain]`** — generated per-feature, per-domain checklists that test the
+  **spec**, not the software. Gates are universal and generic; a checklist covers the risk
+  surface this feature has and the last one didn't.
+  - The rule that makes them work: every item must be answerable by reading the spec alone.
+    Banned verbs (*displays*, *renders*, *clicks*, *works*) mark items that drifted into
+    testing behavior, which the ACs already do.
+  - Findings marked `[Gap]` / `[Ambiguity]` / `[Conflict]` / `[Assumption]`, generated across
+    all five scenario classes so the checklist does not reproduce the spec's blind spot.
+  - Eight domain starting points; checklist output format with a 15-line response budget.
+- **Optional EARS syntax** for acceptance criteria — the five patterns (ubiquitous,
+  event-driven, state-driven, unwanted behavior, optional feature), positioned as a complement
+  rather than a replacement: EARS states the requirement, Given/When/Then makes it verifiable.
+  Adopt per project in `constitution.md`, not per feature.
+- **AP-23 — Mechanizing the Gates Away**, the failure this release makes possible: mechanical
+  checks verify that rules were followed, never that the rules were right. A CI job must never
+  inherit a gate's name.
+- Eval `08-mechanization-limits` — a request to automate every gate, which should be partly
+  fulfilled and partly refused.
+
+### Changed
+
+- `SKILL.md` gains checklists, hooks, and the `AGENTS.md` bridge in eight lines and stays
+  under budget at 313 lines / ~3,993 tokens.
+- `quick-reference.md` gains the enforcement ladder and the `/sdd:checklist` command.
+
 ## [1.6.0] — 2026-08-06
 
 Brownfield release. Three additions that answer the standing criticism of spec-driven

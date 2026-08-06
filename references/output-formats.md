@@ -8,6 +8,7 @@ files; this file defines what to show the person running the workflow.
 - Principles — write vs. show, verdict first, line budgets, binary confidence
 - Gate verdict — the format for every gate (0, R, 1–5, C)
 - Critic findings — issue lines with confidence markers
+- Checklist — `/sdd:checklist [domain]`
 - Traceability matrix — `/sdd:validate`
 - Drift report — `/sdd:validate`
 - Reconcile report — `/sdd:reconcile`
@@ -165,6 +166,59 @@ item without both is not actionable and must be marked `[VERIFY]`.
 
 Drift types are fixed: `SIGNATURE`, `SCHEMA`, `BEHAVIOR`, `SCOPE`, `SPEC ERROR`. Only
 `SPEC ERROR` results in editing an artifact; everything else means fixing the code.
+
+---
+
+## Checklist
+
+**Budget: the file holds every item; the response shows only findings, 15 lines maximum.**
+Written to `specs/[feature]/checklists/[domain].md`.
+
+```markdown
+# Security Checklist: Magic-Link Login
+
+Spec: `specs/magic-link-login/spec.md` @ v1.2 · Generated: 2026-08-06
+
+## Primary
+- [x] Is the authentication outcome of a successful verification specified? — AC-2
+- [x] Is the token's entropy stated numerically? — Non-Functional Requirements
+- [ ] **[Gap]** No requirement states whether an existing session is replaced or
+      preserved when a second magic link is redeemed.
+
+## Exception
+- [x] Is the outcome specified for an expired link? — AC-4
+- [x] Is the outcome specified for a reused link? — AC-E2
+- [ ] **[Ambiguity]** AC-E3 specifies rate limiting per email; the spec does not state
+      whether the limit applies before or after email-existence is checked, which
+      determines whether the endpoint leaks registration status under load.
+
+## Non-functional
+- [x] Is the request latency target numeric and given a percentile? — NFR Performance
+- [ ] **[Assumption]** "the existing job queue" is assumed available; no requirement
+      states the behavior when enqueueing fails.
+
+Intentionally excluded: MFA, social login — spec § Out of Scope.
+
+**3 findings: 1 Gap, 1 Ambiguity, 1 Assumption. 0 Conflicts.**
+```
+
+Response summary:
+
+```text
+Security checklist — 8 items, 3 findings (1 gap, 1 ambiguity, 1 assumption)
+[Gap]        session replacement on second redemption is unspecified
+[Ambiguity]  AC-E3 rate-limit ordering determines whether registration status leaks
+[Assumption] no requirement covers job-queue enqueue failure
+Full checklist: specs/magic-link-login/checklists/security.md
+Findings are Gate 1 input — the checklist does not block on its own.
+```
+
+Rules:
+
+- Passing items are checked and cited; they are evidence the domain was examined, not filler
+- Every finding names what is missing, never merely that something is missing
+- The counts line is mandatory — a checklist without counts reads as "looks fine"
+- The response carries findings only. Passing items stay in the file
 
 ---
 

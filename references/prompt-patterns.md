@@ -7,7 +7,7 @@ determines the quality of AI output — vague input = vague output.
 
 - Phase 0 — Constitution: initial generation, security constraints
 - Phase 0.5 — Research: codebase research (Format A/B), consolidation, verification
-- Phase 1 — Specify: assumptions surface, initial spec, delta spec (brownfield), clarify, post-clarify update, completeness check
+- Phase 1 — Specify: assumptions surface, initial spec, delta spec (brownfield), clarify, checklist generation, completeness check
 - Phase 2 — Plan: technical plan generation, plan review
 - Phase 3 — Tasks: task breakdown, task validation
 - Phase 4 — Implementation: single task (Format A/B), context handover, session resume, mid-implementation correction
@@ -321,6 +321,57 @@ Return the full updated spec.md.
 ```
 
 ---
+
+### Checklist Generation Prompt (`/sdd:checklist [domain]`)
+
+*Generates a feature-specific, domain-specific checklist that tests the **spec**, not the
+software. Run before Gate 1 — for every relevant domain at level L, for the highest-risk one
+at level M.*
+
+```
+Generate a [domain] quality checklist for specs/[feature]/spec.md.
+
+This checklist tests the REQUIREMENTS, not the implementation. Every item must be
+answerable by reading the spec alone. If answering an item would require running the
+code, it does not belong here.
+
+Do NOT write items containing: displays, renders, loads, executes, clicks, navigates,
+works, correctly, properly. Those describe behavior — the ACs and the test suite cover it.
+
+Cover all five scenario classes for this domain:
+- Primary:        are the main-path requirements complete and measurable?
+- Alternate:      are valid secondary paths specified, or silently assumed?
+- Exception:      does every failure mode in this domain have a specified outcome?
+- Recovery:       after a failure, is the required system and user state stated?
+- Non-functional: does this domain's quality attributes have numeric thresholds?
+
+For each item, cite the spec section it examines, and mark findings:
+[Gap]        a requirement this domain needs that the spec does not have
+[Ambiguity]  a requirement that admits more than one reading
+[Conflict]   two requirements that cannot both hold
+[Assumption] something the spec depends on but never states
+
+An item is allowed to pass as "intentionally excluded" only if the exclusion is written in
+the spec's Out of Scope section. An exclusion that exists only in someone's head is a [Gap].
+
+Present using the Checklist format in references/output-formats.md and write the file to
+specs/[feature]/checklists/[domain].md.
+
+Do not rewrite the spec. Do not propose ACs. Report only.
+```
+
+**Domain starting points** — adapt to the feature rather than running all of them:
+
+| Domain | Ask about |
+|--------|-----------|
+| `security` | authn/authz per path, input validation boundary, secret handling, enumeration, rate limits |
+| `ux` | empty/loading/error states, destructive-action confirmation, what the user sees when a dependency is down |
+| `accessibility` | keyboard reachability, focus order, announcements for async changes, contrast thresholds |
+| `performance` | numeric latency targets and at which percentile, payload limits, N+1 risk in stated queries |
+| `data-integrity` | uniqueness, referential rules, concurrent-write outcome, partial-failure state |
+| `i18n` | locale-dependent formatting, timezone semantics, text expansion, right-to-left |
+| `observability` | what must be logged, what must never be, which failures page someone |
+| `migration` | backward compatibility window, rollback path, behavior for in-flight data |
 
 ### Spec Clarification Prompt (targeted)
 

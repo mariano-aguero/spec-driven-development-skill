@@ -5,8 +5,9 @@ Navigation map for all SDD reference files. Every file listed here is one level 
 
 ## Contents
 
-By topic (getting started · templates · prompts · phase details · quality and review ·
-output formats · AI and agent patterns · troubleshooting) · By phase · File list
+By topic (getting started · templates · prompts · phase details · enforcement and interop ·
+quality and review · output formats · AI and agent patterns · troubleshooting) ·
+By phase · File list
 
 ---
 
@@ -29,7 +30,7 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 - constitution.md template → `artifact-templates.md#constitutionmd-template`
 - research.md template (Phase 0.5, cited findings) → `artifact-templates.md#researchmd-template`
 - progress.md template (context handover) → `artifact-templates.md#progressmd-template`
-- Writing concrete acceptance criteria → `artifact-templates.md#writing-concrete-acceptance-criteria`
+- Writing concrete acceptance criteria (incl. optional EARS) → `artifact-templates.md#writing-concrete-acceptance-criteria`
 - spec.md template (incl. Boundaries section) → `artifact-templates.md#specmd-template`
 - spec.md delta mode (brownfield changes) → `artifact-templates.md#specmd-template--delta-mode`
 - plan.md template (incl. Risks section) → `artifact-templates.md#planmd-template`
@@ -55,6 +56,7 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 - Status (`/sdd:status`) → `prompt-patterns.md#status-prompt-sddstatus--run-any-time`
 - Multi-agent review (standardized output) → `prompt-patterns.md#multi-agent-review-pattern`
 - Delta specification (brownfield) → `prompt-patterns.md#delta-specification-prompt-brownfield-changes`
+- Checklist generation (`/sdd:checklist`) → `prompt-patterns.md#checklist-generation-prompt-sddchecklist-domain`
 - Amend (requirements change cascade) → `prompt-patterns.md#amend-prompt-sddamend--run-when-requirements-change`
 - Reconcile (code changed outside the workflow) → `prompt-patterns.md#reconcile-prompt-sddreconcile--run-when-code-changed-outside-the-workflow`
 - Constitution from existing codebase → `prompt-patterns.md#constitution-from-existing-codebase`
@@ -77,6 +79,7 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 - Principles: write artifacts, show verdicts → `output-formats.md#principles`
 - Gate verdict → `output-formats.md#gate-verdict`
 - Critic findings (binary confidence) → `output-formats.md#critic-findings`
+- Checklist (`/sdd:checklist [domain]`) → `output-formats.md#checklist`
 - Traceability matrix → `output-formats.md#traceability-matrix`
 - Drift report → `output-formats.md#drift-report`
 - Reconcile report (`/sdd:reconcile`) → `output-formats.md#reconcile-report`
@@ -85,9 +88,20 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 - Linear walkthrough → `output-formats.md#linear-walkthrough`
 - What never to print → `output-formats.md#what-never-to-print`
 
+### Enforcement and interop
+
+- The enforcement ladder (ask / check / block) → `enforcement.md#the-enforcement-ladder`
+- What can be mechanized, and what must not → `enforcement.md#what-can-be-mechanized-and-what-must-not`
+- Locking `contracts/` with a pre-write hook → `enforcement.md#locking-contracts-for-real`
+- Hooks per phase → `enforcement.md#hooks-per-phase`
+- Git worktrees for parallel tasks → `enforcement.md#git-worktrees-for-parallel-tasks`
+- The `AGENTS.md` bridge (derive, never fork) → `enforcement.md#the-agentsmd-bridge`
+- Enforcement theater → `enforcement.md#enforcement-theater`
+
 ### Quality and review
 
 - Which gates apply at which ceremony level → `quality-gates.md#which-gates-apply-at-which-ceremony-level`
+- Generated checklists — unit tests for the spec → `quality-gates.md#generated-checklists--unit-tests-for-the-spec`
 - Per-phase checklists (incl. delta-mode Gate 1) → `quality-gates.md#per-phase-checklists`
 - Confidence-based review thresholds → `quality-gates.md#confidence-based-review-thresholds`
 - CI/CD integration → `quality-gates.md#cicd-integration`
@@ -123,6 +137,7 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 - Delta spec without a baseline → `anti-patterns.md#anti-pattern-20-delta-spec-without-a-baseline`
 - Reconciling drift instead of fixing it → `anti-patterns.md#anti-pattern-21-reconciling-drift-instead-of-fixing-it`
 - Running one ceremony level for everything → `anti-patterns.md#anti-pattern-22-running-one-ceremony-level-for-everything`
+- Mechanizing the gates away → `anti-patterns.md#anti-pattern-23-mechanizing-the-gates-away`
 
 ---
 
@@ -150,6 +165,7 @@ output formats · AI and agent patterns · troubleshooting) · By phase · File 
 | `references/workflow-phases.md` | Step-by-step phase instructions | Long |
 | `references/quality-gates.md` | Checklists and CI/CD integration | Medium |
 | `references/output-formats.md` | Formats and budgets for everything the user reads | Medium |
+| `references/enforcement.md` | Hooks, contract locks, worktrees, `AGENTS.md` bridge | Medium |
 | `references/ai-agent-patterns.md` | Multi-agent patterns and context management | Medium |
 | `references/anti-patterns.md` | Failure modes and fixes | Medium |
 | `references/quick-reference.md` | One-page cheat sheet | Short |

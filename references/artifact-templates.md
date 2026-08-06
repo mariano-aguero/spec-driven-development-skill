@@ -6,7 +6,7 @@ Copy-paste templates for each SDD artifact. Remove placeholder comments before c
 
 - `constitution.md` — project-level immutable constraints (Phase 0)
 - `research.md` — how the system works today, cited `file:line` (Phase 0.5)
-- Writing concrete acceptance criteria — vague-to-measurable conversions
+- Writing concrete acceptance criteria — vague-to-measurable conversions, optional EARS syntax
 - `spec.md` — requirements, MoSCoW ACs, Boundaries (Phase 1)
 - `spec.md` delta mode — brownfield changes: baseline, ADDED/MODIFIED/REMOVED/UNCHANGED, blast radius
 - `plan.md` — architecture, AC coverage map, risks (Phase 2)
@@ -115,6 +115,45 @@ sentence alone? Convert before you write, not during review.
 Two words that almost always signal an unfinished AC: **"properly"** and **"appropriate"**.
 Both mean the writer deferred the decision to whoever implements it — which, in this
 workflow, is an agent that will decide silently.
+
+### Optional: EARS for the requirement statement
+
+Given/When/Then is a good *verification* format and a mediocre *statement* format — it says
+how to test a requirement, not under what conditions the requirement applies. EARS (Easy
+Approach to Requirements Syntax, from aerospace requirements engineering) constrains the
+sentence itself so that ambiguity becomes structurally hard to write.
+
+Five patterns cover almost everything:
+
+| Pattern | Shape | Example |
+|---------|-------|---------|
+| **Ubiquitous** | The `<system>` shall `<response>` | The API shall reject unauthenticated requests |
+| **Event-driven** | When `<trigger>`, the `<system>` shall `<response>` | When a magic link is redeemed, the system shall create a session |
+| **State-driven** | While `<state>`, the `<system>` shall `<response>` | While a session is expired, the API shall return 401 |
+| **Unwanted behavior** | If `<trigger>`, then the `<system>` shall `<response>` | If the provider is unreachable, then the system shall return 503 with `Retry-After` |
+| **Optional feature** | Where `<feature is included>`, the `<system>` shall `<response>` | Where SSO is enabled, the system shall skip password validation |
+
+Use both formats together — EARS states the requirement, Given/When/Then makes it verifiable:
+
+```markdown
+### AC-4: Token expiry [MUST]
+
+**Requirement:** If a magic-link token is older than 5 minutes, then the system shall
+reject verification with `410 Gone`.
+
+Given a magic link issued more than 5 minutes ago
+When the user clicks it
+Then verification fails with `410 Gone` and redirects to `/sign-in?error=expired`.
+```
+
+**When it earns the extra line:** safety-critical or regulated domains, requirements that
+survive audits, and teams whose ACs keep coming back ambiguous after Clarify. The
+state-driven and unwanted-behavior patterns are the ones that pull their weight — both force
+you to name a condition that Given/When/Then lets you leave implicit.
+
+**When to skip it:** most features. Two formats per AC is real overhead, and a concrete
+Given/When/Then already passes Gate 1. Adopt EARS per project in `constitution.md`, not per
+feature — mixed styles across a spec are worse than either style consistently.
 
 ---
 

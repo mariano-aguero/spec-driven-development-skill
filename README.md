@@ -37,6 +37,8 @@ potential divergence from intent — and they compound.
 | Code ships faster than anyone can read it | Comprehension gate: the team reviews ~400 dense lines instead of a 2000-line diff |
 | Changing one rule means respecifying a subsystem | Delta specs declare a baseline and list only what moves |
 | Hotfixes quietly turn the spec into fiction | `/sdd:reconcile` classifies each difference with evidence — a human decides each one |
+| "Locked" contracts are locked by politeness | A pre-write hook makes the freeze real; the agent gets told why and what to run instead |
+| Your rules live in a file no tool reads | `AGENTS.md` derived from `constitution.md`, read natively by most agents |
 
 ## What is Spec-Driven Development?
 
@@ -174,9 +176,10 @@ proportionally less. If you only want the cheat sheet, `references/quick-referen
 | `references/prompt-patterns.md` | Prompts for every phase + Codebase Research, Assumptions Surface, Clarify, Critics, Context Handover, Linear Walkthrough, `/sdd:analyze`, `/sdd:amend` |
 | `references/workflow-phases.md` | Step-by-step instructions for Phases 0, 0.5, and 1–5 |
 | `references/quality-gates.md` | Gate 0, R, 1–5 and C checklists + CI/CD integration (AC coverage, drift detection) |
-| `references/output-formats.md` | Formats and line budgets for everything the user reads: gate verdicts, traceability matrix, drift report, status, walkthrough |
+| `references/output-formats.md` | Formats and line budgets for everything the user reads: gate verdicts, checklists, traceability matrix, drift report, status, walkthrough |
+| `references/enforcement.md` | Making rules bind: the ask/check/block ladder, a pre-write hook that really locks `contracts/`, worktrees for parallel tasks, and deriving `AGENTS.md` from `constitution.md` |
 | `references/ai-agent-patterns.md` | Context engineering (compaction, budget, progressive disclosure), multi-agent orchestration, critic subagents, capability profiles |
-| `references/anti-patterns.md` | 22 common failure modes with wrong/correct examples and fixes |
+| `references/anti-patterns.md` | 23 common failure modes with wrong/correct examples and fixes |
 | `references/quick-reference.md` | One-page cheat sheet |
 | `references/INDEX.md` | Topic navigation across all references |
 | `evals/` | Five behavioral scenarios for verifying the skill actually changes agent behavior |
