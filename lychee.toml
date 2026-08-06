@@ -6,6 +6,8 @@ exclude = [
     "^https?://127\\.0\\.0\\.1",
     "^https?://example\\.com",
     "^https?://claude\\.ai/code$",
+    # GitHub social pages return 404 to unauthenticated CI runners
+    "^https?://github\\.com/[^/]+/[^/]+/(stargazers|watchers|forks)/?$",
 ]
 
 accept = [200, 203, 206, 429]
