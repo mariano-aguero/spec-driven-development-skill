@@ -1,6 +1,12 @@
 # Reference Index
 
-Navigation map for all SDD reference files.
+Navigation map for all SDD reference files. Every file listed here is one level deep from
+`SKILL.md` — load only what the current phase needs.
+
+## Contents
+
+By topic (getting started · templates · prompts · phase details · quality and review ·
+output formats · AI and agent patterns · troubleshooting) · By phase · File list
 
 ---
 
@@ -11,12 +17,16 @@ Navigation map for all SDD reference files.
 - Overview and when to use → `SKILL.md`
 - Quick Start (4-step onboarding) → `SKILL.md#quick-start`
 - Key Practice: Reframe Vague Requirements → `SKILL.md#key-practice-reframe-vague-requirements`
+- Context is the real constraint (compaction model) → `SKILL.md#context-is-the-real-constraint`
+- Comprehension debt (code nobody understands) → `SKILL.md#comprehension-debt`
 - Living Document (spec versioning, commit, archive) → `SKILL.md#living-document`
 - One-page cheat sheet → `quick-reference.md`
 
 ### Templates (copy-paste ready)
 
 - constitution.md template → `artifact-templates.md#constitutionmd-template`
+- research.md template (Phase 0.5, cited findings) → `artifact-templates.md#researchmd-template`
+- progress.md template (context handover) → `artifact-templates.md#progressmd-template`
 - spec.md template (incl. Boundaries section) → `artifact-templates.md#specmd-template`
 - plan.md template (incl. Risks section) → `artifact-templates.md#planmd-template`
 - data-model.md template → `artifact-templates.md#data-modelmd-template`
@@ -26,13 +36,19 @@ Navigation map for all SDD reference files.
 ### Prompts (copy-paste ready)
 
 - Phase 0 — Constitution prompts → `prompt-patterns.md#phase-0--constitution-prompts`
+- Phase 0.5 — Codebase research → `prompt-patterns.md#codebase-research-prompt-sddresearch`
+- Phase 0.5 — Research consolidation → `prompt-patterns.md#research-consolidation-prompt`
+- Phase 0.5 — Research verification (Gate R) → `prompt-patterns.md#research-verification-prompt-gate-r`
 - Phase 1 — Surface assumptions (pre-spec) → `prompt-patterns.md#assumptions-surface-prompt`
 - Phase 1 — Specify prompts → `prompt-patterns.md#phase-1--specify-prompts`
 - Phase 1 — Post-Clarify spec update → `prompt-patterns.md#post-clarify-spec-update-prompt`
 - Phase 2 — Plan prompts → `prompt-patterns.md#phase-2--plan-prompts`
 - Phase 3 — Tasks prompts → `prompt-patterns.md#phase-3--tasks-prompts`
 - Phase 4 — Implement prompts → `prompt-patterns.md#phase-4--implementation-prompts`
+- Phase 4 — Context handover / session resume → `prompt-patterns.md#context-handover-prompt-run-before-a-context-reset-not-after`
 - Phase 5 — Validate prompts → `prompt-patterns.md#phase-5--validate-prompts`
+- Phase 5 — Linear walkthrough (comprehension) → `prompt-patterns.md#linear-walkthrough-prompt`
+- Status (`/sdd:status`) → `prompt-patterns.md#status-prompt-sddstatus--run-any-time`
 - Multi-agent review (standardized output) → `prompt-patterns.md#multi-agent-review-pattern`
 - Amend (requirements change cascade) → `prompt-patterns.md#amend-prompt-sddamend--run-when-requirements-change`
 - Constitution from existing codebase → `prompt-patterns.md#constitution-from-existing-codebase`
@@ -41,11 +57,24 @@ Navigation map for all SDD reference files.
 ### Phase details (step-by-step)
 
 - Phase 0 — Constitution → `workflow-phases.md#phase-0--constitution`
+- Phase 0.5 — Research → `workflow-phases.md#phase-05--research`
 - Phase 1 — Specify → `workflow-phases.md#phase-1--specify`
 - Phase 2 — Plan → `workflow-phases.md#phase-2--plan`
 - Phase 3 — Tasks → `workflow-phases.md#phase-3--tasks`
 - Phase 4 — Implement → `workflow-phases.md#phase-4--implement`
 - Phase 5 — Validate → `workflow-phases.md#phase-5--validate`
+
+### Output formats (what the user reads)
+
+- Principles: write artifacts, show verdicts → `output-formats.md#principles`
+- Gate verdict → `output-formats.md#gate-verdict`
+- Critic findings (binary confidence) → `output-formats.md#critic-findings`
+- Traceability matrix → `output-formats.md#traceability-matrix`
+- Drift report → `output-formats.md#drift-report`
+- Analyze report → `output-formats.md#analyze-report`
+- Status report (`/sdd:status`) → `output-formats.md#status-report`
+- Linear walkthrough → `output-formats.md#linear-walkthrough`
+- What never to print → `output-formats.md#what-never-to-print`
 
 ### Quality and review
 
@@ -56,8 +85,10 @@ Navigation map for all SDD reference files.
 
 ### AI and agent patterns
 
-- Context management → `ai-agent-patterns.md#context-management`
+- Context management (single-task rule) → `ai-agent-patterns.md#context-management`
+- Context engineering (compaction, budget, progressive disclosure) → `ai-agent-patterns.md#context-engineering`
 - Subagent review pattern → `ai-agent-patterns.md#subagent-review-pattern`
+- Phase 0.5 Research Verifier critic → `ai-agent-patterns.md#phase-05-critic-agent`
 - Phase 2 Risks Critic → `ai-agent-patterns.md#phase-2-critic-agents`
 - Parallel task execution → `ai-agent-patterns.md#parallel-task-execution`
 - AI tool selection per phase → `ai-agent-patterns.md#ai-tool-selection-per-phase`
@@ -76,6 +107,9 @@ Navigation map for all SDD reference files.
 - Implicit assumptions baked into ACs → `anti-patterns.md#anti-pattern-14-implicit-assumptions-never-challenged`
 - Critics run in the generating context → `anti-patterns.md#anti-pattern-15-running-critics-in-the-generating-context`
 - Tasks without AC references → `anti-patterns.md#anti-pattern-16-tasks-without-acceptance-criteria-references`
+- Specifying against an imagined system → `anti-patterns.md#anti-pattern-17-specifying-against-an-imagined-system`
+- Letting the context window fill up → `anti-patterns.md#anti-pattern-18-letting-the-context-window-fill-up`
+- Shipping code nobody understands → `anti-patterns.md#anti-pattern-19-shipping-code-nobody-understands`
 
 ---
 
@@ -84,11 +118,12 @@ Navigation map for all SDD reference files.
 | Phase | Templates | Prompts | Details | Quality |
 |-------|-----------|---------|---------|---------|
 | 0 — Constitution | constitution.md | constitution-prompts | workflow-phases#phase-0 | Gate 0 |
+| 0.5 — Research | research.md | research-prompts | workflow-phases#phase-05 | Gate R |
 | 1 — Specify | spec.md | specify-prompts | workflow-phases#phase-1 | Gate 1 |
 | 2 — Plan | plan.md, data-model.md, contracts | plan-prompts | workflow-phases#phase-2 | Gate 2 |
 | 3 — Tasks | tasks.md | tasks-prompts | workflow-phases#phase-3 | Gate 3 |
-| 4 — Implement | — | implement-prompts | workflow-phases#phase-4 | Gate 4 |
-| 5 — Validate | — | validate-prompts | workflow-phases#phase-5 | Gate 5 |
+| 4 — Implement | progress.md | implement-prompts | workflow-phases#phase-4 | Gate 4 |
+| 5 — Validate | — | validate-prompts, linear-walkthrough | workflow-phases#phase-5 | Gate 5, Gate C |
 
 ---
 
@@ -101,6 +136,7 @@ Navigation map for all SDD reference files.
 | `references/prompt-patterns.md` | Prompts for every phase and scenario | Long |
 | `references/workflow-phases.md` | Step-by-step phase instructions | Long |
 | `references/quality-gates.md` | Checklists and CI/CD integration | Medium |
+| `references/output-formats.md` | Formats and budgets for everything the user reads | Medium |
 | `references/ai-agent-patterns.md` | Multi-agent patterns and context management | Medium |
 | `references/anti-patterns.md` | Failure modes and fixes | Medium |
 | `references/quick-reference.md` | One-page cheat sheet | Short |

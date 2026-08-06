@@ -2,6 +2,16 @@
 
 Step-by-step execution guide for each SDD phase, including decision points and common traps.
 
+## Contents
+
+- Phase 0 — Constitution: intake, generation, security review, `[PENDING]` resolution, Gate 0
+- Phase 0.5 — Research: run/skip decision, subagent dispatch, consolidation, citation verification, Gate R
+- Phase 1 — Specify: intake, `[PENDING]` check, assumptions, generation, clarify, Gate 1
+- Phase 2 — Plan: plan, data model, contracts, AC tracing, critics, contract lock, Gate 2
+- Phase 3 — Tasks: breakdown, test-first ordering, sizing, parallelism, Gate 3
+- Phase 4 — Implement: per-task session setup, verification, commits, context budget, handover
+- Phase 5 — Validate: traceability, drift detection, acceptance run, linear walkthrough, archive
+
 ---
 
 ## Phase 0 — Constitution
@@ -70,6 +80,103 @@ cost (resolving conflicting decisions) repeatedly across every feature spec.
 
 ---
 
+## Phase 0.5 — Research
+
+### Goal
+
+Produce `specs/[feature]/research.md`: an accurate, cited, ~200-line map of how the part of
+the system this feature touches works **today**. It exists so that Phase 1 writes
+requirements against the real system instead of an imagined one.
+
+### Decide whether to run it
+
+| Signal | Run research? |
+|--------|--------------|
+| You cannot name every file the feature will touch | Yes |
+| The code was written by someone else, or by you more than a month ago | Yes |
+| Two or more architectures look equally reasonable | Yes |
+| Refactor, migration, or first use of an unfamiliar library | Yes |
+| Greenfield module with no existing code to integrate with | No |
+| You can name the touchpoints and the data flow from memory | No |
+
+When in doubt, run it. The cost is one short session; the cost of skipping it is a spec
+built on a wrong model, discovered in Phase 4.
+
+### Step-by-Step
+
+**Step 0.5.1 — Frame the question**
+Write one or two sentences describing what you are about to build or change. This is the
+only input the research phase gets. Do not include your proposed solution — it biases the
+agent into confirming your plan instead of mapping the system.
+
+**Step 0.5.2 — Dispatch parallel subagents**
+Use the Codebase Research Prompt from
+`references/prompt-patterns.md → Phase 0.5 → Codebase Research Prompt`.
+
+Four axes cover most features:
+
+| Subagent | Question it answers |
+|----------|--------------------|
+| Files | Which files are involved and what is each responsible for? |
+| Flow | How does data move end to end — entry → transform → persist → respond? |
+| Prior art | What already solves a similar problem in this repo? |
+| Constraints | What conventions, base classes, or middleware must any change here respect? |
+
+Subagents exist to keep the noise out. Glob results, grep output, and full file bodies stay
+in their contexts; only the ≤300-word summaries come back.
+
+**Step 0.5.3 — Consolidate into research.md**
+Use the Research Consolidation Prompt. Apply the `research.md` template from
+`references/artifact-templates.md`.
+
+Two rules do most of the work:
+
+- **No `file:line` citation → the claim is deleted.** Not softened, deleted.
+- **Disagreement between subagents → mark `[CONFLICT]`, never silently resolve.**
+  A conflict means one of them misread the code, and that is exactly what the human
+  needs to look at.
+
+**Step 0.5.4 — Verify the citations**
+Run the Research Verification Prompt in a *separate* context. The agent that wrote the
+research cannot audit it — it anchors to its own output (see
+`references/anti-patterns.md → Anti-Pattern 15`).
+
+The verifier opens each cited location and checks that the line exists, that the code there
+supports the claim, and that no branch or error path was omitted.
+
+**Step 0.5.5 — Human review (Gate R)**
+Use the Gate R checklist in `references/quality-gates.md`.
+
+Spot-check citations yourself — open three or four at random. This is the highest-leverage
+reading you will do on the whole feature: an error here propagates into the spec, the plan,
+and every task. Common review feedback:
+
+- "This finding has no citation" → delete it or verify it
+- "You missed the [X] middleware" → add to Relevant Files, re-run flow analysis
+- "This says the system *should* validate here" → prescriptive language, cut it
+- "Nothing under Not Investigated" → the research is claiming completeness it does not have
+
+**Step 0.5.6 — Commit**
+
+```bash
+git add specs/[feature-name]/research.md
+git commit -m "research: [feature name] codebase analysis"
+```
+
+### Handoff to Phase 1
+
+`research.md` becomes the primary context for `/sdd:specify`. Two sections carry directly:
+
+- **Existing Constraints Discovered** → non-functional requirements and `Boundaries` in spec.md
+- **Open Questions for the Spec** → seed the `[NEEDS CLARIFICATION]` list
+
+### Time Distribution
+
+30–90 minutes for a mid-sized feature in an unfamiliar codebase. It is not additive to the
+total — a good research doc makes Phases 1 and 2 markedly faster, because both stop guessing.
+
+---
+
 ## Phase 1 — Specify
 
 ### Goal
@@ -86,6 +193,12 @@ Ask the user (or gather from issue/PRD):
 - Who uses it?
 - What does success look like?
 - What are hard constraints (performance, security, compatibility)?
+
+If `specs/[feature]/research.md` exists, load it first and treat it as ground truth about
+the current system. Its "Existing Constraints Discovered" section is an input to the hard
+constraints question above, and its "Open Questions for the Spec" section pre-seeds the
+`[NEEDS CLARIFICATION]` list. A spec that contradicts verified research is wrong until the
+research is disproven.
 
 **Step 1.2 — Constitution [PENDING] check**
 Before generating spec.md, scan `constitution.md` for any `[PENDING]` items that
@@ -325,6 +438,29 @@ Clear the AI context between tasks to prevent:
 
 This is especially important when tasks are implemented across multiple days.
 
+### Context Budget Within a Task
+
+Task boundaries are the planned resets. Within a task, watch utilization and act early:
+
+| Utilization | State | Action |
+|-------------|-------|--------|
+| 0–40% | Loading context | Continue |
+| 40–60% | Productive band | Continue — this is where you want to live |
+| 60–80% | Degrading | Finish the current step, then hand over |
+| 80%+ | Unreliable | Stop. Write `progress.md` now, before quality drops further |
+
+If a task repeatedly runs past its window, the task is too large — fix `tasks.md`, do not
+compensate with longer sessions.
+
+**Mid-task handover:**
+
+1. Run the Context Handover Prompt (`references/prompt-patterns.md → Phase 4`) — while the
+   session still has room to think, not after it has degraded
+2. Commit `progress.md` alongside any working code
+3. Start a fresh session with the Session Resume Prompt
+
+See `references/ai-agent-patterns.md → Context Engineering` for the underlying model.
+
 ---
 
 ## Phase 5 — Validate
@@ -355,7 +491,23 @@ If drift is found:
 Manually walk through each user story from `spec.md` in the running application.
 Check each AC as a user, not as a developer.
 
-**Step 5.5 — Archive specs (optional)**
+**Step 5.5 — Linear walkthrough (comprehension check)**
+Run the Linear Walkthrough Prompt from `references/prompt-patterns.md → Phase 5`.
+It produces an execution-ordered narration of the implementation with `file:line` citations.
+
+This step exists for the humans, not the spec. Validation proves the code is *correct*; the
+walkthrough proves the team can *maintain* it. Skipping it is how a codebase accumulates
+working features nobody can change.
+
+Read it and confirm you could debug this feature at 3am without the agent. If you cannot,
+that is a finding — usually unnecessary indirection introduced during Phase 4, or a
+component the plan never justified. Fix it now, while the context is fresh.
+
+Attach the walkthrough to the PR description, or save it as `specs/[feature]/walkthrough.md`.
+Pay particular attention to anything the agent flags as behavior it cannot trace back to an
+AC — that is unrequested scope, and it is easiest to remove before merge.
+
+**Step 5.6 — Archive specs (optional)**
 After validation passes, consider archiving completed specs to keep `specs/` clean:
 
 ```bash

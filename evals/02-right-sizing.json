@@ -1,0 +1,12 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "The footer says Copyright 2024, should say 2026. Fix it please.",
+  "files": [],
+  "expected_behavior": [
+    "Makes the change directly without producing spec.md, plan.md, or tasks.md",
+    "Does not create a specs/ directory or any artifact for this change",
+    "Does not ask the user to run /sdd:specify or any other phase command",
+    "Spends at most one short sentence on process, if any — ideally none",
+    "If it mentions the workflow at all, it is to explain why this change does not warrant it"
+  ]
+}

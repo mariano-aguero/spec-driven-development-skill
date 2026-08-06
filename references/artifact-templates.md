@@ -2,6 +2,21 @@
 
 Copy-paste templates for each SDD artifact. Remove placeholder comments before committing.
 
+## Contents
+
+- `constitution.md` — project-level immutable constraints (Phase 0)
+- `research.md` — how the system works today, cited `file:line` (Phase 0.5)
+- `spec.md` — requirements, MoSCoW ACs, Boundaries (Phase 1)
+- `plan.md` — architecture, AC coverage map, risks (Phase 2)
+- `data-model.md` — entities, indexes, migrations (Phase 2)
+- `contracts/[endpoint].md` — request/response shapes, error codes (Phase 2)
+- `tasks.md` — atomic, test-first, dependency-mapped tasks (Phase 3)
+- `progress.md` — handover state across context resets (Phase 4, optional)
+- `decision_log.md` — rationale for key decisions (any phase, optional)
+
+For the formats of everything the *user* reads — gate verdicts, traceability matrix, drift
+report, walkthrough — see `output-formats.md`.
+
 ---
 
 ## constitution.md Template
@@ -392,16 +407,62 @@ Implements: `specs/[branch]/plan.md`
 
 ## research.md Template
 
-*Optional artifact for documenting context and alternatives. Create when technology
-choices or architecture decisions need rationale preserved for future reference.*
+*Phase 0.5 artifact. Produced before `spec.md` whenever the feature touches code that is
+unfamiliar, large, or ambiguous. Describes how the system works **today** — never how it
+should work. Target length: ~200 lines. Every claim carries a `file:line` citation.*
 
 ```markdown
-# Research: [Feature Name or Decision Topic]
+# Research: [Feature Name]
 
-## Context
-<!-- Why was this research needed? What decision does it inform? -->
+Status: Draft
+Date: [YYYY-MM-DD]
+
+## Problem Summary
+<!-- 2-4 sentences. What are we about to change, and why does the existing system matter
+     to that change? No solution, no requirements. -->
+
+## Relevant Files
+
+| File | Role in this feature | Key entry point |
+|------|---------------------|-----------------|
+| `src/[path].ts` | [what this file is responsible for] | `functionName()` — `src/[path].ts:42` |
+| `src/[path].ts` | [what this file is responsible for] | `ClassName.method()` — `src/[path].ts:118` |
+
+<!-- Completeness matters more than depth here. A missed file becomes a wrong plan. -->
+
+## Information Flow
+<!-- How data actually moves through the code today, in order. Cite as you go. -->
+
+1. [Entry point] receives [input] — `src/[path].ts:12`
+2. [Component] validates and transforms it into [shape] — `src/[path].ts:45`
+3. [Component] persists to [table/service] — `src/[path].ts:88`
+4. [Response/side effect] returns to the caller — `src/[path].ts:103`
+
+**Where this feature intervenes:** [step number(s) above]
+
+## Key Findings
+
+### F-1: [Short factual title]
+[What is true about the codebase, stated as fact.] — `src/[path].ts:60-74`
+**Consequence for this feature:** [what this constrains or enables]
+
+### F-2: [Short factual title]
+[Fact.] — `src/[path].ts:210`
+**Consequence for this feature:** [...]
+
+## Existing Constraints Discovered
+<!-- Things the code already enforces that the spec must respect. These become spec inputs. -->
+
+- [e.g., "All repository methods take a transaction handle as first arg" — `src/db/base.ts:18`]
+- [e.g., "Session cookies are set only in the auth module" — `src/auth/session.ts:55`]
+
+## Prior Art in This Codebase
+<!-- Similar features already implemented that should be imitated rather than reinvented. -->
+
+- [Feature X solves a near-identical problem] — `src/features/x/`
 
 ## Options Considered
+<!-- Only when multiple viable approaches exist. Omit this section otherwise. -->
 
 ### Option A: [Name]
 **Description:** [1-2 sentences]
@@ -426,8 +487,56 @@ choices or architecture decisions need rationale preserved for future reference.
 **Date:** [YYYY-MM-DD]
 **Decided by:** [human / team / constraint]
 
+## Open Questions for the Spec
+<!-- Things research could NOT answer from the code. These go to Phase 1 as
+     [NEEDS CLARIFICATION] items — they are product decisions, not code facts. -->
+
+- [Question the codebase cannot answer, e.g., "should expired invites be reusable?"]
+
+## Not Investigated
+<!-- Explicit boundaries of this research. Prevents false confidence in completeness. -->
+
+- [Area deliberately left unexplored and why]
+
 ## References
 - [Link or document title]
+```
+
+---
+
+## progress.md Template
+
+*Optional Phase 4 artifact. Create only when a task outlives a single context window.
+It is the handover note a fresh session reads to resume without re-deriving state.
+Keep it under 40 lines — it is a checkpoint, not a log.*
+
+```markdown
+# Progress: [TASK-ID] [Task Title]
+
+Updated: [YYYY-MM-DD HH:MM]
+
+## Goal
+<!-- One sentence: what "done" means for this task, copied from tasks.md -->
+
+## Completed
+- [x] [Step already finished] → `src/[path].ts:[line]`
+- [x] [Step already finished] → commit `[sha]`
+
+## Current Step
+→ [The one thing in flight right now, and how far it got]
+
+## Remaining
+- [ ] [Next step]
+- [ ] [Step after that]
+
+## Current Blocker
+<!-- Omit if none. Be specific: the failing command and its actual output. -->
+[e.g., "`pnpm test auth.test.ts` fails on AC-3: expected 403, received 401"]
+
+## Do Not Repeat
+<!-- Approaches already tried and rejected in this task. Prevents a fresh session
+     from rediscovering the same dead end. -->
+- [Approach tried] — failed because [reason]
 ```
 
 ---

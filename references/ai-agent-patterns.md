@@ -2,6 +2,20 @@
 
 Multi-agent orchestration, context management, and AI interaction patterns for SDD.
 
+## Contents
+
+- Context management — the single-task context rule
+- Context engineering — artifacts as compaction checkpoints, the 40–60% band, progressive
+  disclosure, subagent noise isolation, attention decay, failure signatures
+- Subagent review pattern — critic agents for Gate R and Gates 1–2
+- Tool: individual task retrieval
+- Parallel task execution
+- AI tool selection per phase (capability profiles)
+- Handling AI resistance
+- Spec regeneration pattern (`/sdd:amend`)
+- Research phase with parallel subagents — the leverage model and dispatch shape
+- Spec as recovery point
+
 ---
 
 ## Context Management
@@ -38,10 +52,139 @@ paste relevant contract → implement → verify → commit → close conversati
 
 ---
 
+## Context Engineering
+
+The single-task rule above is one instance of a general principle. An agent is a stateless
+function — output quality is bounded entirely by input quality. Every phase, gate, and
+artifact in SDD is, mechanically, a decision about what enters that input.
+
+### Artifacts Are Compaction Checkpoints
+
+This is the part that is easy to miss: the SDD artifacts are not primarily documentation.
+They are *compressed context*, and documentation is a side effect.
+
+| Phase | Raw work performed | Compacted artifact | What survives |
+|-------|-------------------|--------------------|----------------|
+| 0.5 Research | Read 40 files, dozens of greps | `research.md` (~200 lines) | File map, information flow, cited findings, constraints |
+| 2 Plan | Evaluate architectures and tradeoffs | `plan.md` (~200 lines) | Chosen components, AC coverage, risks |
+| 3 Tasks | Sequence and size the work | `tasks.md` | Ordered atomic units with dependencies |
+| 4 Implement | Write and debug code | Commits + `progress.md` | Working code, state needed to resume |
+
+Each step is roughly a 95% reduction that preserves every decision-critical fact. The next
+phase starts from the artifact and **never** re-reads the raw material.
+
+Two consequences worth internalizing:
+
+- **Artifact length is a quality signal.** A 900-line spec has stopped compacting and
+  started hoarding. If an artifact keeps growing, the phase boundary is not doing its job.
+- **A phase that reads the previous phase's raw material has broken the chain.** Planning
+  while re-grepping the codebase means the research doc was not trusted — fix the research,
+  do not work around it.
+
+### Compact on Purpose, Not on Overflow
+
+Target **40–60% context utilization** during active work.
+
+Automatic compaction triggered by exhaustion is the worst case: the summarizer decides for
+you, under pressure, which details to discard — and it does not know which line of the
+contract mattered. Intentional compaction happens at a boundary you chose, with an artifact
+you reviewed.
+
+| Utilization | State | Action |
+|-------------|-------|--------|
+| 0–40% | Loading | Continue |
+| 40–60% | Productive | Continue |
+| 60–80% | Degrading — instructions from early in the session lose weight | Finish current step, hand over |
+| 80%+ | Unreliable | Stop and write `progress.md` |
+
+Exact percentages vary by model and window size. The rule that transfers: **reset at a
+boundary you picked, before quality degrades — not when the tool forces you to.**
+
+### Progressive Disclosure
+
+Do not load what the current step does not need. Reference by path, load on demand.
+
+| Load always | Load per task | Load on demand only |
+|-------------|--------------|---------------------|
+| `constitution.md` (compact by design) | The task's ACs, its contract, its plan section | `research.md` (already distilled into plan.md) |
+| The current task from `tasks.md` | Relevant entities from `data-model.md` | Other features' specs |
+| | | `decision_log.md`, archived specs |
+
+`research.md` is deliberately in the third column. Once Phase 2 has consumed it, the plan
+carries what mattered. Re-loading research during implementation reintroduces exactly the
+noise the phase existed to remove — pull specific sections only when a task's design intent
+is genuinely unclear.
+
+### Isolate the Noise in Subagents
+
+Any operation whose *output volume* far exceeds its *information value* belongs in a
+subagent: repository-wide greps, directory walks, full-file reads, log scans, dependency
+audits.
+
+The subagent burns its own context on the mess and returns a bounded summary. The main
+context receives the conclusion, never the transcript. This is why Phase 0.5 dispatches four
+subagents rather than searching directly — and it is the same mechanism that makes critic
+agents effective (see below).
+
+### Attention Decay in Long Sessions
+
+Instructions given early in a session lose influence as the window fills. Two mitigations:
+
+- **Re-inject the constraints that matter** at each step, rather than stating them once at
+  the top. The per-task prompt in `prompt-patterns.md` repeats `constitution.md` and the
+  Boundaries section for exactly this reason — it is not redundancy, it is refreshing
+  attention.
+- **Keep the goal in the working set.** For long tasks, re-read the task's own line from
+  `tasks.md` at each step. "Forgot the actual task" is the most common failure of long
+  agent sessions, and it is cheap to prevent.
+
+### Failure Signatures
+
+| Symptom | Diagnosis | Fix |
+|---------|-----------|-----|
+| Agent contradicts a decision made earlier in the same session | Attention decay | Re-inject the decision; consider a reset |
+| Agent re-reads files already summarized in an artifact | Broken compaction chain | Trust the artifact or fix it — do not allow both |
+| Agent asks a question already answered in the spec | Context dilution — signal buried in noise | Trim the loaded context to the current task |
+| Auto-compaction fires mid-task | Reactive compaction | Hand over at 60–80% next time |
+| Quality drops sharply late in a session | Utilization past the productive band | `progress.md` + fresh session |
+
+---
+
 ## Subagent Review Pattern
 
 Use separate critic subagents at each phase gate. Critic agents find problems the
 generating agent can't see (it anchors to its own output).
+
+**Every finding carries a confidence marker**, and there are only two:
+
+| Marker | Use when |
+|--------|----------|
+| `[CONFIRMED]` | The critic can cite the exact artifact location or code line proving the issue |
+| `[VERIFY]` | The issue is inferred, or depends on information the critic could not check |
+
+No third value, no percentages. A finding the critic cannot locate is `[VERIFY]`, and the
+human triages those first. See `output-formats.md → Critic Findings` for how they are
+presented.
+
+### Phase 0.5 Critic Agent
+
+Run after generating research.md, before Gate R. Unlike later critics, this one must open
+files — it is verifying claims against reality, not reasoning about a document.
+
+```
+# Research Verifier — finds unsupported or fabricated findings
+You are auditing a research document you did not write.
+Read: specs/[feature]/research.md
+
+For every `file:line` citation, open that location and verify the line exists and the code
+there supports the claim. Also find: involved files missing from the document, sentences
+describing what the system SHOULD do rather than what it DOES, and claims with no citation.
+
+Return issues in this format:
+[ISSUE] [F-N or Section] Research [Type: BadCitation/Unsupported/Incomplete/Missing/Prescriptive] [CONFIRMED|VERIFY] [Description]
+
+Do not rewrite the document. Do not approve or compliment.
+```
 
 ### Phase 1 Critic Agents
 
@@ -57,7 +200,7 @@ Read: specs/[feature]/spec.md
 Find: acceptance criteria that cannot be expressed as an automated test.
 
 Return issues in this format:
-[ISSUE] [AC-N] QA [Type: Untestable/Ambiguous] [Description]
+[ISSUE] [AC-N] QA [Type: Untestable/Ambiguous] [CONFIRMED|VERIFY] [Description]
 
 Do not suggest fixes. Do not approve or compliment.
 ```
@@ -69,7 +212,7 @@ Read: specs/[feature]/spec.md
 Find: missing authentication, authorization, input validation, or data exposure risks.
 
 Return issues in this format:
-[ISSUE] [AC-N or Section] Security [Type: Missing/Risk] [Description]
+[ISSUE] [AC-N or Section] Security [Type: Missing/Risk] [CONFIRMED|VERIFY] [Description]
 
 Do not approve or compliment — issues only.
 ```
@@ -81,7 +224,7 @@ Read: specs/[feature]/spec.md
 Find: user stories without full AC coverage, missing edge cases, implicit assumptions.
 
 Return issues in this format:
-[ISSUE] [AC-N or Section] Product [Type: Missing/Ambiguous/UX-Gap] [Description]
+[ISSUE] [AC-N or Section] Product [Type: Missing/Ambiguous/UX-Gap] [CONFIRMED|VERIFY] [Description]
 
 Do not rewrite the spec — issues only.
 ```
@@ -100,7 +243,7 @@ stack, naming conventions that conflict with constitution rules, security constr
 the plan or contracts fail to address, endpoints that expose data prohibited by constitution.
 
 Return issues in this format:
-[ISSUE] [Section] Constitution [Type: Banned/StackViolation/Naming/Security] [Description]
+[ISSUE] [Section] Constitution [Type: Banned/StackViolation/Naming/Security] [CONFIRMED|VERIFY] [Description]
 
 Do not approve — violations only.
 ```
@@ -113,7 +256,7 @@ Find: abstractions that could be replaced with direct framework usage,
 unnecessary indirection, premature generalization.
 
 Return issues in this format:
-[ISSUE] [Section] Architecture [Type: Over-engineering/Missing/Risk] [Description]
+[ISSUE] [Section] Architecture [Type: Over-engineering/Missing/Risk] [CONFIRMED|VERIFY] [Description]
 
 Be specific — issues only.
 ```
@@ -125,7 +268,7 @@ Read: specs/[feature]/contracts/
 Find: missing error codes, ambiguous response shapes, missing edge cases.
 
 Return issues in this format:
-[ISSUE] [endpoint or Section] Contract [Type: Missing/Ambiguous/Schema] [Description]
+[ISSUE] [endpoint or Section] Contract [Type: Missing/Ambiguous/Schema] [CONFIRMED|VERIFY] [Description]
 
 Do not approve — incomplete or ambiguous items only.
 ```
@@ -138,7 +281,7 @@ Find: missing indexes, implicit constraints that should be explicit,
 N+1 query risks, denormalization that will cause consistency issues.
 
 Return issues in this format:
-[ISSUE] [EntityName or Section] DB [Type: Schema/Missing/Risk] [Description]
+[ISSUE] [EntityName or Section] DB [Type: Schema/Missing/Risk] [CONFIRMED|VERIFY] [Description]
 
 Specific schema problems only.
 ```
@@ -152,7 +295,7 @@ Find: risks listed without concrete mitigations, high-impact items with no fallb
 external dependencies with no failure handling, assumptions that could invalidate the plan.
 
 Return issues in this format:
-[ISSUE] [Section] Risks [Type: Unmitigated/Assumption/Dependency/Fallback] [Description]
+[ISSUE] [Section] Risks [Type: Unmitigated/Assumption/Dependency/Fallback] [CONFIRMED|VERIFY] [Description]
 
 Risks without mitigations only — do not approve or summarize.
 ```
@@ -230,6 +373,7 @@ release — the profiles below remain stable:
 | Phase | Capability Profile Needed | IDE Integration? |
 |-------|--------------------------|-----------------|
 | Constitution (Phase 0) | Strong instruction-following, broad domain knowledge | No |
+| Research (Phase 0.5) | Large context, file access, subagent dispatch, code comprehension | **Yes** |
 | Specify (Phase 1) | Strong intent-understanding, good at ambiguity detection | No |
 | Plan (Phase 2) | Large context, technical architecture reasoning | No |
 | Tasks (Phase 3) | Structured output, dependency reasoning | No |
@@ -296,38 +440,61 @@ This systematic approach to changes is what makes SDD resilient to pivot request
 
 ## Research Phase with Parallel Subagents
 
-For complex features where the right approach is unclear, run a research phase *before*
-Phase 1 to gather information via parallel subagents. This produces a richer spec.
+Phase 0.5 is the canonical application of every pattern in this file: parallel subagents
+absorb the noise, a compacted artifact crosses the boundary, and a separate verifier audits
+the result.
 
-**When to use:**
+Full instructions live in `workflow-phases.md → Phase 0.5`; prompts in
+`prompt-patterns.md → Phase 0.5`. What matters here is *why* the orchestration is shaped
+this way.
 
-- Large refactors or migrations with external dependencies
-- Features requiring knowledge of unfamiliar libraries or patterns
-- Unclear architecture (multiple valid approaches worth evaluating)
+### The Leverage Model
 
-**Prompt:**
+Review effort is not evenly rewarded across phases:
+
+| What you review | Length | Errors it prevents downstream |
+|-----------------|--------|-------------------------------|
+| `research.md` | ~200 lines | Thousands of wrong lines — the whole feature aimed at the wrong subsystem |
+| `plan.md` | ~200 lines | Hundreds of wrong lines — wrong components, wrong sequencing |
+| Generated code | ~2000 lines | One wrong line at a time |
+
+Reviewing ~400 lines of research and plan dominates reviewing 2000 lines of code, both in
+errors caught and in attention spent. This is the strongest available argument for spending
+human time at the front of the workflow rather than the end — and the reason Gate R exists
+even though nothing is built yet.
+
+### Dispatch Shape
+
+Four axes cover most features. Each subagent returns ≤300 words; their raw searches never
+enter the main context.
 
 ```
-Spawn parallel subagents to research the following aspects of [feature]:
+Dispatch four parallel subagents to research [feature area]. Each returns at most 300 words.
 
-Agent 1: Research [aspect A — e.g., "existing authentication patterns in this codebase"]
-Agent 2: Research [aspect B — e.g., "CRDT patterns for real-time sync"]
-Agent 3: Research [aspect C — e.g., "storage layer options and tradeoffs"]
-Agent 4: Research [aspect D — e.g., "existing similar features to reuse"]
+Agent 1 (Files):       every file involved and what each is responsible for
+Agent 2 (Flow):        information flow end to end — entry → transform → persist → respond
+Agent 3 (Prior art):   features in this repo that already solve a similar problem
+Agent 4 (Constraints): conventions, base classes, and middleware any change here must respect
 
-Each agent: read relevant code, search for patterns, summarize findings in 300 words.
-After all agents complete, consolidate into a research.md file at specs/[feature]/research.md.
+Rules for all agents:
+- Cite `file:line` for every claim. Uncited claims are dropped at consolidation.
+- Report what exists. Do not propose designs, requirements, or improvements.
+- Report what you could not determine rather than inferring it.
+
+Consolidate into specs/[feature]/research.md using the research.md template.
+Mark any disagreement between agents as [CONFLICT] instead of resolving it silently.
 ```
 
-**Then use the research as input to Phase 1:**
+Add a fifth axis when the feature depends on an unfamiliar external library — its actual
+version's API surface, not the agent's recollection of it.
 
-```
-Using specs/[feature]/research.md as context, generate a spec.md for [feature].
-The spec should reflect the architectural findings and avoid approaches ruled out by research.
-```
+### Why a Separate Verifier
 
-This pattern produced 14 tasks completed in ~45 minutes in real-world usage, with parallel
-research uncovering patterns not discoverable through sequential exploration.
+The agent that wrote the research cannot audit it; it anchors to its own output. A verifier
+in a clean context opens each citation and checks that the line exists and says what the
+document claims. Fabricated-but-plausible citations are the characteristic failure of this
+phase, and they are invisible to the author. See the Research Verification Prompt in
+`prompt-patterns.md` and Anti-Pattern 15.
 
 ---
 

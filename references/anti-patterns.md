@@ -2,6 +2,30 @@
 
 The most common SDD failure modes, their symptoms, and how to fix them.
 
+## Contents
+
+| # | Anti-pattern | Phase it bites |
+|---|-------------|----------------|
+| 1 | Spec with implementation details | 1 |
+| 2 | Contracts modified during implementation | 4 |
+| 3 | One context for all tasks | 4 |
+| 4 | Skipping the human review gates | any |
+| 5 | Oversized tasks | 3 |
+| 6 | Adjusting the spec to match the code | 5 |
+| 7 | Vague acceptance criteria | 1 |
+| 8 | Missing error cases in contracts | 2 |
+| 9 | SDD for trivial changes | 0 |
+| 10 | No constitution | 0 |
+| 11 | Treating AI like a mind reader | 1 |
+| 12 | Skipping the clarify step | 1 |
+| 13 | Over-specified specs | 1 |
+| 14 | Implicit assumptions never challenged | 1 |
+| 15 | Running critics in the generating context | any gate |
+| 16 | Tasks without acceptance criteria references | 3 |
+| 17 | Specifying against an imagined system | 0.5 / 1 |
+| 18 | Letting the context window fill up | 4 |
+| 19 | Shipping code nobody understands | 5 |
+
 ---
 
 ## Anti-Pattern 1: Spec with Implementation Details
@@ -428,3 +452,142 @@ include in the task context, and the AI has no definition of "done."
 This makes Gate 4 mechanical: run the tests, check the AC list, verify the contract.
 It also makes Phase 4 context loading automatic — you know exactly which spec sections
 to include in each task's context window without guessing.
+
+---
+
+## Anti-Pattern 17: Specifying Against an Imagined System
+
+**Symptoms:**
+
+- The spec assumes a service, table, or hook that does not exist — or exists differently
+- Phase 4 stalls on "there's already a `SessionManager` that does this differently"
+- The plan reinvents a utility the codebase already has
+- An AC turns out to be impossible given a constraint nobody knew about
+- The feature "works" but bypasses the middleware every other feature goes through
+
+**The trap:** The feature description sounded self-contained, so the spec was written
+directly from it. Nobody lied — the agent simply filled the gaps in its model of the
+codebase with the most statistically ordinary architecture, and that model was wrong. The
+spec is internally consistent, which is exactly why the error survives every gate that only
+reads the spec.
+
+**Example (wrong):**
+
+```markdown
+### AC-3: Session expiry [MUST]
+Given a session older than 24h, when the user makes a request,
+then the session is invalidated and a 401 is returned.
+```
+
+Written without research. The codebase already invalidates sessions in middleware at
+`src/auth/middleware.ts:40`, using a 12h TTL from config — this AC quietly specifies a
+second, conflicting expiry mechanism.
+
+**Example (correct):**
+
+```markdown
+### AC-3: Session expiry [MUST]
+Given a session past the configured TTL (currently 12h — `src/config/auth.ts:9`),
+when the user makes a request, then existing middleware invalidates it and returns 401.
+
+<!-- research.md F-4: expiry is enforced centrally at src/auth/middleware.ts:40.
+     This feature must not add a second expiry path. -->
+```
+
+**Fix:** Run Phase 0.5 before writing the spec whenever the feature touches code you cannot
+fully describe from memory. Feed "Existing Constraints Discovered" into the spec's
+non-functional requirements and `Boundaries`. When an AC contradicts verified research, the
+AC is wrong until the research is disproven — not the other way around.
+
+**Cost asymmetry:** research is 30–90 minutes. A spec built on a wrong model is discovered
+in Phase 4, after the plan, the tasks, and part of the implementation are already built on it.
+
+---
+
+## Anti-Pattern 18: Letting the Context Window Fill Up
+
+**Symptoms:**
+
+- Auto-compaction fires mid-task and the agent "forgets" the contract
+- The agent contradicts a decision it made 20 minutes earlier in the same session
+- Quality visibly degrades late in long sessions
+- The agent asks a question that spec.md answered explicitly
+- After a compaction, the agent re-implements something already done
+
+**The trap:** Compaction feels like a tooling detail — the agent handles it, so why manage
+it. But automatic compaction happens under pressure, at the worst possible moment, and the
+summarizer does not know that one line of the contract was load-bearing. You lose exactly
+the details you cannot afford to lose, and you find out later.
+
+**Example (wrong):**
+
+```
+[Session at 92% context]
+Human: continue with TASK-007
+Agent: [auto-compaction fires] ... implements TASK-007 with the response shape
+       it inferred, because the contract paste was summarized away
+```
+
+**Example (correct):**
+
+```
+[Session at ~70% context, current step finished]
+Human: [Context Handover Prompt] → writes specs/[feature]/progress.md
+       git commit
+[Fresh session]
+Human: [Session Resume Prompt] → reads constitution.md + progress.md + the contract
+```
+
+**Fix:** Treat context as a managed budget, not an ambient resource.
+
+- Work in the 40–60% utilization band; hand over between 60–80%
+- Write `progress.md` *before* degradation, not after — a handover authored by a degraded
+  agent inherits its confusion
+- Never let auto-compaction be the mechanism that ends a task
+- If tasks routinely outgrow their window, the tasks are too large — fix `tasks.md`
+
+See `ai-agent-patterns.md → Context Engineering`.
+
+---
+
+## Anti-Pattern 19: Shipping Code Nobody Understands
+
+**Symptoms:**
+
+- The PR is approved because tests pass and the diff is too large to read
+- Nobody on the team can explain why a layer or abstraction exists
+- Bug reports in this feature always route back to whoever prompted it
+- The next change to this code is quoted as a rewrite
+- Onboarding takes longer despite more documentation existing
+
+**The trap:** Every artifact was produced, every gate passed, and the tests are green — so
+the feature looks finished. But correctness and comprehension are different properties.
+Agents generate code several times faster than humans read it, and review pressure resolves
+in favor of the green checkmark. The debt is invisible and interest-free until the first
+incident.
+
+**Example (wrong):**
+
+> "Gate 5 passed — traceability matrix complete, zero drift, all tests green. Merging."
+
+Nobody has read the implementation end to end. Six weeks later a p0 lands in this feature
+and the only available debugging strategy is to ask an agent to re-read its own output.
+
+**Example (correct):**
+
+> "Gate 5 passed. Walkthrough attached to the PR — it flagged a caching layer in
+> `src/features/x/cache.ts:20` that traces to no plan decision. Removed it; the query is
+> 8ms. Two of us have read the flow and can debug it."
+
+**Fix:** Add the comprehension step to your definition of done.
+
+- Run the Linear Walkthrough Prompt and have someone who did not drive the implementation
+  read it (Gate C in `quality-gates.md`)
+- Review the spec and plan carefully — ~400 dense lines — rather than skimming a
+  2000-line diff, which is where human attention is worth the least
+- Delete any structure that traces to no decision in `plan.md`
+- Keep specs in the same PR as the code, and archive rather than delete them
+
+**The distinction that matters:** a spec nobody reads is documentation theater. SDD converts
+review effort into comprehension only if the artifacts are actually read — by humans, before
+merge.

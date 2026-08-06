@@ -3,6 +3,21 @@
 Effective prompts for each phase of the SDD workflow. The quality of your specs directly
 determines the quality of AI output — vague input = vague output.
 
+## Contents
+
+- Phase 0 — Constitution: initial generation, security constraints
+- Phase 0.5 — Research: codebase research (Format A/B), consolidation, verification
+- Phase 1 — Specify: assumptions surface, initial spec, clarify, post-clarify update, completeness check
+- Phase 2 — Plan: technical plan generation, plan review
+- Phase 3 — Tasks: task breakdown, task validation
+- Phase 4 — Implementation: single task (Format A/B), context handover, session resume, mid-implementation correction
+- Amend (`/sdd:amend`) · Analyze (`/sdd:analyze`) · Status (`/sdd:status`)
+- Phase 5 — Validate: drift detection, post-implementation validation, linear walkthrough
+- Multi-agent review pattern · Constitution from existing codebase · Cross-feature conflict detector
+
+Every prompt in this file produces either a file or a user-facing report. For the format of
+the user-facing ones, see `output-formats.md`.
+
 ---
 
 ## Phase 0 — Constitution Prompts
@@ -44,6 +59,103 @@ Add specific constraints to prevent the top CWE vulnerabilities relevant to this
 For each constraint, write it as an explicit rule an AI agent can check:
 ❌ Vague: "handle errors securely"
 ✅ Specific: "never expose stack traces or internal error details in API responses"
+```
+
+---
+
+## Phase 0.5 — Research Prompts
+
+Run these before Phase 1 whenever the feature touches unfamiliar or large existing code.
+The output is a map of the system as it is — not a design, not a requirement list.
+
+### Codebase Research Prompt (`/sdd:research`)
+
+*Format A — agent with filesystem access and subagent dispatch.*
+
+```
+Research how [feature area] currently works in this codebase. Do NOT propose a design,
+write requirements, or suggest improvements. Report only what exists.
+
+Task: [1-2 sentence description of what we are about to build or change]
+
+Method:
+1. Dispatch parallel subagents for the noisy work. Each returns at most 300 words:
+   - Agent 1: locate every file involved in [area] and state each file's responsibility
+   - Agent 2: trace the information flow end to end — entry point → transformation → persistence → response
+   - Agent 3: find prior art — features in this repo that already solve a similar problem
+   - Agent 4: find the constraints the code already enforces (base classes, middleware,
+     conventions, validation layers) that any change here must respect
+2. Consolidate their output into specs/[feature]/research.md using the research.md
+   template in references/artifact-templates.md.
+
+Hard rules:
+- Every factual claim ends with a `file:line` citation. No citation = delete the claim.
+- If you could not verify something, list it under "Open Questions for the Spec" —
+  never fill the gap with a plausible guess.
+- List what you did NOT investigate under "Not Investigated".
+- Target 200 lines. If you exceed it, you are dumping rather than compacting.
+- Do not write acceptance criteria, user stories, or solution proposals.
+```
+
+*Format B — stateless interface with no filesystem access.*
+
+```
+I will paste code from my repository. Build a research document describing how
+[feature area] currently works.
+
+For each claim you make, cite the file and line I gave you, in the form `path/file.ts:42`.
+If the pasted code is insufficient to answer something, say so explicitly under
+"Open Questions for the Spec" and tell me which file you need next.
+
+Output format: [paste the research.md template from artifact-templates.md]
+
+Do not propose changes, requirements, or designs. Describe only what the code does today.
+```
+
+### Research Consolidation Prompt
+
+*Run when several subagents or several sessions produced overlapping findings.*
+
+```
+Consolidate the following research fragments into a single specs/[feature]/research.md.
+
+Fragments:
+[paste each subagent output]
+
+Rules:
+- Deduplicate findings that describe the same code path.
+- Where two fragments disagree, keep both and mark the item [CONFLICT] — do not silently
+  pick one. A conflict means at least one agent read the code wrong, and the human needs
+  to see it.
+- Drop any claim that arrived without a `file:line` citation.
+- Preserve every "Open Question" from every fragment.
+- Final document must be under 200 lines.
+```
+
+### Research Verification Prompt (Gate R)
+
+*Run before the human reviews `research.md`. Catches the failure that matters most:
+confident findings that are not actually true.*
+
+```
+You are verifying a research document against the real codebase. You did not write it.
+
+Read: specs/[feature]/research.md
+
+For every claim with a `file:line` citation, open that location and check:
+- Does the cited line exist?
+- Does the code there actually support the claim?
+- Is the claim complete, or does it omit a branch, guard, or error path?
+
+Also report:
+- Files that are clearly involved in this area but missing from "Relevant Files"
+- Any sentence that states what the system SHOULD do rather than what it DOES
+- Any claim with no citation at all
+
+Return findings in this format:
+[ISSUE] [F-N or Section] Research [Type: BadCitation/Unsupported/Incomplete/Missing/Prescriptive] [CONFIRMED|VERIFY] [Description]
+
+Do not rewrite the document. Do not approve or compliment. Issues only.
 ```
 
 ---
@@ -345,6 +457,46 @@ Do NOT add functionality beyond what the ACs and contract define.
 Use Format A when the agent can `Read` files directly.
 Use Format B for web interfaces or agents without persistent file access.
 
+### Context Handover Prompt (run before a context reset, not after)
+
+*Use when a task will not finish inside the current context window. Run it while the session
+still has room to think — a handover written at 95% utilization is written by a degraded agent.*
+
+```
+This session is being reset. Write specs/[feature]/progress.md so a fresh session with none
+of this conversation can resume the task without repeating work.
+
+Use the progress.md template from references/artifact-templates.md.
+
+Include:
+- The goal, copied verbatim from tasks.md — not your paraphrase of it
+- Steps completed, each with the file:line or commit sha that proves it
+- The exact step in flight and how far it got
+- The current blocker, quoted as the literal failing command and its real output
+- Approaches already tried and rejected, with the reason each failed
+
+Exclude:
+- Narration of what we discussed
+- Anything already written in spec.md, plan.md, or contracts/ — the new session reads those directly
+
+Keep it under 40 lines.
+```
+
+### Session Resume Prompt (after a context reset)
+
+```
+Resume TASK-[ID] for [feature].
+
+Read, in this order:
+1. constitution.md
+2. specs/[feature]/progress.md  ← current state, start here
+3. The AC and contract sections it references
+
+Start from "Current Step". Do not re-run completed steps. Do not retry anything listed
+under "Do Not Repeat". If progress.md contradicts what you find in the code, stop and
+report the contradiction — do not guess which one is right.
+```
+
 ### Mid-Implementation Correction Prompt (when AI drifts)
 
 ```
@@ -427,10 +579,42 @@ Check for:
 6. Untestable criteria — ACs that cannot be expressed as an automated test
 
 Return issues in this format:
-[ISSUE] [AC-N or section] [Type: Conflict/Overlap/Vague/Missing/Duplicate/Untestable] [Description]
+[ISSUE] [AC-N or section] [Type: Conflict/Overlap/Vague/Missing/Duplicate/Untestable] [CONFIRMED|VERIFY] [Description]
 
 If no issues are found, respond: "No inconsistencies detected."
 Do NOT rewrite the spec. Return issues only.
+
+Present the result using the Analyze Report format in references/output-formats.md:
+20 lines maximum, fixed finding types, blocking vs non-blocking stated explicitly.
+```
+
+---
+
+## Status Prompt (/sdd:status — run any time)
+
+*Answers "where am I?" without the user opening a single file. Every line is derived from
+what exists on disk — never from conversation memory.*
+
+```
+Report the current state of the [feature] spec workflow.
+
+Determine each phase's state by inspecting the filesystem, not by recalling our conversation:
+- Phase 0:   does constitution.md exist? any unresolved [PENDING] items?
+- Phase 0.5: does specs/[feature]/research.md exist? how many findings? any uncited claims
+             or [CONFLICT] markers left?
+- Phase 1:   does spec.md exist? what is its Status header? count ACs by MoSCoW label.
+             any [NEEDS CLARIFICATION] still open?
+- Phase 2:   do plan.md, data-model.md, and contracts/ exist? are contracts locked?
+- Phase 3:   does tasks.md exist? how many tasks total?
+- Phase 4:   how many tasks are [x] vs [ ]? what is the last commit touching this feature?
+             does progress.md exist (meaning a task is mid-flight)?
+- Phase 5:   does validation.md or walkthrough.md exist?
+
+Then state the single next action: the next unchecked task, or the gate awaiting approval.
+
+Output using the Status Report format in references/output-formats.md — 12 lines maximum,
+fixed glyphs, one "Next:" block. If an artifact is missing, report it as not started; never
+infer progress from what we discussed.
 ```
 
 ---
@@ -459,7 +643,9 @@ Report:
 6. Constitution violations — banned patterns introduced or security constraints violated
    (read constitution.md to identify the rules to check against)
 
-Format as a checklist. Mark each item PASS or FAIL with evidence.
+Present the result using the Drift Report format in references/output-formats.md:
+verdict and count first, one line per item with BOTH locations (the code and the artifact
+it contradicts), a [CONFIRMED] or [VERIFY] marker on each, 25 lines maximum.
 ```
 
 ### Post-Implementation Validation Prompt
@@ -471,11 +657,40 @@ Files to check: [list implementation files]
 Spec files: specs/[feature]/spec.md, specs/[feature]/plan.md, specs/[feature]/contracts/, constitution.md
 
 For each AC in spec.md, identify:
-- Which test covers it
-- Which implementation file satisfies it
-- Pass/Fail status
+- Which test covers it, cited file:line
+- Which implementation file satisfies it, cited file:line
+- Status from the fixed vocabulary: PASS / FAIL / NO TEST / NOT IMPLEMENTED / OUT OF SCOPE
 
-Return a traceability matrix.
+Write the full matrix to specs/[feature]/validation.md using the Traceability Matrix format
+in references/output-formats.md. In your response, show only the 3-line summary: verdict,
+MUST coverage ratio, and each blocking row. Do not paste the matrix into the response.
+
+Also report any implementation file that satisfies no AC — unmapped code is scope drift.
+```
+
+### Linear Walkthrough Prompt
+
+*Run before merge, for the humans. Its purpose is comprehension, not validation — it is the
+antidote to shipping code the team does not understand. Save the output as
+`specs/[feature]/walkthrough.md` or paste it into the PR description.*
+
+```
+Write a linear walkthrough of the [feature] implementation for an engineer who has never
+seen this code and will have to maintain it.
+
+Files: [list implementation files]
+Spec: specs/[feature]/spec.md
+
+Rules:
+- Follow execution order, not file order. Start at the entry point the user actually hits.
+- At each step: what happens, in which file and function, and why it is done that way.
+- Cite `file:line` for every step.
+- Call out every non-obvious decision and tie it to the AC or plan section that forced it.
+- Explicitly list what this code does NOT handle, and where those cases are handled instead.
+- Flag anything you generated that you would not be able to justify from the spec — that
+  is unrequested behavior and the reviewer needs to see it first.
+
+Do not summarize the feature. Narrate the path through the code.
 ```
 
 ---
@@ -495,10 +710,13 @@ Review specs/[feature]/spec.md from the perspective of [role]:
 Return issues in this format:
 [ISSUE] [AC-N or Section] [Role] [Type: Untestable/Ambiguous/Missing/Risk/Schema/UX-Gap] [Description]
 
+Mark [CONFIRMED] only when you can cite the exact artifact location proving the issue.
+Otherwise mark [VERIFY]. Never invent a confidence percentage.
+
 Examples:
-[ISSUE] AC-3 QA Untestable "responds quickly" has no numeric threshold — specify ms target
-[ISSUE] AC-1 Security Missing No authentication requirement stated for this endpoint
-[ISSUE] data-model.md DB Schema Missing index on user_id + created_at for time-based queries
+[ISSUE] AC-3 QA Untestable [CONFIRMED] "responds quickly" has no numeric threshold — specify ms target
+[ISSUE] AC-1 Security Missing [CONFIRMED] No authentication requirement stated for this endpoint
+[ISSUE] data-model.md DB Schema [VERIFY] Likely missing index on user_id + created_at — query pattern not stated in plan.md
 
 If no issues found for your role, respond: "No issues found for [role]."
 Do not approve, summarize, or compliment — issues only.

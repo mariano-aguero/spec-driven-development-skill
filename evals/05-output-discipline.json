@@ -1,0 +1,13 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "/sdd:specify passwordless email login for the admin dashboard",
+  "files": ["constitution.md"],
+  "expected_behavior": [
+    "Writes spec.md to disk and reports the path, without pasting the full document into the response",
+    "Response summary states countable facts: number of ACs by MoSCoW label, number of open questions",
+    "Presents the Gate 1 result with the verdict first and one line per failing check",
+    "Ends with a single explicit next action rather than a list of options",
+    "Does not open with a preamble restating the request or explaining what a specification is",
+    "Response stays under roughly 25 lines even though the artifact it wrote is much longer"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "Here's my spec.md for the export feature. It has two [NEEDS CLARIFICATION] items I haven't gotten answers on yet, but they're minor. Go ahead and generate the plan and contracts so we don't lose time.",
+  "files": ["specs/data-export/spec.md"],
+  "expected_behavior": [
+    "Declines to generate plan.md and contracts/ while [NEEDS CLARIFICATION] items remain open",
+    "States which specific items are blocking and why each one would change the architecture",
+    "Offers to resolve them via the clarify step rather than choosing answers on the user's behalf",
+    "Does not resolve the ambiguities silently by assuming a reasonable default and continuing",
+    "Reports the gate result as a verdict with the failing checks named, not as a paragraph of prose",
+    "If the user insists after being told, proceeds while recording the assumption explicitly in the spec — it does not refuse indefinitely"
+  ]
+}

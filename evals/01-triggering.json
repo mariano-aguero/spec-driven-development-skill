@@ -1,0 +1,12 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "We need to add team workspaces to the app. Multiple users per workspace, role-based permissions, and billing moves from per-user to per-workspace. Can you get started on this?",
+  "files": [],
+  "expected_behavior": [
+    "Recognizes this as a feature warranting the spec-driven workflow rather than beginning to write implementation code",
+    "Proposes the phase sequence and names the artifacts it will produce, rather than describing spec-driven development in the abstract",
+    "Checks for an existing constitution.md, or proposes creating one, before writing a feature spec",
+    "Identifies that this feature touches auth and billing and therefore requires explicit acceptance criteria for permissions and error cases",
+    "Does not produce a spec.md in the first turn without first surfacing assumptions or asking about scope"
+  ]
+}

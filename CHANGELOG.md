@@ -7,6 +7,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-08-05
+
+Research becomes a first-class phase, context management becomes an explicit discipline, and
+comprehension gets its own gate. Alongside that, the skill's own mechanics were measured
+against Anthropic's authoring spec and brought back inside budget, and every output the user
+reads now has a defined format.
+
+No existing phase changed its artifacts, commands, or naming — the methodology additions are
+additive, and the mechanical changes are reductions.
+
+### Added — methodology
+
+- **Phase 0.5 — Research** (`/sdd:research`), a conditional per-feature phase producing
+  `specs/[feature]/research.md`: a ~200-line map of how the system works **today**, with a
+  `file:line` citation required for every claim.
+  - `research.md` template rewritten around Problem Summary, Relevant Files, Information
+    Flow, Key Findings, Existing Constraints Discovered, Prior Art, Open Questions for the
+    Spec, and Not Investigated.
+  - Codebase Research prompt (Format A and Format B), Research Consolidation prompt, and
+    Research Verification prompt.
+  - Research Verifier critic agent — audits citations against real code in a clean context.
+  - **Gate R** with citation spot-checks, completeness, and descriptive-only enforcement.
+  - Ready-to-use CI check that fails the build when a `file:line` citation points to a
+    missing file or an out-of-range line, or when a research doc has no citations at all.
+  - Leverage model documented: ~200 lines of research prevent thousands of wrong lines of
+    code; generated code prevents one wrong line at a time.
+- **Context Engineering** section in `ai-agent-patterns.md`: artifacts as compaction
+  checkpoints, the 40–60% utilization band, progressive disclosure, subagent noise
+  isolation, attention decay, and a failure-signature table.
+  - `progress.md` template for handover across context resets.
+  - Context Handover and Session Resume prompts.
+  - Context budget table in Phase 4 and in the quick reference.
+- **Gate C — Comprehension Check** in `quality-gates.md`, plus the Linear Walkthrough prompt
+  and a new Step 5.5 in Phase 5. Green tests prove correctness; the walkthrough proves the
+  team can maintain what shipped.
+- Three anti-patterns: **AP-17** Specifying Against an Imagined System, **AP-18** Letting the
+  Context Window Fill Up, **AP-19** Shipping Code Nobody Understands.
+- `examples/specs/magic-link-login/research.md` — a worked Phase 0.5 artifact showing cited
+  findings, discovered constraints, and questions deferred to the spec.
+
+### Added — skill mechanics and output
+
+- **`references/output-formats.md`** — a new reference defining every output the *user* reads,
+  each with a line budget: gate verdict, critic findings, traceability matrix, drift report,
+  analyze report, status report, linear walkthrough, phase completion summary, and an explicit
+  "what never to print" list. Three governing rules: write artifacts and show verdicts, lead
+  with the verdict, and express confidence as `[CONFIRMED]` / `[VERIFY]` — never a percentage.
+- **`/sdd:status`** — reports phase state and the single next action in 12 lines, derived from
+  files on disk rather than conversation memory.
+- **`evals/`** — five behavioral scenarios (triggering, right-sizing, research-first, gate
+  enforcement, output discipline) covering the authoring checklist's ≥3 requirement.
+- `## Contents` table of contents in all nine reference files, so partial reads still reveal
+  the full scope of a file.
+- Binary confidence markers on all eleven critic output formats.
+- Budgets section in `CLAUDE.md` with the measurement commands to verify them per release.
+- "What It Costs" section in the README: ~120 tokens of metadata per conversation, ~3,700
+  when the skill activates, ~23,000 for a full feature.
+
+### Changed
+
+- `SKILL.md`: new "Context Is the Real Constraint", "Comprehension Debt", and "Talking to the
+  User" sections; Quick Start is now five steps; drift-prevention list leads with research.
+- **`SKILL.md` reduced to 309 lines / ~3,700 tokens** — the per-phase gate checklists were
+  duplicating `quality-gates.md` and the inline task prompt was duplicating
+  `prompt-patterns.md`; Phases 1–5 now lead with a summary table and delegate the detail.
+- **Frontmatter `description` rewritten** to the `<what it does>. Use when <triggers>.`
+  pattern and cut from ~202 to ~124 tokens. It previously stated only when to use the skill,
+  never what the skill does, and carried a 28-item keyword list.
+- `validation.md` added as the Phase 5 traceability artifact; `walkthrough.md` is now a
+  declared artifact rather than an undocumented side effect.
+- Phase 1 and Phase 2 read `research.md` when present; a spec that contradicts verified
+  research is wrong until the research is disproven.
+- README workflow diagram includes Phase 0.5 and Gate R; Key Principles gain research-first,
+  front-loaded review, intentional compaction, and comprehension.
+- `examples/README.md` documents the research step in the build narrative.
+
 ## [1.4.1] — 2026-05-10
 
 Repository infrastructure and documentation pass. No changes to the SDD methodology, prompts, templates, or workflow.

@@ -2,6 +2,17 @@
 
 Review checklists, confidence thresholds, and CI/CD integration patterns for SDD.
 
+## Contents
+
+- Gate 0 — `constitution.md` approval
+- Per-phase checklists: Gate R (research), Gates 1–5, Gate C (comprehension)
+- Confidence-based review thresholds
+- CI/CD integration: research citation check, AC coverage, drift detection, spec completeness
+- Spec drift classification
+
+Gate results are reported to the user in a fixed format — see
+`output-formats.md → Gate Verdict`.
+
 ---
 
 ## Gate 0 — constitution.md Approval
@@ -21,6 +32,29 @@ Run once per project before any feature work begins.
 ---
 
 ## Per-Phase Checklists
+
+### Gate R — research.md Approval
+
+Run before Phase 1, when Phase 0.5 was executed. Skip entirely if no research was needed.
+
+| Check | Pass Criteria |
+|-------|--------------|
+| Citation coverage | Every factual claim ends in a `file:line` reference |
+| Citation validity | Spot-check at least 3 citations by opening them — the line exists and says what the document claims |
+| File completeness | No file the feature will obviously touch is missing from "Relevant Files" |
+| Flow accuracy | The information flow matches how the system actually behaves, in order |
+| Descriptive only | No requirements, ACs, or solution design — the document says what *is*, never what *should be* |
+| Constraints extracted | Conventions the code already enforces are listed explicitly |
+| Conflicts surfaced | Subagent disagreements are marked `[CONFLICT]`, not silently resolved |
+| Gaps declared | "Not Investigated" and "Open Questions for the Spec" are populated, not empty |
+| Length | Under ~200 lines — beyond that it is a dump, not a compaction |
+
+**Fail action:** Re-run the failing axis. Do not write the spec on unverified research —
+every error here is inherited by every downstream artifact.
+
+**Why this gate is worth your attention:** an error in ~200 lines of research misdirects
+thousands of lines of generated code, and it is invisible by the time you see the code.
+Errors caught here cost minutes; the same errors caught in Phase 4 cost the feature.
 
 ### Gate 1 — spec.md Approval
 
@@ -113,8 +147,34 @@ Run after Phase 4 completes, before merging.
 | User story walkthrough | Human walked through each user story in running application |
 | Contract audit | All contract error codes have corresponding implementation and tests |
 | Constitution audit | No constitution violations detected in new code |
+| Comprehension | Linear walkthrough produced and read by a human — see Gate C below |
 
 **Fail action:** Fix drift before merge. No exceptions.
+
+---
+
+### Gate C — Comprehension Check
+
+Run alongside Gate 5, before merge. This gate does not ask whether the code is *correct* —
+Gate 5 already did. It asks whether the team can *maintain* it.
+
+| Check | Pass Criteria |
+|-------|--------------|
+| Walkthrough exists | A linear, execution-ordered narration of the implementation with `file:line` citations |
+| Human read it | A person who did not drive the implementation has read it end to end |
+| Debuggable | That person can name where they would set the first breakpoint for a bug report in this feature |
+| Justified structure | Every abstraction, layer, and indirection traces to a plan.md decision |
+| No unexplained behavior | Nothing in the code lacks a corresponding AC, contract clause, or logged decision |
+| Reviewable size | If the diff is too large to read, the tasks were too large — note it for the next `tasks.md` |
+
+**Fail action:** Do not merge on the strength of green tests alone. Unjustified structure
+gets removed; unexplained behavior gets removed or specced. Both are cheapest now.
+
+**Why this gate exists:** agents generate code far faster than humans read it. Teams that
+adopt them without a comprehension gate merge substantially more pull requests while
+understanding substantially less of what they ship — a debt that stays invisible until the
+first incident, onboarding, or refactor. SDD only pays this back if the artifacts are
+actually read.
 
 ---
 
@@ -176,6 +236,45 @@ jobs:
       # Example for Drizzle: diff drizzle/schema.ts against data-model.md entities
       - name: Check database schema
         run: echo "[PROJECT-SPECIFIC] Implement scripts/check-schema-drift.sh for your ORM"
+```
+
+### Research Citation Check
+
+Fabricated citations are the characteristic failure of Phase 0.5, and they are cheap to
+catch mechanically. This verifies that every `path/file.ext:NN` citation in `research.md`
+points at a file that exists and a line that is in range. It cannot verify that the code
+*says* what the document claims — that is what the Research Verifier agent and Gate R are for.
+
+```yaml
+# Add to the drift-check job, or run standalone on specs/**/research.md changes
+- name: Verify research citations resolve
+  run: |
+    fail=0
+    for doc in specs/*/research.md; do
+      [ -f "$doc" ] || continue
+      # Match `path/to/file.ext:123` and `path/to/file.ext:123-145` inside backticks
+      grep -oE '`[A-Za-z0-9_./-]+\.[A-Za-z0-9]+:[0-9]+(-[0-9]+)?`' "$doc" \
+        | tr -d '`' | sort -u | while IFS= read -r cite; do
+          file="${cite%%:*}"
+          line="${cite##*:}"
+          line="${line%%-*}"
+          if [ ! -f "$file" ]; then
+            echo "FAIL: $doc cites missing file: $file"
+            exit 1
+          fi
+          total=$(wc -l < "$file" | tr -d ' ')
+          if [ "$line" -gt "$total" ]; then
+            echo "FAIL: $doc cites $file:$line but the file has $total lines"
+            exit 1
+          fi
+        done || fail=1
+      # A research doc with no citations at all has not done its job
+      if ! grep -qE '`[A-Za-z0-9_./-]+\.[A-Za-z0-9]+:[0-9]+' "$doc"; then
+        echo "FAIL: $doc contains no file:line citations"
+        fail=1
+      fi
+    done
+    exit $fail
 ```
 
 ### Spec Completeness Check

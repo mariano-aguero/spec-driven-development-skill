@@ -1,0 +1,14 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "Add rate limiting to our public API endpoints. I want to spec this properly before we build it.",
+  "files": ["src/", "package.json"],
+  "expected_behavior": [
+    "Runs a research step before writing spec.md, because the feature integrates with existing code",
+    "Produces research.md describing how the current request pipeline works, not how rate limiting should work",
+    "Every factual claim about the codebase carries a file:line citation",
+    "Reports what it could not determine under an explicit open-questions or not-investigated section rather than filling gaps with plausible guesses",
+    "Surfaces existing constraints found in the code — middleware order, validation boundaries, config conventions — as inputs to the spec",
+    "Does not write acceptance criteria, user stories, or a proposed design inside research.md",
+    "Presents a gate verdict for the research before moving to Phase 1, rather than continuing automatically"
+  ]
+}
