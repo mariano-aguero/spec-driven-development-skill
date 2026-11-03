@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-11-02
+
+Lifecycle and CI release. The contract lock now matches the workflow it protects, and the
+repo checks its own budgets and cross-references.
+
+### Fixed
+
+- **The contract lock blocked Phase 2.** The hook keyed on `Status: Approved`, which Gate 1
+  sets before the plan and contracts exist, so an agent could not write `contracts/` at all.
+  The lock now starts at `Planned` (after Gate 2) and the block message names the status.
+- **The amend sentinel was read but never created.** The amend prompt now creates
+  `specs/<feature>/.amend-in-progress` first and removes it last, also on abort, and
+  `enforcement.md` tells projects to add it to `.gitignore`.
+- **Two gate matrices disagreed.** `SKILL.md` and `quick-reference.md` said "Self-check" at
+  level S and listed other gates than `quality-gates.md`. The ceremony tables now link to the
+  one matrix in `quality-gates.md`.
+- **Stale README.** It pinned "Latest: v1.4.0" and a scenario count. Both are gone.
+- `SKILL.md` was missing `/sdd:analyze` and `/sdd:status`.
+- The magic-link example now reads `Planned`, since it has a plan, contracts and tasks.
+
+### Added
+
+- **Status lifecycle.** `Draft → Approved → Planned → In Progress → Validated → Archived` on
+  `spec.md`, defined once in `artifact-templates.md`. Each gate names the status it sets.
+- **Repo CI checks.** `.github/scripts/check-repo.mjs` fails on a description over 1024
+  characters, a `SKILL.md` of 500 lines or more, a long reference without `## Contents`, a
+  broken link or anchor, a gate matrix outside `quality-gates.md`, a command missing from
+  `SKILL.md` or `quick-reference.md`, and a stale version in the README.
+- `.github/scripts/contract-lock.test.mjs` runs the hook printed in `enforcement.md`.
+
 ## [1.7.0] — 2026-08-06
 
 Enforcement and interop release. Rules that were requests become mechanical where they can
