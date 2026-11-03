@@ -20,9 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixtures for every scenario that needs a project, under `evals/fixtures/`.
 - Validator `scripts/sdd-check.mjs`: eleven rules over status, ACs, handoff, delta baseline and task graph, `file:line` output, `--json`, exit 1 on error. Documented in `enforcement.md`.
 - Validator tests `.github/scripts/sdd-check.test.mjs` with one failing fixture per rule, run in CI.
+- Cold read before Gate 1, Phase 5 adversary prompt, no-subagent fallback, and the coordinator rule for parallel waves.
+- Gate 4 requires the failing-before run quoted, one killed mutant per `[MUST]` AC, and no tautologies. Gate 5 at L runs a mutation tool on changed files.
+- Anti-patterns 24 to 28 and eval scenarios 09 to 12.
 
 ### Changed
 
+- Gates split into intent gates (R, 1, C, merge), approved by a human, and evidence gates (2 completeness, 3, 4, 5), passed by a checker that is not the author. `inconclusive` blocks the next phase.
+- Code findings are `[CONFIRMED]` only with a command, its output, and the required output, rerun by the coordinator.
 - `validation.md` columns are `AC | Proof | Before | Mutant | After | Verdict | Checked by`.
 - `decision_log.md` is an append-only table and `progress.md` is a resume note.
 - Skill moved to `skills/spec-driven-development/`. Dev files (evals, CI, planning specs) no longer ship to users.
