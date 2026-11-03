@@ -1,9 +1,9 @@
 # v2: Agent-Native Spec-Driven Development
 
-Status: Approved
-Version: 0.2
+Status: In Progress
+Version: 0.3
 Mode: Delta
-Baseline: v1.7.0 (`939b1e7`) + `specs/v2-agent-native/research.md` F-1..F-10, P-1..P-8
+Baseline: specs/v2-agent-native/research.md F-1..F-10, P-1..P-8 (v1.7.0, `939b1e7`)
 Level: L (changes gate semantics and artifact formats; major version)
 Last updated: 2026-11-02
 
@@ -15,6 +15,21 @@ gates that check facts are passed by an agent other than the author and carry pr
 acceptance criterion names how it is proven, every test shows it can fail, every review finding
 is reproduced, and the checks that can be mechanical ship as commands and a validator instead of
 prose.
+
+## Handoff
+
+Goal: Ship 2.0.0, where a cold agent can take a spec to merge and leave evidence a human audits.
+Done when:
+
+- [ ] `node .github/scripts/check-repo.mjs` exits 0 (AC-3, AC-4, AC-27)
+- [ ] `node --test .github/scripts/` exits 0 (AC-1, AC-24)
+- [ ] `node skills/spec-driven-development/scripts/sdd-check.mjs specs skills/spec-driven-development/examples/specs` exits 0 (AC-7, AC-10, AC-22, AC-E1)
+- [ ] `node .github/scripts/run-evals.mjs --trials 3` shows the skill ahead of the baseline on every scenario, or the gap is explained (AC-28)
+- [ ] `npx skills add` into a scratch project installs the skill and the `sdd-*` commands (AC-25)
+
+Isolation: one branch per PR, stacked on `feat/v1.8.0`, one worktree per delegate
+Permissions: Boundaries section below
+Stop if: a change needs a runtime dependency or alters the S/M/L rule. Then stop and write why in decision_log.md
 
 ## Baseline Assertion
 
