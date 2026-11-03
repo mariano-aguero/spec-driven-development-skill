@@ -2,6 +2,7 @@
   "skills": ["spec-driven-development"],
   "query": "Add rate limiting to our public API endpoints. I want to spec this properly before we build it.",
   "files": ["src/", "package.json"],
+  "fixture": "fixtures/03-research-first",
   "expected_behavior": [
     "Runs a research step before writing spec.md, because the feature integrates with existing code",
     "Produces research.md describing how the current request pipeline works, not how rate limiting should work",
