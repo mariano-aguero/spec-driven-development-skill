@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Anti-patterns 24 to 28 and eval scenarios 09 to 12.
 - Commands as sub-skills under `skills/`: `sdd-init`, `sdd-research`, `sdd-specify`, `sdd-plan`, `sdd-tasks`, `sdd-validate`, `sdd-change` and `sdd-status`. Each is manual only and points at sections of the main skill.
 - `.claude-plugin/marketplace.json`, so a plugin install and `npx skills add` read the same folders.
+- Repo check `dash`: fails on em and en dashes in prose outside code.
+- `**Check:**` line on every anti-pattern, naming the validator rule, hook or gate row that catches it, or `judgment only`.
+- `examples/specs/_current/magic-link-login.md`, the login capability after `magic-link-shorten-ttl` merged in.
+- `## Invariants` example in the magic-link `plan.md`.
 
 ### Changed
 
@@ -34,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `decision_log.md` is an append-only table and `progress.md` is a resume note.
 - Commands are typed `/sdd-<command>` instead of `/sdd:<command>`. Removed commands moved: `/sdd:clarify` to `/sdd-specify`, `/sdd:next-task` to `/sdd-tasks`, `/sdd:checklist` and `/sdd:analyze` to `/sdd-validate`, `/sdd:amend` and `/sdd:reconcile` to `/sdd-change`.
 - Skill moved to `skills/spec-driven-development/`. Dev files (evals, CI, planning specs) no longer ship to users.
+- `references/` trimmed from about 37k to under 24k words. Each rule lives in one file and the others link to it.
+- Output rules (verdict first, countable facts, one next action, no preamble, ~25 lines) moved into `SKILL.md`. Phase rules the agent kept missing moved into the `sdd-*` commands.
+- Em and en dashes removed from the skill, README and CLAUDE.md.
 
 ## [1.8.0] - 2026-11-02
 

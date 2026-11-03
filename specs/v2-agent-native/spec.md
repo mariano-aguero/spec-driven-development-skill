@@ -185,7 +185,7 @@ fixture and expects rejection.
 Given level L, When Gate 5 runs, Then a mutation tool (Stryker, mutmut, cargo-mutants or the
 stack's equivalent) runs scoped to the changed files and the report lists surviving mutants
 mapped to ACs.
-**Proof:** `enforcement.md` section with one command per ecosystem.
+**Proof:** `quality-gates.md` Gate 5 lists one command per ecosystem; `enforcement.md` links to it from the ladder.
 
 #### AC-14: Invariants for stateful features [ADDED] [COULD]
 
