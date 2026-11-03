@@ -119,11 +119,12 @@ More context ≠ better output. Focused context produces better output.
 **The trap:** When you're in flow, the gates feel like friction. They're not — they're the
 moment where wrong assumptions cost minutes (in specs) vs. hours (in code).
 
-**Fix:** Human approval of each artifact is mandatory. There are three hard gates:
+**Fix:** No artifact passes on its author's word. A human approves the intent gates; a
+separate checker passes the evidence gates (`quality-gates.md → Which Gates Apply`):
 
-- Gate 1: spec.md approved before plan generation
-- Gate 2: plan.md + contracts/ approved before task generation
-- Gate 3: tasks.md reviewed before implementation
+- Gate 1: a human approves spec.md before plan generation
+- Gate 2: a checker verifies completeness, a human approves the design, before tasks
+- Gate 3: a checker verifies tasks.md before implementation
 
 Unapproved artifacts propagate errors forward into every subsequent phase.
 

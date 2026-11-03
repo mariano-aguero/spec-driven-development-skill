@@ -4,7 +4,7 @@ Review checklists, confidence thresholds, and CI/CD integration patterns for SDD
 
 ## Contents
 
-- Which gates apply at which ceremony level
+- Which gates apply at which ceremony level, and who passes each (intent vs. evidence gates)
 - Gate 0 — `constitution.md` approval
 - Per-phase checklists: Gate R (research), Gates 1–5 (incl. delta-mode checks), Gate C
 - Generated checklists (`/sdd:checklist [domain]`) — unit tests for the spec
@@ -22,23 +22,36 @@ Gate results are reported to the user in a fixed format — see
 Gates are not optional at the level you chose — they are what the level *means*. Choosing S
 is a decision to accept less verification; skipping a gate at M is not.
 
-| Gate | S — Light | M — Standard | L — Full |
-|------|-----------|--------------|----------|
-| Gate 0 — constitution | inherited | inherited | required |
-| Gate R — research | — | if research was run | required |
-| Gate 1 — spec | ACs reviewed in the PR body | required | required |
-| Gate 2 — plan + contracts | — | required | required |
-| Gate 3 — tasks | — | required | required |
-| Gate 4 — per task | tests pass | required | required |
-| Gate 5 — validation | tests pass, diff reviewed | required | required |
-| Gate C — comprehension | — | if the diff exceeds one sitting | required |
-| Critic agents | — | optional | required |
+| Gate | Kind | S (Light) | M (Standard) | L (Full) |
+|------|------|-----------|--------------|----------|
+| Gate 0 (constitution) | intent | inherited | inherited | required |
+| Gate R (research) | intent | none | if research was run | required |
+| Gate 1 (spec) | intent | ACs reviewed in the PR body | required, with cold read | required, with cold read |
+| Gate 2 (plan + contracts) | evidence + intent | none | required | required, with two designs |
+| Gate 3 (tasks) | evidence | none | required | required |
+| Gate 4 (per task) | evidence | failing before, passing after, rerun by a checker | required | required |
+| Gate 5 (validation) | evidence | checker reruns the suite, human reviews the diff | required, with adversary | required, with adversary and mutation tool |
+| Gate C (comprehension) | intent | none | if the diff exceeds one sitting | required |
+| Merge | intent | required | required | required |
+| Critic agents | evidence | none | optional | required |
 
 "Inherited" means the constitution already exists and applies — you do not re-approve it per
 change.
 
-**The one rule that holds at every level:** a human approves before the next phase begins.
-S has fewer gates, not self-approving ones.
+**Intent gates** decide what to build and whether the team understands what was built. A
+human approves them, and no agent may.
+
+**Evidence gates** check facts. An agent that did not produce the artifact runs every check,
+attaches the evidence (the command, its output, the artifact inspected), and returns
+`pass | fail | inconclusive` per `output-formats.md → Gate Verdict`. The human audits that
+verdict and its evidence instead of redoing the check. Gate 2 is both: a checker verifies
+traceability and contract, error-code and data-model completeness; the human approves the
+design.
+
+**The rule that holds at every level:** the author never passes its own gate. Its own test
+run is input to the checker, never the verdict. `inconclusive` blocks the next phase exactly
+like `fail`. S has fewer gates, not self-approving ones. With no subagents available, see
+`ai-agent-patterns.md → No-Subagent Fallback`.
 
 If you find yourself skipping gates at M, you picked the wrong level. Drop to S deliberately
 and record why, rather than running M with holes in it — the second is indistinguishable from
@@ -127,6 +140,10 @@ Run before Phase 2. All items must pass. On pass: `Status: Approved`.
 
 Run before Phase 3. All items must pass. On pass: `Status: Planned`.
 
+A checker that did not write the plan runs the first six rows (traceability, constitution,
+contract, error code, data model, migrations) and attaches evidence. The human approves the
+rest: those are design calls.
+
 | Check | Pass Criteria |
 |-------|--------------|
 | AC traceability | Every `[MUST]` AC maps to at least one component in plan.md |
@@ -146,7 +163,8 @@ Run before Phase 3. All items must pass. On pass: `Status: Planned`.
 
 ### Gate 3 — tasks.md Approval
 
-Run before Phase 4. All items must pass. Status stays `Planned` until the first task starts, then `In Progress`.
+Run before Phase 4 by a checker that did not write `tasks.md`; the human audits the verdict.
+All items must pass. Status stays `Planned` until the first task starts, then `In Progress`.
 
 | Check | Pass Criteria |
 |-------|--------------|
@@ -164,7 +182,8 @@ Run before Phase 4. All items must pass. Status stays `Planned` until the first 
 
 ### Gate 4 — Implementation Validation
 
-Run per-task, before marking task complete and committing.
+Run per task, before marking it complete and committing, by a checker that did not write the
+code. The implementer's own green run is input, never the verdict.
 
 | Check | Pass Criteria |
 |-------|--------------|
@@ -182,14 +201,15 @@ Run per-task, before marking task complete and committing.
 
 ### Gate 5 — Final Validation
 
-Run after Phase 4 completes, before merging. On pass: `Status: Validated`.
+Run after Phase 4 completes, before merging, by a checker that did not write the code. On
+pass: `Status: Validated`. Merge itself stays an intent gate: a human approves it.
 
 | Check | Pass Criteria |
 |-------|--------------|
 | Traceability matrix | Every `[MUST]` AC has an identified test and implementation file |
 | Full test suite | Complete test suite passes |
 | Drift report | Zero drift items found (spec.md vs. implementation) |
-| User story walkthrough | Human walked through each user story in running application |
+| User story walkthrough | Each user story exercised in the running application, with the artifact attached (log, screenshot, recording) for the human to audit |
 | Contract audit | All contract error codes have corresponding implementation and tests |
 | Constitution audit | No constitution violations detected in new code |
 | Comprehension | Linear walkthrough produced and read by a human — see Gate C below |

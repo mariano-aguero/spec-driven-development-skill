@@ -396,8 +396,10 @@ Before the human review, run the Phase 2 critic agents from
 Constitution Critic, Architecture Critic, Contract Critic, Data Model Critic, Risks Critic.
 Aggregate their output and resolve issues before presenting to the human.
 
-**Step 2.6 — Human review**
-The human reviews `plan.md`, `data-model.md`, and `contracts/`. Particular focus:
+**Step 2.6: Gate 2, checker then human**
+Gate 2 is half evidence, half intent (`references/quality-gates.md → Gate 2`). A checker that
+did not write the plan runs the completeness rows and attaches evidence. Then the human
+reviews `plan.md`, `data-model.md`, and `contracts/` for the design calls. Particular focus:
 
 - Are contracts complete enough to implement without questions?
 - Does the data model handle all the spec's data requirements?
@@ -447,8 +449,9 @@ TASK-004: Implement UserRepository.create()          ← implementation after
 Tasks with no shared dependencies can be marked `[P]` and run simultaneously
 (in separate AI sessions or by separate developers).
 
-**Step 3.5 — Human review**
-Review `tasks.md` for:
+**Step 3.5: Gate 3 (evidence)**
+A checker that did not write `tasks.md` runs Gate 3 and returns a verdict; the human audits
+it. The checker looks for:
 
 - Tasks that seem too large (will need mid-task context reset)
 - Test tasks that don't reference specific ACs
@@ -490,12 +493,11 @@ Do NOT paste the entire spec — include only what's relevant to the current tas
 **Step 4.2 — Use the single-task implementation prompt**
 See `references/prompt-patterns.md → Phase 4 → Single Task Implementation Prompt`.
 
-**Step 4.3 — Verify before committing**
-After AI generates code, verify:
-
-- Tests pass (run them, don't trust the AI)
-- API signatures match contracts exactly
-- No new files outside the task scope were created
+**Step 4.3: Gate 4 (evidence) before committing**
+The implementer runs the tests and hands its run to a checker that did not write the code.
+The checker reruns them and works through the Gate 4 checklist in
+`references/quality-gates.md`, including the failing-before run and the mutant. The task is
+not complete on the implementer's own green run, and not on an `inconclusive` verdict.
 
 **Step 4.4 — Commit after each task**
 
@@ -557,6 +559,9 @@ See `references/ai-agent-patterns.md → Context Engineering` for the underlying
 Verify the implementation satisfies every acceptance criterion and no spec drift occurred.
 
 ### Step-by-Step
+
+Gate 5 is an evidence gate: every step below up to 5.4 runs in an agent that did not write
+the code. The human audits `validation.md` and the attached evidence, then approves the merge.
 
 **Step 5.1 — Generate traceability matrix**
 Use the Post-Implementation Validation Prompt from `references/prompt-patterns.md`.

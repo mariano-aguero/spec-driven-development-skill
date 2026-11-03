@@ -8,6 +8,7 @@ Multi-agent orchestration, context management, and AI interaction patterns for S
 - Context engineering — artifacts as compaction checkpoints, the 40–60% band, progressive
   disclosure, subagent noise isolation, attention decay, failure signatures
 - Subagent review pattern — critic agents for Gate R and Gates 1–2
+- No-subagent fallback for evidence gates and the adversary
 - Tool: individual task retrieval
 - Parallel task execution
 - AI tool selection per phase (capability profiles)
@@ -299,6 +300,21 @@ Return issues in this format:
 
 Risks without mitigations only — do not approve or summarize.
 ```
+
+---
+
+## No-Subagent Fallback
+
+Evidence gates, critics and the Phase 5 adversary need an agent that did not write the
+artifact. When the harness has no subagents:
+
+1. Start a fresh session with no conversation history.
+2. Give it only the artifacts the check names (the spec, the plan, the diff, the task) and
+   the gate checklist. Never a summary written by the author.
+3. It runs the checks and writes the verdict with evidence to the file the gate names.
+
+If no fresh session is possible either, the verdict is `inconclusive` with the reason, and
+the next phase does not start. Never report `pass` from the authoring session.
 
 ---
 

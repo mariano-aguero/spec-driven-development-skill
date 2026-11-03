@@ -29,7 +29,7 @@ systematic regeneration rather than a manual rewrite.
 2. `/sdd:research [description]` — map how the existing code works, cited `file:line` (skip on greenfield)
 3. Surface and correct the AI's implicit assumptions *before* any AC is written
 4. `/sdd:specify [description]` — generate `spec.md` with MoSCoW-prioritized ACs
-5. Follow the gates: Clarify → Plan → Tasks → Implement → Validate, with human approval at each
+5. Follow the gates: Clarify → Plan → Tasks → Implement → Validate. A human approves intent gates; a separate checker passes evidence gates
 
 Step-by-step detail: `references/workflow-phases.md`.
 
@@ -156,7 +156,12 @@ Details: `references/workflow-phases.md → Phase 0.5`.
 | **4 — Implement** | `/sdd:next-task` per task | one task + its ACs and contract | code, tests, commits | Gate 4 (per task) |
 | **5 — Validate** | `/sdd:validate` | all artifacts + code | traceability matrix, drift report, walkthrough | Gate 5 + Gate C |
 
-**Every gate is a human approval point.** AI cannot approve its own output. Full checklists
+**Intent gates and evidence gates.** Gates R, 1, C and merge decide what to build and
+whether anyone understands it: a human approves them. Gates 3, 4, 5 and the
+contract-completeness half of Gate 2 check facts: an agent that did not produce the artifact
+runs the checks and attaches the evidence, and the human audits the verdict instead of
+redoing the check. **The author never passes its own gate.** An `inconclusive` verdict blocks
+the next phase. Full checklists
 for Gates 0, R, 1–5 and C live in `references/quality-gates.md`, along with
 `/sdd:checklist [domain]` — generated per-feature checklists that test the *spec* rather than
 the software.

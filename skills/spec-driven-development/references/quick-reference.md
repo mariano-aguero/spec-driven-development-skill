@@ -155,7 +155,7 @@ an agent would follow anyway; the value is entirely in the surprising rules.
 | Fresh context per task | Accumulated assumptions corrupt later tasks |
 | Commit after each task | Clean rollback if task produced drift |
 | Code must match spec (never reverse) | Updating spec to match code destroys its value |
-| Human approves each phase gate | AI cannot approve its own output |
+| Human approves intent gates (R, 1, C, merge); a non-author checker passes evidence gates (2 completeness, 3, 4, 5) | The author never passes its own gate |
 | Commit specs with code | Spec files belong in the same PR as implementation |
 
 ---

@@ -251,8 +251,10 @@ Clean history enables precise rollback when drift is discovered.
 **Commit specs with code.** Spec files belong in the same PR as the implementation they
 drive. Treat them as first-class source artifacts, not throwaway documents.
 
-**Human gates are non-negotiable.** `spec.md`, `plan.md`, and `tasks.md` each require human
-approval before the next phase begins. AI cannot approve its own output.
+**The author never passes its own gate.** A human approves the intent gates: research,
+spec, comprehension, and merge. Evidence gates (plan completeness, tasks, each task, final
+validation) are passed by an agent that did not write the artifact, with the evidence
+attached for the human to audit.
 
 ## AI Tool Compatibility
 
