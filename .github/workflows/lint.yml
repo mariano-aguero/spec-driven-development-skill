@@ -67,4 +67,4 @@ jobs:
         run: node .github/scripts/check-repo.mjs
 
       - name: Test the contract lock hook
-        run: node --test .github/scripts/
+        run: node --test .github/scripts/contract-lock.test.mjs

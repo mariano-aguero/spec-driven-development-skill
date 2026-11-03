@@ -6,7 +6,8 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-const skipDirs = new Set(['.git', 'node_modules', 'specs']) // `specs` only at the repo root
+const skipAnywhere = new Set(['.git', 'node_modules'])
+const skipAtRoot = new Set(['specs'])
 const matrixHome = 'references/quality-gates.md'
 
 const problems = []
@@ -17,7 +18,7 @@ function listMarkdown(dir = root) {
     const full = join(dir, e.name)
     const rel = relative(root, full).split('\\').join('/')
     if (e.isDirectory()) {
-      return skipDirs.has(rel) || e.name === '.git' || e.name === 'node_modules' ? [] : listMarkdown(full)
+      return skipAnywhere.has(e.name) || skipAtRoot.has(rel) ? [] : listMarkdown(full)
     }
     return e.name.endsWith('.md') ? [rel] : []
   })
@@ -115,13 +116,13 @@ function checkLinks() {
   }
 }
 
-// A matrix row starts with `Gates` or `Gate <id>`, has level cells, and links nowhere.
+// A matrix row starts with `Gates` or `Gate <id>` and has level cells.
 // Only quality-gates.md may hold one.
 function checkGateMatrix() {
   const rowRe = /^(Gates|Gate [0-5CR]\b.*)$/
   for (const f of files.filter((f) => f !== matrixHome)) {
     for (const { n, line } of proseLines(f)) {
-      if (!line.trimStart().startsWith('|') || line.includes('](')) continue
+      if (!line.trimStart().startsWith('|')) continue
       const [first, ...levels] = line.split('|').slice(1, -1).map((c) => c.replace(/\*/g, '').trim())
       if (rowRe.test(first ?? '') && levels.length >= 3) {
         fail(f, n, 'gate-matrix', `gate matrix row outside ${matrixHome}, link to it instead`)
