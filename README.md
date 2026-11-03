@@ -39,6 +39,11 @@ potential divergence from intent, and the divergences compound.
 | Hotfixes quietly turn the spec into fiction | `/sdd-change` classifies each difference with evidence, and a human decides each one |
 | "Locked" contracts are locked by politeness | A pre-write hook makes the freeze real; the agent gets told why and what to run instead |
 | Your rules live in a file no tool reads | `AGENTS.md` derived from `constitution.md`, read natively by most agents |
+| "Tests pass" is the only evidence | Each `[MUST]` AC names its proof, and the proof is seen failing before the change and killing a mutant after it |
+| The agent that wrote the code also approves it | Evidence gates are passed by a checker that did not write the work; a human approves intent |
+| Review findings are opinions | A finding counts only with a command, its output and the output the spec requires; the rest go to a Dropped list |
+| A background agent needs a conversation to finish | The spec's `## Handoff` block states the goal, checkable done-when items, isolation, permissions and when to stop |
+| Spec rules are checked by reading | `scripts/sdd-check.mjs` validates status, ACs, proof lines, handoff, delta baseline and the task graph, with `file:line` output |
 
 ## What is Spec-Driven Development?
 
@@ -173,8 +178,10 @@ Being explicit, since nobody else is:
 | | |
 |---|---|
 | Loaded on every conversation (skill metadata) | ~120 tokens |
-| Loaded when the skill activates (`skills/spec-driven-development/SKILL.md`) | ~3,700 tokens |
-| A full feature, all reference files loaded | ~23,000 tokens of skill |
+| Loaded when the skill activates (`skills/spec-driven-development/SKILL.md`) | ~4,200 tokens |
+| A full feature, all reference files loaded | ~37,000 tokens of skill |
+
+Token figures are characters divided by four, not a tokenizer count.
 
 That last figure excludes your code and the artifacts the workflow generates. Industry
 reports put spec-driven workflows at roughly 20 to 40% higher token spend than unstructured
@@ -183,7 +190,7 @@ more.
 
 Reference files load on demand, so a feature that skips research or stops at Phase 3 costs
 proportionally less. If you only want the cheat sheet, `skills/spec-driven-development/references/quick-reference.md` is
-~1,700 tokens on its own.
+~1,700 tokens on its own. The `/sdd-*` commands cost nothing until you type one.
 
 ## What's Included
 
@@ -200,15 +207,17 @@ proportionally less. If you only want the cheat sheet, `skills/spec-driven-devel
 | `skills/spec-driven-development/references/anti-patterns.md` | 28 common failure modes with wrong/correct examples and fixes |
 | `skills/spec-driven-development/references/quick-reference.md` | One-page cheat sheet |
 | `skills/spec-driven-development/references/INDEX.md` | Topic navigation across all references |
+| `skills/spec-driven-development/scripts/sdd-check.mjs` | Spec validator, Node 20+ with no dependencies: `node skills/spec-driven-development/scripts/sdd-check.mjs specs`. Exit 1 on error, `--json` for CI |
 | `skills/sdd-*/SKILL.md` | One sub-skill per command. Each names the sections of the main skill to read, what to produce and which gate follows |
 | `.claude-plugin/marketplace.json` | Plugin marketplace listing of the skill and its sub-skills |
-| `evals/` | Behavioral scenarios for verifying the skill actually changes agent behavior |
+| `evals/` | 12 behavioral scenarios, each graded with and without the skill over several trials by `.github/scripts/run-evals.mjs`. Dev only, not installed |
 
 ## Complete Example
 
 See [`skills/spec-driven-development/examples/`](skills/spec-driven-development/examples/) for a full end-to-end demonstration of every SDD artifact:
 a magic-link login feature with `constitution.md`, `spec.md`, `plan.md`, `data-model.md`,
-locked `contracts/`, and a dependency-mapped `tasks.md`. Use it as a reference or as a
+locked `contracts/`, a dependency-mapped `tasks.md`, a delta spec that shortens the link TTL,
+and the merged current-state spec in `specs/_current/`. Use it as a reference or as a
 starter you can clone into a new project.
 
 ## When to Use SDD
