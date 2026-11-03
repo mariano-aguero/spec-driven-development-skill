@@ -6,7 +6,7 @@ Implements: `specs/magic-link-login/spec.md` (v1.2)
 
 ## Entities
 
-### users *(extends existing table — new feature does not redefine it)*
+### users *(extends existing table; this feature does not redefine it)*
 
 Reference only. The existing `users` table has `id`, `email`, `created_at`, `updated_at`.
 No schema changes required for this feature beyond ensuring `email` has a unique index
@@ -27,7 +27,7 @@ No schema changes required for this feature beyond ensuring `email` has a unique
 ### Relationships
 
 - `magic_link_tokens.email` is a denormalized copy of `users.email` at issue time. There is
-  **no** foreign key — a magic link is issued before a user row may exist (AC-3 first-time login).
+  **no** foreign key, because a magic link is issued before a user row may exist (AC-3 first-time login).
 
 ## Indexes
 
@@ -39,13 +39,13 @@ No schema changes required for this feature beyond ensuring `email` has a unique
 
 ## Constraints
 
-- `CHECK (length(token_hash) = 32)` — SHA-256 output is exactly 32 bytes.
-- `CHECK (expires_at > created_at)` — guards against clock or code bugs producing an already-expired row.
-- `CHECK (redeemed_at IS NULL OR redeemed_at >= created_at)` — temporal sanity.
+- `CHECK (length(token_hash) = 32)`: SHA-256 output is exactly 32 bytes.
+- `CHECK (expires_at > created_at)`: guards against clock or code bugs producing an already-expired row.
+- `CHECK (redeemed_at IS NULL OR redeemed_at >= created_at)`: temporal sanity.
 
 ## Migrations
 
-### Migration 001 — Create magic_link_tokens table
+### Migration 001: Create magic_link_tokens table
 
 ```sql
 CREATE TABLE magic_link_tokens (

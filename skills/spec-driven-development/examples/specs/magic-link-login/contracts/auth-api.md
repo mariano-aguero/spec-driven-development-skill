@@ -1,6 +1,6 @@
 # API Contract: Magic-Link Authentication
 
-**Status: LOCKED** (Gate 2 approved 2026-05-10 — modifications require `/sdd-change`).
+**Status: LOCKED** (Gate 2 approved 2026-05-10). Modifications require `/sdd-change`.
 
 ---
 
@@ -9,11 +9,11 @@
 ### Description
 
 Request a magic-link login email. Always returns `202 Accepted` regardless of whether the
-email is registered — prevents user enumeration.
+email is registered, to prevent user enumeration.
 
 ### Authentication
 
-`[PUBLIC]` — no session required.
+`[PUBLIC]`. No session required.
 
 ### Rate limit
 
@@ -76,7 +76,7 @@ On failure, redirects to `/sign-in` with a query-string error code.
 
 ### Authentication
 
-`[PUBLIC]` — no session required (this endpoint *creates* the session).
+`[PUBLIC]`. No session required, because this endpoint *creates* the session.
 
 ### Rate limit
 

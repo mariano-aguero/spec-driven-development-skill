@@ -7,7 +7,7 @@ Last updated: 2026-05-10
 ## Overview
 
 Allow users to sign in by entering their email address and clicking a one-time link sent
-to their inbox — no password required.
+to their inbox, with no password required.
 
 ## Handoff
 
@@ -45,7 +45,7 @@ generate millions of magic-link emails on my domain's reputation.
 
 - Validate the email format with Zod before any side effect.
 - Hash magic-link tokens (SHA-256) before storing them; compare with constant-time equality.
-- Log only the email's domain and an opaque request ID — never the full address or the token.
+- Log only the email's domain and an opaque request ID. Never log the full address or the token.
 
 **Ask first (do not proceed unilaterally):**
 
@@ -100,7 +100,7 @@ Then the email field is pre-filled and a "Resend link" button is the primary act
 ### AC-6: Remember-this-device [COULD]
 
 If implemented, a checkbox extends session lifetime from 24 hours to 30 days.
-Out of scope for the first iteration — kept here as an `[COULD]` for traceability.
+Out of scope for the first iteration. It stays here as a `[COULD]` for traceability.
 
 ### AC-7: Social login [WONT]
 
@@ -134,7 +134,7 @@ Then the system responds with `429 Too Many Requests`, sets `Retry-After`, and d
 
 ## Out of Scope
 
-- Password-based login (intentionally excluded — magic link is the only auth method in v1).
+- Password-based login (intentionally excluded; magic link is the only auth method in v1).
 - OAuth / social login providers.
 - Multi-factor authentication.
 - Account recovery flows beyond requesting a new magic link.
@@ -150,5 +150,5 @@ Then the system responds with `429 Too Many Requests`, sets `Retry-After`, and d
 
 - **Performance:** Request endpoint responds in < 300ms at p95 (excluding email delivery, which is async).
 - **Security:** Magic-link tokens are 32 bytes (256 bits) of cryptographic randomness, base64url-encoded. Stored only as SHA-256 hashes. Constant-time comparison on verification.
-- **Reliability:** Email send failures must not block the HTTP response — emails are enqueued via the existing job queue (`lib/jobs/`).
+- **Reliability:** Email send failures must not block the HTTP response. Emails are enqueued via the existing job queue (`lib/jobs/`).
 - **Privacy:** Logs include only domain (`example.com`) and request ID, never the full email or token.

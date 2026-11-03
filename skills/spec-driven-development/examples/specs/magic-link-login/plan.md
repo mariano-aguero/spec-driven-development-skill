@@ -32,7 +32,7 @@ The contracts in `contracts/auth-api.md` derive from these calls.
 - **Responsibility:** Validate input, enforce rate limit, create token, enqueue email.
 - **Location:** `src/app/auth/magic-link/route.ts`
 - **Accepts:** `{ email: string }` (Zod validated)
-- **Returns:** `202 Accepted` (always — no user enumeration)
+- **Returns:** `202 Accepted` (always, to prevent user enumeration)
 - **AC Coverage:** AC-1, AC-E1, AC-E3
 
 ### MagicLinkVerifyHandler
@@ -63,17 +63,28 @@ The contracts in `contracts/auth-api.md` derive from these calls.
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Token generation | `crypto.randomBytes(32)` + base64url | Standard library — no dep; 256-bit entropy is well above brute-force threshold |
-| Token storage | SHA-256 hash in DB | Per `constitution.md` — security tokens must be hashed at rest |
+| Token generation | `crypto.randomBytes(32)` + base64url | Standard library, no dependency; 256-bit entropy is well above brute-force threshold |
+| Token storage | SHA-256 hash in DB | `constitution.md` requires security tokens to be hashed at rest |
 | Rate limiter | `lib/rate-limit.ts` (existing) | Already in the stack; supports per-key sliding window |
 | Email delivery | Resend via existing `lib/jobs/` queue | Per constitution; non-blocking for HTTP response |
-| Session creation | Existing `auth/` module's `createSession()` | Per constitution — never duplicate auth logic |
+| Session creation | Existing `auth/` module's `createSession()` | The constitution forbids duplicating auth logic |
 
 ## Integration Points
 
 - **Rate limiter (`lib/rate-limit.ts`):** Called with key `magic-link:${email.toLowerCase()}`, window 15min, limit 3.
 - **Email job queue (`lib/jobs/queue.ts`):** Enqueues `magic-link-email` job; worker is a separate, pre-existing process.
 - **Session module (`src/auth/sessions.ts`):** `createSession(userId, response)` already attaches the cookie correctly.
+
+## Invariants
+
+Checked by property-based tests over random interleavings of request, verify and clock
+advance. Any counterexample is replayed against the real handlers before it counts.
+
+- A token is redeemed at most once: for any sequence of verify calls with the same token,
+  at most one returns a session.
+- No session exists without a redeemed token: every session created by this feature points
+  to a token whose `redeemed_at` is set and was unset before that verify call.
+- A token is never redeemed after its `expires_at`.
 
 ## AC Coverage Map
 
@@ -98,6 +109,6 @@ The contracts in `contracts/auth-api.md` derive from these calls.
 
 ## Out of Scope (Technical)
 
-- No new dependencies — uses existing libraries only.
-- No background reaper job for expired tokens — expiry is checked at verification time. (Cleanup deferred to a future migration if table size becomes an issue.)
+- No new dependencies. The feature uses existing libraries only.
+- No background reaper job for expired tokens. Expiry is checked at verification time. (Cleanup deferred to a future migration if table size becomes an issue.)
 - No multi-region replication of the `magic_link_tokens` table; single-region writes acceptable for a 15-minute TTL row.

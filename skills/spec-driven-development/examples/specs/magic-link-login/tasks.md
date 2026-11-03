@@ -77,10 +77,10 @@ Implements: `specs/magic-link-login/plan.md`
 
 ## Legend
 
-- `[S]` Small — under 1 hour
-- `[M]` Medium — 1–3 hours
-- `[L]` Large — 3–6 hours (consider splitting)
-- `[P]` Parallelizable — can run concurrently with other `[P]` tasks at the same dependency level
+- `[S]` Small: under 1 hour
+- `[M]` Medium: 1 to 3 hours
+- `[L]` Large: 3 to 6 hours (consider splitting)
+- `[P]` Parallelizable: can run concurrently with other `[P]` tasks at the same dependency level
 
 Waves are computed from `Depends on:`. Parallel `[P]` tasks in a wave share no `Creates:` or
 `Modifies:` file: TASK-003 and TASK-005 each write their own test file.

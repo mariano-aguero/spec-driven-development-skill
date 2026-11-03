@@ -11,7 +11,7 @@ Last updated: 2026-05-10
 
 - **API-first.** Every feature exposes an HTTP endpoint with a locked contract before any UI is built.
 - **Server-first.** Use React Server Components by default; mark `"use client"` only when interactivity requires it.
-- **Single source of truth.** Database schema lives in `db/schema.ts` via Drizzle; the application reads it through generated types — never via raw `pg` queries.
+- **Single source of truth.** Database schema lives in `db/schema.ts` via Drizzle; the application reads it through generated types and never through raw `pg` queries.
 - **Boring tech.** Prefer the framework's built-in solution before adding a dependency.
 
 ## Technology Stack
@@ -33,7 +33,7 @@ Last updated: 2026-05-10
 - **Auth by default.** All endpoints require a valid session unless explicitly tagged `[PUBLIC]` in the contract.
 - **Input validation.** Every request body, query param, and path param is validated with Zod at the route handler entry point.
 - **SQL safety.** Parameterized queries only. Never interpolate user input into SQL strings; never use template literals to build queries.
-- **Secrets.** Never log tokens, passwords, session IDs, or PII. Never hardcode secrets — read from `process.env` only.
+- **Secrets.** Never log tokens, passwords, session IDs, or PII. Never hardcode secrets; read them from `process.env` only.
 - **CORS.** Allow-list only. No wildcard origins in any non-local environment.
 - **Rate limiting.** Every public endpoint declares a rate limit in its contract (`contracts/<name>.md`).
 - **Token handling.** All security tokens are stored hashed (SHA-256) at rest. Tokens are compared with constant-time equality.
