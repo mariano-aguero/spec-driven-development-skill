@@ -50,3 +50,21 @@ jobs:
             --exclude-path node_modules
             './**/*.md'
           fail: true
+
+  repo-checks:
+    name: Repo checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check budgets, links and consistency
+        run: node .github/scripts/check-repo.mjs
+
+      - name: Test the contract lock hook
+        run: node --test .github/scripts/
