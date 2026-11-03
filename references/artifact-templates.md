@@ -4,7 +4,7 @@ Copy-paste templates for each SDD artifact. Remove placeholder comments before c
 
 ## Contents
 
-- Status Lifecycle — the one state machine on `spec.md`'s `Status:` header
+- Status Lifecycle: the one state machine on `spec.md`'s `Status:` header
 - `constitution.md` — project-level immutable constraints (Phase 0)
 - `research.md` — how the system works today, cited `file:line` (Phase 0.5)
 - Writing concrete acceptance criteria — vague-to-measurable conversions, optional EARS syntax
