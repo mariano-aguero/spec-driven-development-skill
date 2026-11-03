@@ -1,6 +1,6 @@
 ---
 name: sdd-specify
-description: Write or refine spec.md: assumptions, acceptance criteria, clarify, and the cold read.
+description: Write or refine spec.md, covering assumptions, acceptance criteria, clarify, and the cold read.
 disable-model-invocation: true
 license: MIT
 ---
