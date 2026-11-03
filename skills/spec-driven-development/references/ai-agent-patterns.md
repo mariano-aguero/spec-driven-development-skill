@@ -158,14 +158,20 @@ generating agent can't see (it anchors to its own output).
 
 **Every finding carries a confidence marker**, and there are only two:
 
-| Marker | Use when |
-|--------|----------|
-| `[CONFIRMED]` | The critic can cite the exact artifact location or code line proving the issue |
-| `[VERIFY]` | The issue is inferred, or depends on information the critic could not check |
+| Marker | Spec and research critics | Code critics and the adversary |
+|--------|---------------------------|--------------------------------|
+| `[CONFIRMED]` | Cites the exact artifact location proving the issue | Gives the command, its output, and the output the spec requires; the coordinator reran it and got the same output |
+| `[VERIFY]` | Inferred, or depends on information the critic could not check | Never reported: it goes to the Dropped list with the reason |
 
-No third value, no percentages. A finding the critic cannot locate is `[VERIFY]`, and the
-human triages those first. See `output-formats.md → Critic Findings` for how they are
-presented.
+No third value, no percentages. For documents, a finding the critic cannot locate is
+`[VERIFY]`, and the human triages those first. For code, the coordinator reruns every
+`[CONFIRMED]` command before reporting it; a finding that does not reproduce is dropped and
+listed with why. See `output-formats.md → Critic Findings` for how they are presented.
+
+**Phase 5 adversary (M, L).** An agent that did not write the code tries to break each
+`[MUST]` and `[UNCHANGED]` AC against the real code, in its own worktree or scratch copy.
+Prefer a different model family from the author's when the harness offers one. Prompt:
+`prompt-patterns.md → Adversary Prompt`.
 
 ### Phase 0.5 Critic Agent
 
@@ -232,7 +238,12 @@ Do not rewrite the spec — issues only.
 
 ### Phase 2 Critic Agents
 
-Run these after generating plan.md + contracts/, before Gate 2:
+Run these after generating plan.md + contracts/, before Gate 2. A plan critic reports only
+what it can check against the current tree (a file, a signature, a stack entry in
+`constitution.md`). A risk it cannot check is an open question for a prototype, never a
+finding. An open question that running something could answer (layout, timing, library
+behavior) gets a throwaway prototype outside the feature branch, and the plan cites the
+result.
 
 ```
 # Constitution Critic — finds plan violations

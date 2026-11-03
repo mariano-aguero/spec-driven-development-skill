@@ -110,8 +110,24 @@ values, defined here once:
 3 issues (2 confirmed, 1 to verify) · 0 blocking Gate 1 automatically — human decides
 ```
 
-The `[CONFIRMED]` / `[VERIFY]` marker sits between the type and the description. A critic
-that cannot cite the artifact location it read marks the finding `[VERIFY]`.
+The `[CONFIRMED]` / `[VERIFY]` marker sits between the type and the description. A spec or
+research critic that cannot cite the artifact location it read marks the finding `[VERIFY]`.
+
+**Code findings need a run.** A finding against code (adversary, Phase 5 critics) is
+`[CONFIRMED]` only with three lines under it: the command, its output, and the output the
+spec requires. The coordinator reruns the command before the finding is reported. A finding
+that does not reproduce moves to a **Dropped** list with the reason, and never reaches the
+human as an issue:
+
+```text
+[ISSUE] [AC-4] Adversary [Broken] [CONFIRMED] expired token still signs in
+  run:      curl -s -o /dev/null -w '%{http_code}' localhost:3000/auth/verify?token=$EXPIRED
+  got:      200
+  required: 410 (AC-4)
+
+1 issue (1 confirmed, rerun by coordinator)
+Dropped (2): AC-2 double-submit: rerun returned 409 as required · AC-6 "race on TTL": no command given
+```
 
 Critics report issues only — no approvals, no compliments, no summaries of what is good.
 

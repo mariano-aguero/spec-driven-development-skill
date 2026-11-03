@@ -14,6 +14,7 @@ determines the quality of AI output — vague input = vague output.
 - Phase 4 — Implementation: single task (Format A/B), context handover, session resume, mid-implementation correction
 - Reconcile (`/sdd:reconcile`) · Amend (`/sdd:amend`) · Analyze (`/sdd:analyze`) · Status (`/sdd:status`)
 - Phase 5 — Validate: drift detection, post-implementation validation, linear walkthrough
+- Phase 5 adversary: a non-author agent tries to break each MUST and UNCHANGED AC
 - Multi-agent review pattern · Constitution from existing codebase · Cross-feature conflict detector
 
 Every prompt in this file produces either a file or a user-facing report. For the format of
@@ -437,6 +438,10 @@ Read specs/[feature]/spec.md and generate:
 If specs/[feature]/research.md exists, read it first as additional context
 (pre-generated alternatives analysis). Do not generate it — use it as input only.
 
+Open questions that running something could answer (layout, timing, library behavior):
+answer each with a throwaway prototype outside the feature branch and cite the result in
+plan.md. Do not decide them by argument.
+
 Constraints:
 - Use existing stack: [list your stack, e.g., TypeScript, Hono, Drizzle, PostgreSQL]
 - Do not introduce new dependencies unless justified in plan.md
@@ -843,6 +848,32 @@ Rules:
   is unrequested behavior and the reviewer needs to see it first.
 
 Do not summarize the feature. Narrate the path through the code.
+```
+
+### Adversary Prompt (Phase 5, levels M and L)
+
+*Run in an agent that did not write the code, in its own worktree or scratch copy of the
+branch, never in the implementer's checkout. Prefer a different model family from the
+author's when the harness offers one. The coordinator reruns every finding before it reaches
+the human (`output-formats.md → Critic Findings`).*
+
+```
+You did not write this code. Your job is to break it.
+Read: specs/[feature]/spec.md and constitution.md. Work in: [worktree or scratch path].
+
+For each [MUST] and [UNCHANGED] AC, try to make the real code violate it: wrong input,
+boundary values, repeated or concurrent calls, expired or missing state, the error paths.
+Run the code. Reading it is not enough.
+
+Report only what you reproduced, one finding per AC:
+[ISSUE] [AC-N] Adversary [Broken] [CONFIRMED] <one-line summary>
+  run:      <exact command>
+  got:      <its output>
+  required: <the output the AC requires>
+
+A finding without all three lines is not a finding: list it under "Dropped" with the reason.
+No style, naming, or refactoring findings. No fixes. If you could not break an AC, say
+"AC-N held" with the commands you tried.
 ```
 
 ---

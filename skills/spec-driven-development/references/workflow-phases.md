@@ -397,7 +397,9 @@ If an AC has no technical implementation path, the plan is incomplete.
 Before the human review, run the Phase 2 critic agents from
 `references/ai-agent-patterns.md → Phase 2 Critic Agents`:
 Constitution Critic, Architecture Critic, Contract Critic, Data Model Critic, Risks Critic.
-Aggregate their output and resolve issues before presenting to the human.
+Aggregate their output and resolve issues before presenting to the human. Critics report
+only what they can check against the current tree; an open question that running something
+could answer gets a throwaway prototype outside the feature branch, not a debate.
 
 **Step 2.6: Gate 2, checker then human**
 Gate 2 is half evidence, half intent (`references/quality-gates.md → Gate 2`). A checker that
@@ -573,6 +575,10 @@ Produces: for each AC, which test covers it, which file implements it, pass/fail
 **Step 5.2 — Run drift detection**
 Use the Drift Detection Prompt from `references/prompt-patterns.md`.
 Checks API signatures, database schema, and behavior against specs.
+
+At M and L, also run the Adversary Prompt (`references/prompt-patterns.md → Adversary
+Prompt`) in its own worktree. The coordinator reruns each finding; only reproduced ones count,
+and each is drift to fix in Step 5.3.
 
 **Step 5.3 — Fix drift immediately**
 If drift is found:

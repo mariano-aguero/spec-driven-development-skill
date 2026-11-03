@@ -223,6 +223,7 @@ pass: `Status: Validated`. Merge itself stays an intent gate: a human approves i
 | Contract audit | All contract error codes have corresponding implementation and tests |
 | Constitution audit | No constitution violations detected in new code |
 | Comprehension | Linear walkthrough produced and read by a human — see Gate C below |
+| Adversary (M, L) | A non-author agent tried to break each `[MUST]` and `[UNCHANGED]` AC in its own worktree; every reproduced finding is fixed, and the Dropped list is attached |
 | Mutation run (L) | A mutation tool ran scoped to the changed files; every surviving mutant is listed in `validation.md` with the AC whose proof should have killed it |
 
 **Mutation tool at level L.** Scope the run to the files the branch changed, or it takes

@@ -272,8 +272,8 @@ human. Confusing the two is how SDD earns its reputation for ceremony.
   the response when it was just written to disk.
 - **Verdict first, evidence second.** Gate results, drift reports, and validation output all
   lead with pass/fail and the count, then the detail.
-- **Mark uncertainty as binary.** `[CONFIRMED]` when verified against code or a cited
-  artifact, `[VERIFY]` when inferred. Never invent a confidence percentage.
+- **Mark uncertainty as binary.** `[CONFIRMED]` when verified (a cited artifact for
+  documents, a rerun command for code), `[VERIFY]` when inferred. Never invent a percentage.
 - **Respect the line budgets.** Every user-facing output in `references/output-formats.md`
   has one, along with its format.
 
