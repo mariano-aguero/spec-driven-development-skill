@@ -1,6 +1,6 @@
 # Magic-Link Login
 
-Status: Approved (Gate 1 passed)
+Status: Planned (Gate 2 passed)
 Version: 1.2
 Last updated: 2026-05-10
 
