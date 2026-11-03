@@ -188,13 +188,22 @@ code. The implementer's own green run is input, never the verdict.
 
 | Check | Pass Criteria |
 |-------|--------------|
-| Tests pass | All new tests pass; no existing tests regressed |
+| Tests pass | All new tests pass when the checker reruns them; no existing tests regressed |
+| Failing before | Each new test was run before the change, and the evidence quotes the failure content (the diff or error showing the predicted disagreement), not only the assertion line. A test never seen red proves nothing |
+| Mutant killed | For each `[MUST]` AC with an automated proof, the checker applies at least one behavior-breaking edit to the code under test (wrong value, skipped effect, doubled effect), shows the proof go red, and reverts the edit. A proof that survives every mutant fails the gate |
+| No tautologies | No test computes its expected value with the code under test, asserts on data the test built itself, restates a constant without running the code that reads it, or asserts less than the AC promises |
 | Signature match | Implemented API signatures match contracts/ exactly |
 | Schema match | Database schema matches data-model.md |
 | Scope adherence | No files modified outside the task's stated scope |
 | No silent failures | Error cases are handled, not swallowed |
 | Constitution check | No banned patterns introduced; security constraints respected |
 | Boundaries check | If spec.md has a Boundaries section, Always do / Never do rules were followed |
+
+**Prefer no new test over a bad test.** A bad test passes when the behavior breaks (a
+tautology, a survived mutant, never seen red) or fails when only the internals change (it
+asserts on private helpers, internal call order, or which collaborator did the work). A bad
+test reads as coverage and proves nothing, so delete it and record the AC as unproven rather
+than keep it.
 
 **Fail action:** Fix before committing. Do not mark task complete.
 
@@ -214,6 +223,23 @@ pass: `Status: Validated`. Merge itself stays an intent gate: a human approves i
 | Contract audit | All contract error codes have corresponding implementation and tests |
 | Constitution audit | No constitution violations detected in new code |
 | Comprehension | Linear walkthrough produced and read by a human — see Gate C below |
+| Mutation run (L) | A mutation tool ran scoped to the changed files; every surviving mutant is listed in `validation.md` with the AC whose proof should have killed it |
+
+**Mutation tool at level L.** Scope the run to the files the branch changed, or it takes
+hours and reports noise from code nobody touched. One command per ecosystem, or the stack's
+equivalent:
+
+```bash
+# JS/TS: Stryker
+npx stryker run --mutate "$(git diff --name-only origin/main -- '*.ts' '*.js' | paste -sd, -)"
+# Python: mutmut 2 (on mutmut 3, set paths_to_mutate under [tool.mutmut] instead)
+mutmut run --paths-to-mutate "$(git diff --name-only origin/main -- '*.py' | paste -sd, -)"
+# Rust: cargo-mutants
+git diff origin/main > /tmp/branch.diff && cargo mutants --in-diff /tmp/branch.diff
+```
+
+A survivor on a `[MUST]` AC fails Gate 5 unless it is equivalent (no observable change), and
+the equivalence is stated with its reason.
 
 **Fail action:** Fix drift before merge. No exceptions.
 

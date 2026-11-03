@@ -215,7 +215,7 @@ Then [observable outcome]
 **Gate 1 (spec.md):** Testable ACs? No tech details? No open questions? Scope defined? No blocking constitution `[PENDING]`?
 **Gate 2 (plan.md + contracts):** AC traceability? All errors defined? Schema complete? Risks with mitigations?
 **Gate 3 (tasks.md):** Tests before implementation? Task size OK? No dependency cycles?
-**Gate 4 (per task):** Tests pass? Signatures match? Scope adhered to?
+**Gate 4 (per task):** Tests pass on a checker's rerun? Seen failing first, failure quoted? A mutant per `[MUST]` AC killed? No tautologies? Signatures match? Scope adhered to?
 **Gate 5 (final):** Traceability matrix complete? Zero drift? User story walkthrough done?
 **Gate C (comprehension):** Linear walkthrough written and read? Debuggable by someone else? Every abstraction justified?
 

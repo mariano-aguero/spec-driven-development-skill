@@ -530,6 +530,7 @@ Do NOT:
 - Violate any rule in the spec's Boundaries section
 
 After implementation, verify:
+- [ ] Each new test was run before the change and its failure output is saved for the checker
 - [ ] All referenced ACs have test coverage
 - [ ] API signatures match contracts exactly
 - [ ] No new dependencies introduced without explicit justification
