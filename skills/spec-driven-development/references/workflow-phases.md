@@ -596,8 +596,9 @@ Use the Drift Detection Prompt from `references/prompt-patterns.md`.
 Checks API signatures, database schema, and behavior against specs.
 
 At M and L, also run the Adversary Prompt (`references/prompt-patterns.md → Adversary
-Prompt`) in its own worktree. The coordinator reruns each finding; only reproduced ones count,
-and each is drift to fix in Step 5.3.
+Prompt`) in its own worktree. The coordinator (`references/ai-agent-patterns.md → Subagent
+Review Pattern`) reruns each finding; only reproduced ones count, and each is drift to fix in
+Step 5.3.
 
 **Step 5.3 — Fix drift immediately**
 If drift is found, the checker hands the drift report to the implementer and stops. The

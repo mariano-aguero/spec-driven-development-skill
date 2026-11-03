@@ -156,6 +156,10 @@ Instructions given early in a session lose influence as the window fills. Two mi
 Use separate critic subagents at each phase gate. Critic agents find problems the
 generating agent can't see (it anchors to its own output).
 
+The **coordinator** is the session that dispatches critics, checkers and the adversary,
+reruns their findings, and collects the verdicts. It never writes the code it checks (see
+Parallel Task Rules below).
+
 **Every finding carries a confidence marker**, and there are only two:
 
 | Marker | Spec and research critics | Code critics and the adversary |

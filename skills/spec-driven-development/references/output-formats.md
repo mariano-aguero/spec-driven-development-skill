@@ -115,9 +115,9 @@ research critic that cannot cite the artifact location it read marks the finding
 
 **Code findings need a run.** A finding against code (adversary, Phase 5 critics) is
 `[CONFIRMED]` only with three lines under it: the command, its output, and the output the
-spec requires. The coordinator reruns the command before the finding is reported. A finding
-that does not reproduce moves to a **Dropped** list with the reason, and never reaches the
-human as an issue:
+spec requires. The coordinator (`ai-agent-patterns.md → Subagent Review Pattern`) reruns
+the command before the finding is reported. A finding that does not reproduce moves to a
+**Dropped** list with the reason, and never reaches the human as an issue:
 
 ```text
 [ISSUE] [AC-4] Adversary [Broken] [CONFIRMED] expired token still signs in
