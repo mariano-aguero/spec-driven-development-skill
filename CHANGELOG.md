@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-11-03
+
+Agent-native release. Gates that check facts are passed by a checker that did not write the
+work, every `[MUST]` AC carries a proof that has been seen failing, and the spec is a handoff a
+background agent can finish without a conversation.
+
+Upgrading from 1.x: type `/sdd-<command>` instead of `/sdd:<command>` (renamed and merged
+commands are listed under Changed), add a `**Proof:**` line to each `[MUST]` AC and a
+`## Handoff` block to specs still in progress, and run `scripts/sdd-check.mjs` on `specs/`.
+
 ### Added
 
 - `## Handoff` block (goal, done-when checks, isolation, permissions, stop condition) in the spec and delta templates.
@@ -398,7 +408,12 @@ Repository infrastructure and documentation pass. No changes to the SDD methodol
 - Prompt patterns for every phase and scenario.
 - Quality gate checklists with CI/CD integration examples.
 
-[Unreleased]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.8.0...v2.0.0
+[1.8.0]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.7.0...v1.8.0
+[1.7.0]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.6.0...v1.7.0
+[1.6.0]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.5.0...v1.6.0
+[1.5.0]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.3.3...v1.4.0
 [1.3.3]: https://github.com/mariano-aguero/spec-driven-development-skill/compare/v1.3.2...v1.3.3
