@@ -77,8 +77,9 @@ specs/[feature]/
 |---|---|---|---|
 | Use when | 1 session, ≤3 files, no schema/contract/auth change, revertible | New endpoint, table, or user-visible behavior | Auth, payments, migrations, regulated, unfamiliar code |
 | Artifacts | ACs in the PR body | spec, plan, contracts, tasks | + research, decision log, walkthrough |
-| Gates | [matrix](quality-gates.md#which-gates-apply-at-which-ceremony-level) | [matrix](quality-gates.md#which-gates-apply-at-which-ceremony-level) | [matrix](quality-gates.md#which-gates-apply-at-which-ceremony-level) |
 | Critics | — | optional | required |
+
+Gates per level: [quality-gates.md](quality-gates.md#which-gates-apply-at-which-ceremony-level).
 
 Start at M. Drop to S only if **all** the S conditions hold; move to L if **any** L condition
 holds. Tiebreaker is reversibility, not size. Promote mid-flight, never demote.

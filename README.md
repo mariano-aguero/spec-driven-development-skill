@@ -83,7 +83,8 @@ everything. Choose per change:
 |---|---|---|---|
 | Use when | 1 session, ≤3 files, no schema/contract/auth change, revertible | New endpoint, table, or user-visible behavior | Auth, payments, migrations, regulated domains, unfamiliar code |
 | Artifacts | ACs in the PR body | `spec.md`, `plan.md`, `contracts/`, `tasks.md` | + `research.md`, `decision_log.md`, `walkthrough.md` |
-| Gates | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) |
+
+Gates per level: [quality-gates.md](references/quality-gates.md#which-gates-apply-at-which-ceremony-level).
 
 Start at M. Drop to S only if every S condition holds; move to L if any L condition holds.
 The tiebreaker is **reversibility, not size** — a one-line change to a permission check

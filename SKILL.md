@@ -53,8 +53,9 @@ Not every change deserves the same process. Pick the lightest level that covers 
 |---|---|---|---|
 | Use when | Fits one session, ≤3 files, no schema/contract/auth change | New endpoint, table, or user-visible behavior; spans sessions | Auth, payments, migrations, regulated domains, unfamiliar code |
 | Artifacts | ACs in the issue or PR body | `spec.md`, `plan.md`, `contracts/`, `tasks.md` | + `research.md`, `decision_log.md`, `walkthrough.md` |
-| Gates | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) |
 | Critics | none | optional | required |
+
+Which gates run at each level: `references/quality-gates.md → Which Gates Apply at Which Ceremony Level`.
 
 **Decision rule:** start at M. Drop to S only if *all* of these hold — one session, ≤3 files,
 no contract or schema change, trivially revertible. Move to L if *any* of these hold — auth
