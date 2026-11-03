@@ -386,6 +386,13 @@ Wait for both. Verify no conflicts.
 
 ### Parallel Task Rules
 
+- Run tasks in waves computed from `Depends on:`: a wave holds every task whose dependencies
+  are all done
+- One worktree per parallel task, branched off the same base
+  (`enforcement.md → Git Worktrees for Parallel Tasks`)
+- One coordinator per wave assigns tasks, runs or dispatches the Gate 4 checks, and merges.
+  It never writes code itself: a coordinator that fixes a task has become its author and can
+  no longer check it
 - Parallelizable tasks MUST not write to the same files
 - Parallelizable tasks MUST not depend on each other's output
 - Merge conflicts from parallel tasks = a problem with the task decomposition (fix tasks.md)
