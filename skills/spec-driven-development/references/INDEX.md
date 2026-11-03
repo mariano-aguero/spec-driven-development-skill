@@ -1,192 +1,83 @@
 # Reference Index
 
-Navigation map for all SDD reference files. Every file listed here is one level deep from
-`SKILL.md` — load only what the current phase needs.
+Topic map for the reference files. Every file is one level deep from `SKILL.md`; load only
+what the current phase needs. `SKILL.md` covers the overview, ceremony levels, the three ways
+a spec and its code disagree, and the reply rules. [quick-reference.md](quick-reference.md)
+is the one-page cheat sheet.
 
 ## Contents
 
-By topic (getting started · templates · prompts · phase details · enforcement and interop ·
-quality and review · output formats · AI and agent patterns · troubleshooting) ·
-By phase · File list
-
----
+- [By topic](#by-topic): templates, prompts, phase details, output formats, enforcement,
+  quality, agent patterns, troubleshooting
+- [By phase](#by-phase)
 
 ## By Topic
 
-### Getting started
+### Templates
 
-- Overview and when to use → `SKILL.md`
-- Quick Start (4-step onboarding) → `SKILL.md#quick-start`
-- Key Practice: Reframe Vague Requirements → `SKILL.md#key-practice-reframe-vague-requirements`
-- Choosing the ceremony level (S / M / L) → `SKILL.md#choosing-the-ceremony-level`
-- Three ways a spec and its code disagree → `SKILL.md#three-ways-a-spec-and-its-code-disagree`
-- Context is the real constraint (compaction model) → `SKILL.md#context-is-the-real-constraint`
-- Comprehension debt (code nobody understands) → `SKILL.md#comprehension-debt`
-- Living Document (spec versioning, commit, archive) → `SKILL.md#living-document`
-- One-page cheat sheet → `quick-reference.md`
+- [Status lifecycle](artifact-templates.md#status-lifecycle), from `Draft` to `Archived`, and which gate sets each
+- [constitution.md](artifact-templates.md#constitutionmd-template), [research.md](artifact-templates.md#researchmd-template) with the evidence ladder, [spec.md](artifact-templates.md#specmd-template) with Boundaries and the Handoff rules, [delta mode](artifact-templates.md#specmd-template-delta-mode)
+- [plan.md](artifact-templates.md#planmd-template) with Caller Usage, Risks and optional Invariants, [data-model.md](artifact-templates.md#data-modelmd-template), [contracts/](artifact-templates.md#contractsendpointmd-template), [tasks.md](artifact-templates.md#tasksmd-template) with Creates/Modifies and waves
+- [progress.md](artifact-templates.md#progressmd-template), [decision_log.md](artifact-templates.md#decision_logmd-template), [specs/_current/](artifact-templates.md#specs_currentcapabilitymd-template)
+- [Writing concrete ACs](artifact-templates.md#writing-concrete-acceptance-criteria), the [Proof line](artifact-templates.md#proof-line-on-every-must-ac), and [optional EARS](artifact-templates.md#optional-ears-for-the-requirement-statement)
 
-### Templates (copy-paste ready)
+### Prompts
 
-- Status lifecycle (`Draft` to `Archived`, which gate sets each) → `artifact-templates.md#status-lifecycle`
-- constitution.md template → `artifact-templates.md#constitutionmd-template`
-- research.md template (Phase 0.5, cited findings) → `artifact-templates.md#researchmd-template`
-- progress.md template (resume note) → `artifact-templates.md#progressmd-template`
-- decision_log.md template (append-only table) → `artifact-templates.md#decision_logmd-template`
-- Evidence ladder L1 to L5 (research findings, reconcile) → `artifact-templates.md#researchmd-template`
-- Proof line on every `[MUST]` AC → `artifact-templates.md#proof-line-on-every-must-ac`
-- Handoff block rules (spec.md, delta, level S) → `artifact-templates.md#specmd-template`
-- specs/_current/[capability].md template → `artifact-templates.md#specscurrentcapabilitymd-template`
-- Current-state merge rule at archive → `workflow-phases.md#phase-5--validate`
-- Writing concrete acceptance criteria (incl. optional EARS) → `artifact-templates.md#writing-concrete-acceptance-criteria`
-- spec.md template (incl. Boundaries section) → `artifact-templates.md#specmd-template`
-- spec.md delta mode (brownfield changes) → `artifact-templates.md#specmd-template--delta-mode`
-- plan.md template (incl. Caller Usage, Risks, optional Invariants) → `artifact-templates.md#planmd-template`
-- data-model.md template → `artifact-templates.md#data-modelmd-template`
-- contracts/[endpoint].md template → `artifact-templates.md#contractsendpointmd-template`
-- tasks.md template (Creates/Modifies, waves from Depends on) → `artifact-templates.md#tasksmd-template`
+- Phase 0: [constitution prompts](prompt-patterns.md#phase-0-constitution-prompts), [constitution from an existing codebase](prompt-patterns.md#constitution-from-existing-codebase)
+- Phase 0.5: [codebase research](prompt-patterns.md#codebase-research-prompt-sdd-research), [consolidation](prompt-patterns.md#research-consolidation-prompt), [verification for Gate R](prompt-patterns.md#research-verification-prompt-gate-r)
+- Phase 1: [assumptions surface](prompt-patterns.md#assumptions-surface-prompt), [specify prompts](prompt-patterns.md#phase-1-specify-prompts), [delta specification](prompt-patterns.md#delta-specification-prompt-brownfield-changes), [post-clarify update](prompt-patterns.md#post-clarify-spec-update-prompt), [checklist generation](prompt-patterns.md#checklist-generation-prompt-sdd-validate-domain), [cold read](prompt-patterns.md#cold-read-prompt-before-gate-1)
+- Phase 2 to 4: [plan](prompt-patterns.md#phase-2-plan-prompts), [tasks](prompt-patterns.md#phase-3-tasks-prompts), [implementation](prompt-patterns.md#phase-4-implementation-prompts), [context handover](prompt-patterns.md#context-handover-prompt-run-before-a-context-reset-not-after)
+- Phase 5: [validate prompts](prompt-patterns.md#phase-5-validate-prompts), [linear walkthrough](prompt-patterns.md#linear-walkthrough-prompt), [adversary](prompt-patterns.md#adversary-prompt-phase-5-levels-m-and-l)
+- Any time: [reconcile](prompt-patterns.md#reconcile-prompt-sdd-change), [amend](prompt-patterns.md#amend-prompt-sdd-change), [analyze](prompt-patterns.md#analyze-prompt-sdd-validate), [status](prompt-patterns.md#status-prompt-sdd-status), [multi-agent review](prompt-patterns.md#multi-agent-review-pattern), [cross-feature conflicts](prompt-patterns.md#cross-feature-conflict-detector)
 
-### Prompts (copy-paste ready)
+### Phase Details
 
-- Phase 0 — Constitution prompts → `prompt-patterns.md#phase-0--constitution-prompts`
-- Phase 0.5 — Codebase research → `prompt-patterns.md#codebase-research-prompt-sddresearch`
-- Phase 0.5 — Research consolidation → `prompt-patterns.md#research-consolidation-prompt`
-- Phase 0.5 — Research verification (Gate R) → `prompt-patterns.md#research-verification-prompt-gate-r`
-- Phase 1 — Surface assumptions (pre-spec) → `prompt-patterns.md#assumptions-surface-prompt`
-- Phase 1 — Specify prompts → `prompt-patterns.md#phase-1--specify-prompts`
-- Phase 1 — Post-Clarify spec update → `prompt-patterns.md#post-clarify-spec-update-prompt`
-- Phase 1, Cold Read (fresh agent restates the spec before Gate 1) → `prompt-patterns.md#cold-read-prompt-before-gate-1`
-- Phase 2 — Plan prompts → `prompt-patterns.md#phase-2--plan-prompts`
-- Phase 3 — Tasks prompts → `prompt-patterns.md#phase-3--tasks-prompts`
-- Phase 4 — Implement prompts → `prompt-patterns.md#phase-4--implementation-prompts`
-- Phase 4 — Context handover / session resume → `prompt-patterns.md#context-handover-prompt-run-before-a-context-reset-not-after`
-- Phase 5 — Validate prompts → `prompt-patterns.md#phase-5--validate-prompts`
-- Phase 5 — Linear walkthrough (comprehension) → `prompt-patterns.md#linear-walkthrough-prompt`
-- Phase 5, Adversary (non-author agent tries to break each AC, M and L) → `prompt-patterns.md#adversary-prompt-phase-5-levels-m-and-l`
-- Status (`/sdd-status`) → `prompt-patterns.md#status-prompt-sddstatus--run-any-time`
-- Multi-agent review (standardized output) → `prompt-patterns.md#multi-agent-review-pattern`
-- Delta specification (brownfield) → `prompt-patterns.md#delta-specification-prompt-brownfield-changes`
-- Checklist generation (`/sdd-validate`) → `prompt-patterns.md#checklist-generation-prompt-sddchecklist-domain`
-- Amend (requirements change cascade) → `prompt-patterns.md#amend-prompt-sddamend--run-when-requirements-change`
-- Reconcile (code changed outside the workflow) → `prompt-patterns.md#reconcile-prompt-sddreconcile--run-when-code-changed-outside-the-workflow`
-- Constitution from existing codebase → `prompt-patterns.md#constitution-from-existing-codebase`
-- Cross-feature conflict detector → `prompt-patterns.md#cross-feature-conflict-detector`
+- [Phase 0](workflow-phases.md#phase-0-constitution), [Phase 0.5](workflow-phases.md#phase-05-research), [Phase 1](workflow-phases.md#phase-1-specify), [delta specs](workflow-phases.md#delta-specs), [Phase 2](workflow-phases.md#phase-2-plan), [Phase 3](workflow-phases.md#phase-3-tasks), [Phase 4](workflow-phases.md#phase-4-implement), [Phase 5](workflow-phases.md#phase-5-validate) with the current-state merge at archive
+- [When to stop and amend the plan](workflow-phases.md#when-to-stop-and-amend-the-plan), [reconcile](workflow-phases.md#reconcile-when-code-changed-outside-the-workflow)
 
-### Phase details (step-by-step)
+### Output Formats
 
-- Phase 0 — Constitution → `workflow-phases.md#phase-0--constitution`
-- Phase 0.5 — Research → `workflow-phases.md#phase-05--research`
-- Phase 1 — Specify → `workflow-phases.md#phase-1--specify`
-- Delta specs (brownfield) → `workflow-phases.md#delta-specs`
-- Reconcile (code changed outside the workflow) → `workflow-phases.md#reconcile--when-code-changed-outside-the-workflow`
-- Phase 2 — Plan → `workflow-phases.md#phase-2--plan`
-- Phase 3 — Tasks → `workflow-phases.md#phase-3--tasks`
-- Phase 4 — Implement → `workflow-phases.md#phase-4--implement`
-- When to stop and amend the plan (repeated workarounds, casts) → `workflow-phases.md#when-to-stop-and-amend-the-plan`
-- Phase 5 — Validate → `workflow-phases.md#phase-5--validate`
+- [Principles](output-formats.md#principles), [gate verdict](output-formats.md#gate-verdict) with `pass | fail | inconclusive`, [critic findings](output-formats.md#critic-findings), [checklist](output-formats.md#checklist)
+- [Traceability matrix](output-formats.md#traceability-matrix), [drift report](output-formats.md#drift-report), [reconcile report](output-formats.md#reconcile-report), [analyze report](output-formats.md#analyze-report), [status report](output-formats.md#status-report), [linear walkthrough](output-formats.md#linear-walkthrough), [what never to print](output-formats.md#what-never-to-print)
 
-### Output formats (what the user reads)
+### Enforcement
 
-- Principles: write artifacts, show verdicts → `output-formats.md#principles`
-- Gate verdict → `output-formats.md#gate-verdict`
-- Critic findings (binary confidence) → `output-formats.md#critic-findings`
-- Checklist (`/sdd-validate [domain]`) → `output-formats.md#checklist`
-- Traceability matrix (validation.md columns) → `output-formats.md#traceability-matrix`
-- Verdicts `pass | fail | inconclusive` → `output-formats.md#gate-verdict`
-- Drift report → `output-formats.md#drift-report`
-- Reconcile report (`/sdd-change`) → `output-formats.md#reconcile-report`
-- Analyze report → `output-formats.md#analyze-report`
-- Status report (`/sdd-status`) → `output-formats.md#status-report`
-- Linear walkthrough → `output-formats.md#linear-walkthrough`
-- What never to print → `output-formats.md#what-never-to-print`
+- [The ladder](enforcement.md#the-enforcement-ladder), [what can be mechanized](enforcement.md#what-can-be-mechanized-and-what-must-not), [the validator](enforcement.md#the-validator), [contract lock hook](enforcement.md#locking-contracts-for-real), [hooks per phase](enforcement.md#hooks-per-phase)
+- [Worktrees for parallel tasks](enforcement.md#git-worktrees-for-parallel-tasks), [the AGENTS.md bridge](enforcement.md#the-agentsmd-bridge), [enforcement theater](enforcement.md#enforcement-theater)
 
-### Enforcement and interop
+### Quality and Review
 
-- The enforcement ladder (ask / check / block) → `enforcement.md#the-enforcement-ladder`
-- What can be mechanized, and what must not → `enforcement.md#what-can-be-mechanized-and-what-must-not`
-- The validator (`sdd-check.mjs`, rules, pre-commit, CI, no Node) → `enforcement.md#the-validator`
-- Locking `contracts/` with a pre-write hook → `enforcement.md#locking-contracts-for-real`
-- Hooks per phase → `enforcement.md#hooks-per-phase`
-- Git worktrees for parallel tasks → `enforcement.md#git-worktrees-for-parallel-tasks`
-- The `AGENTS.md` bridge (derive, never fork) → `enforcement.md#the-agentsmd-bridge`
-- Enforcement theater → `enforcement.md#enforcement-theater`
+- [Which gates apply at which level](quality-gates.md#which-gates-apply-at-which-ceremony-level), intent gates and evidence gates included
+- [Per-phase checklists](quality-gates.md#per-phase-checklists), [generated checklists](quality-gates.md#generated-checklists-unit-tests-for-the-spec), [confidence thresholds](quality-gates.md#confidence-based-review-thresholds), [CI/CD](quality-gates.md#cicd-integration), [drift classification](quality-gates.md#spec-drift-classification)
 
-### Quality and review
+### Agent Patterns
 
-- Which gates apply at which ceremony level → `quality-gates.md#which-gates-apply-at-which-ceremony-level`
-- Intent gates vs. evidence gates (who passes each) → `quality-gates.md#which-gates-apply-at-which-ceremony-level`
-- Generated checklists — unit tests for the spec → `quality-gates.md#generated-checklists--unit-tests-for-the-spec`
-- Per-phase checklists (incl. delta-mode Gate 1) → `quality-gates.md#per-phase-checklists`
-- Confidence-based review thresholds → `quality-gates.md#confidence-based-review-thresholds`
-- CI/CD integration → `quality-gates.md#cicd-integration`
-- Drift classification → `quality-gates.md#spec-drift-classification`
-
-### AI and agent patterns
-
-- Context management (single-task rule) → `ai-agent-patterns.md#context-management`
-- Context engineering (compaction, budget, progressive disclosure) → `ai-agent-patterns.md#context-engineering`
-- Subagent review pattern → `ai-agent-patterns.md#subagent-review-pattern`
-- No-subagent fallback (evidence gates in a fresh session) → `ai-agent-patterns.md#no-subagent-fallback`
-- Phase 0.5 Research Verifier critic → `ai-agent-patterns.md#phase-05-critic-agent`
-- Phase 2 Risks Critic → `ai-agent-patterns.md#phase-2-critic-agents`
-- Parallel task execution → `ai-agent-patterns.md#parallel-task-execution`
-- Coordinator rule (dispatches and checks, never writes code) → `ai-agent-patterns.md#parallel-task-rules`
-- AI tool selection per phase → `ai-agent-patterns.md#ai-tool-selection-per-phase`
-- Handling AI resistance → `ai-agent-patterns.md#handling-ai-resistance`
-- Spec regeneration (when requirements change) → `ai-agent-patterns.md#spec-regeneration-pattern`
-- Research phase with parallel subagents → `ai-agent-patterns.md#research-phase-with-parallel-subagents`
-- Spec as recovery point → `ai-agent-patterns.md#spec-as-recovery-point`
+- [Context management](ai-agent-patterns.md#context-management), [context engineering](ai-agent-patterns.md#context-engineering), [spec as recovery point](ai-agent-patterns.md#spec-as-recovery-point), [spec regeneration](ai-agent-patterns.md#spec-regeneration-pattern)
+- [Subagent review](ai-agent-patterns.md#subagent-review-pattern), [Phase 0.5 critic](ai-agent-patterns.md#phase-05-critic-agent), [Phase 2 critics](ai-agent-patterns.md#phase-2-critic-agents), [no-subagent fallback](ai-agent-patterns.md#no-subagent-fallback)
+- [Parallel tasks](ai-agent-patterns.md#parallel-task-execution) and the [coordinator rule](ai-agent-patterns.md#parallel-task-rules), [research with parallel subagents](ai-agent-patterns.md#research-phase-with-parallel-subagents)
+- [Tool selection per phase](ai-agent-patterns.md#ai-tool-selection-per-phase), [handling resistance](ai-agent-patterns.md#handling-ai-resistance)
 
 ### Troubleshooting
 
-- Common failure modes → `anti-patterns.md`
-- Spec drift causes → `anti-patterns.md#anti-pattern-2-contracts-modified-during-implementation`
-- Context contamination → `anti-patterns.md#anti-pattern-3-one-context-for-all-tasks`
-- Oversized tasks → `anti-patterns.md#anti-pattern-5-oversized-tasks`
-- Over-specified specs (HOW in spec, not WHAT) → `anti-patterns.md#anti-pattern-13-over-specified-specs`
-- Implicit assumptions baked into ACs → `anti-patterns.md#anti-pattern-14-implicit-assumptions-never-challenged`
-- Critics run in the generating context → `anti-patterns.md#anti-pattern-15-running-critics-in-the-generating-context`
-- Tasks without AC references → `anti-patterns.md#anti-pattern-16-tasks-without-acceptance-criteria-references`
-- Specifying against an imagined system → `anti-patterns.md#anti-pattern-17-specifying-against-an-imagined-system`
-- Letting the context window fill up → `anti-patterns.md#anti-pattern-18-letting-the-context-window-fill-up`
-- Shipping code nobody understands → `anti-patterns.md#anti-pattern-19-shipping-code-nobody-understands`
-- Delta spec without a baseline → `anti-patterns.md#anti-pattern-20-delta-spec-without-a-baseline`
-- Reconciling drift instead of fixing it → `anti-patterns.md#anti-pattern-21-reconciling-drift-instead-of-fixing-it`
-- Running one ceremony level for everything → `anti-patterns.md#anti-pattern-22-running-one-ceremony-level-for-everything`
-- Mechanizing the gates away → `anti-patterns.md#anti-pattern-23-mechanizing-the-gates-away`
-- Tests that cannot fail → `anti-patterns.md#anti-pattern-24-tests-that-cannot-fail`
-- Unreproduced review findings → `anti-patterns.md#anti-pattern-25-unreproduced-review-findings`
-- Polishing an abstract plan → `anti-patterns.md#anti-pattern-26-polishing-an-abstract-plan`
-- The author passes its own gate → `anti-patterns.md#anti-pattern-27-the-author-passes-its-own-gate`
-- Time box as a finish condition → `anti-patterns.md#anti-pattern-28-time-box-as-a-finish-condition`
-
----
+All 28 failure modes, each with a `Check:` line, are in [anti-patterns.md](anti-patterns.md). The most common:
+[contracts modified](anti-patterns.md#anti-pattern-2-contracts-modified-during-implementation),
+[one context for all tasks](anti-patterns.md#anti-pattern-3-one-context-for-all-tasks),
+[imagined system](anti-patterns.md#anti-pattern-17-specifying-against-an-imagined-system),
+[reconciling drift](anti-patterns.md#anti-pattern-21-reconciling-drift-instead-of-fixing-it),
+[one level for everything](anti-patterns.md#anti-pattern-22-running-one-ceremony-level-for-everything),
+[mechanizing the gates](anti-patterns.md#anti-pattern-23-mechanizing-the-gates-away),
+[tests that cannot fail](anti-patterns.md#anti-pattern-24-tests-that-cannot-fail),
+[unreproduced findings](anti-patterns.md#anti-pattern-25-unreproduced-review-findings),
+[author passes own gate](anti-patterns.md#anti-pattern-27-the-author-passes-its-own-gate).
 
 ## By Phase
 
-| Phase | Templates | Prompts | Details | Quality |
-|-------|-----------|---------|---------|---------|
-| 0 — Constitution | constitution.md | constitution-prompts | workflow-phases#phase-0 | Gate 0 |
-| 0.5 — Research | research.md | research-prompts | workflow-phases#phase-05 | Gate R |
-| 1 — Specify | spec.md | specify-prompts | workflow-phases#phase-1 | Gate 1 |
-| 2 — Plan | plan.md, data-model.md, contracts | plan-prompts | workflow-phases#phase-2 | Gate 2 |
-| 3 — Tasks | tasks.md | tasks-prompts | workflow-phases#phase-3 | Gate 3 |
-| 4 — Implement | progress.md | implement-prompts | workflow-phases#phase-4 | Gate 4 |
-| 5 — Validate | — | validate-prompts, linear-walkthrough | workflow-phases#phase-5 | Gate 5, Gate C |
-
----
-
-## File List
-
-| File | Purpose | Size |
-|------|---------|------|
-| `SKILL.md` | Entry point, workflow overview | Medium |
-| `references/artifact-templates.md` | Copy-paste templates for all artifacts | Long |
-| `references/prompt-patterns.md` | Prompts for every phase and scenario | Long |
-| `references/workflow-phases.md` | Step-by-step phase instructions | Long |
-| `references/quality-gates.md` | Checklists and CI/CD integration | Medium |
-| `references/output-formats.md` | Formats and budgets for everything the user reads | Medium |
-| `references/enforcement.md` | Hooks, contract locks, worktrees, `AGENTS.md` bridge | Medium |
-| `references/ai-agent-patterns.md` | Multi-agent patterns and context management | Medium |
-| `references/anti-patterns.md` | Failure modes and fixes | Medium |
-| `references/quick-reference.md` | One-page cheat sheet | Short |
-| `references/INDEX.md` | This file | Short |
+| Phase | Template | Gate |
+|-------|----------|------|
+| [0: Constitution](workflow-phases.md#phase-0-constitution) | constitution.md | Gate 0 |
+| [0.5: Research](workflow-phases.md#phase-05-research) | research.md | Gate R |
+| [1: Specify](workflow-phases.md#phase-1-specify) | spec.md | Gate 1 |
+| [2: Plan](workflow-phases.md#phase-2-plan) | plan.md, data-model.md, contracts/ | Gate 2 |
+| [3: Tasks](workflow-phases.md#phase-3-tasks) | tasks.md | Gate 3 |
+| [4: Implement](workflow-phases.md#phase-4-implement) | progress.md | Gate 4 |
+| [5: Validate](workflow-phases.md#phase-5-validate) | validation.md, walkthrough.md | Gate 5, Gate C |

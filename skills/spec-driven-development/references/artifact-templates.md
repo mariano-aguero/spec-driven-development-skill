@@ -4,33 +4,25 @@ Copy-paste templates for each SDD artifact. Remove placeholder comments before c
 
 ## Contents
 
-- Status Lifecycle: the one state machine on `spec.md`'s `Status:` header
-- `constitution.md` — project-level immutable constraints (Phase 0)
-- `research.md` — how the system works today, cited `file:line` (Phase 0.5)
-- Writing concrete acceptance criteria — vague-to-measurable conversions, optional EARS syntax
-- `spec.md` — requirements, MoSCoW ACs, Boundaries (Phase 1)
-- `spec.md` delta mode — brownfield changes: baseline, ADDED/MODIFIED/REMOVED/UNCHANGED, blast radius
-- `plan.md`: architecture, caller usage, AC coverage map, risks, optional invariants (Phase 2)
-- `data-model.md` — entities, indexes, migrations (Phase 2)
-- `contracts/[endpoint].md` — request/response shapes, error codes (Phase 2)
-- `tasks.md` — atomic, test-first, dependency-mapped tasks (Phase 3)
-- `progress.md`: resume note across context resets (Phase 4, optional)
-- `decision_log.md`: append-only decision table (any phase, optional)
-- `specs/_current/<capability>.md`: merged current-state spec (Phase 5.6)
+- Status Lifecycle: the `Status:` header of `spec.md`
+- `constitution.md` (Phase 0)
+- `research.md`, with the evidence ladder (Phase 0.5)
+- Writing concrete acceptance criteria, Proof lines, optional EARS
+- `spec.md`, with Handoff rules (Phase 1)
+- `spec.md` delta mode for brownfield changes
+- `plan.md`, `data-model.md`, `contracts/[endpoint].md` (Phase 2)
+- `tasks.md`, with graph rules (Phase 3)
+- `progress.md` and `decision_log.md` (optional)
+- `specs/_current/<capability>.md` (Phase 5.6)
 
-Cross-cutting formats: Handoff block rules (after the `spec.md` template), Proof lines
-(under Writing Concrete Acceptance Criteria), the evidence ladder (under `research.md`).
-`validation.md` is defined in `output-formats.md → Traceability Matrix`.
-
-For the formats of everything the *user* reads — gate verdicts, traceability matrix, drift
-report, walkthrough — see `output-formats.md`.
+`validation.md` and everything the user reads are in `output-formats.md`.
 
 ---
 
 ## Status Lifecycle
 
-One lifecycle per feature, kept in the `Status:` header of `spec.md`. This table is its only
-definition. Delta specs use it too. Each gate sets the next status when it passes.
+This table is the only definition of the `Status:` header in `spec.md`, delta specs included.
+Each gate sets the next status when it passes.
 
 | Status | Set when | What it allows |
 |--------|----------|----------------|
@@ -41,13 +33,13 @@ definition. Delta specs use it too. Each gate sets the next status when it passe
 | `Validated` | Gate 5 passes and the human has audited it and read the walkthrough | Merge. Lock stays on |
 | `Archived` | The spec moves to `specs/archive/` | Read-only history |
 
-`research.md` keeps its own `Draft` / `Approved` (Gate R) and is not part of this lifecycle.
+`research.md` keeps its own `Draft` / `Approved` (Gate R) outside this lifecycle.
 
 ---
 
 ## constitution.md Template
 
-*Created once per project at the root. Applied to every feature.*
+Created once per project at the root. Applies to every feature.
 
 ```markdown
 # Project Constitution
@@ -56,89 +48,124 @@ Version: 1.0.0
 Last updated: [date]
 
 ## Architecture Principles
-
-- [e.g., "API-first: all features expose a REST endpoint before any UI is built"]
-- [e.g., "Server Components by default; use client components only when required"]
-- [e.g., "No ORM other than Drizzle; raw SQL only for complex analytics queries"]
+- [e.g., "Server Components by default"]
 
 ## Technology Stack
 
 | Layer | Choice | Notes |
 |-------|--------|-------|
 | Language | TypeScript 5.x | Strict mode, no `any` |
-| Runtime | Node.js 20+ | |
-| Framework | [e.g., Next.js 15+] | App Router only |
 | Database | PostgreSQL + Drizzle | No direct SQL in route handlers |
-| Auth | [e.g., Better Auth] | No custom auth logic outside the auth module |
 | Testing | Vitest + Playwright | |
 
 ## Security Constraints
-
-<!-- These constraints apply to ALL generated code. AI must never violate them. -->
-
-- Authentication: all endpoints require a valid session unless explicitly marked `[PUBLIC]`
-- Input validation: all external inputs validated with Zod at the route boundary
-- SQL injection: parameterized queries only — never string-concatenate user input into queries
+<!-- Apply to all generated code. -->
+- Authentication: every endpoint requires a valid session unless marked `[PUBLIC]`
+- Input validation: external inputs validated with Zod at the route boundary
+- SQL: parameterized queries only, never concatenated user input
 - Secrets: never log tokens, passwords, or PII; never hardcode secrets
-- CORS: allow-list only — no wildcard origins in production
-- Rate limiting: all public endpoints must declare a rate limit in their contract
+- CORS: allow-list only, no wildcard origins in production
+- Rate limiting: every public endpoint declares a limit in its contract
 
 ## Naming Conventions
-
-- Files: kebab-case (`user-repository.ts`)
-- Variables/functions: camelCase
-- Types/interfaces: PascalCase
-- DB columns: snake_case
-- Env vars: SCREAMING_SNAKE_CASE
+- Files: kebab-case · Variables and functions: camelCase · Types: PascalCase
+- DB columns: snake_case · Env vars: SCREAMING_SNAKE_CASE
 
 ## Banned Patterns
-
-<!-- AI is strictly forbidden from introducing these patterns -->
-
-- No `any` type in TypeScript
-- No `console.log` in production code (use logger)
-- No synchronous file I/O in request handlers
-- No direct DOM manipulation (use React)
+- No `any` type
+- No `console.log` in production code (use the logger)
 - No [project-specific banned pattern]
 
 ## File Structure Rules
-
-```
-
-src/
-  app/          # Next.js routes and pages
-  components/   # Shared UI components
-  lib/          # Business logic and utilities
-  db/           # Schema, migrations, repositories
-  types/        # Shared TypeScript types
-
-```
+- [e.g., "business logic in `src/lib/`, schema and migrations in `src/db/`"]
 
 ## Open Questions / Deferred Decisions
+- [PENDING] [Decision]: [context and options]
+```
 
-- [PENDING] [Decision 1]: [context and options]
+---
+
+## research.md Template
+
+Phase 0.5 artifact, written before `spec.md` when the feature touches unfamiliar, large or
+ambiguous code. It describes how the system works today. It holds no acceptance criteria, no
+user stories, and no proposed design: those belong to Phases 1 and 2. Target ~200 lines. Every
+claim carries a `file:line` citation and an evidence level.
+
+Evidence ladder (defined here once, also used by the reconcile report):
+
+| Level | Meaning |
+|-------|---------|
+| L1 | Stated: someone said it, nothing checked |
+| L2 | Cited: the line was read |
+| L3 | Showed the bad case cannot happen (grep, type, or code path) |
+| L4 | Ran it and observed the result |
+| L5 | Reproduced in the running app |
+
+The finding a change's safety depends on must reach L4, or say `unproven`.
+
+```markdown
+# Research: [Feature Name]
+
+Status: Draft
+Date: [YYYY-MM-DD]
+
+## Problem Summary
+<!-- 2 to 4 sentences: what we are about to change and why the existing code matters to it.
+     No solution, no requirements. -->
+
+## Relevant Files
+<!-- A missed file becomes a wrong plan. Completeness over depth. -->
+| File | Role in this feature | Key entry point |
+|------|---------------------|-----------------|
+| `src/[path].ts` | [responsibility] | `functionName()` at `src/[path].ts:42` |
+
+## Information Flow
+1. [Entry point] receives [input] (`src/[path].ts:12`)
+2. [Component] validates and transforms it into [shape] (`src/[path].ts:45`)
+3. [Component] persists to [table/service] (`src/[path].ts:88`)
+
+**Where this feature intervenes:** [step numbers above]
+
+## Key Findings
+
+### F-1: [Short factual title]
+[What is true about the codebase, stated as fact.] (`src/[path].ts:60-74`)
+**Evidence:** L2, or L4 [what was run], or `unproven`
+**Consequence for this feature:** [what this constrains or enables]
+
+## Existing Constraints Discovered
+<!-- Rules the code already enforces. They become spec inputs. -->
+- [e.g., "All repository methods take a transaction handle first" (`src/db/base.ts:18`)]
+
+## Prior Art in This Codebase
+- [Feature X solves a near-identical problem] (`src/features/x/`)
+
+## Open Questions for the Spec
+<!-- What the code could not answer. Each goes to Phase 1 as [NEEDS CLARIFICATION]. -->
+- [e.g., "Should expired invites be reusable?"]
+
+## Not Investigated
+<!-- Explicit limits of this research, so nobody assumes it is complete. -->
+- [Area left unexplored, and why]
 ```
 
 ---
 
 ## Writing Concrete Acceptance Criteria
 
-Every AC must survive one test: could someone write a failing automated test from this
-sentence alone? Convert before you write, not during review.
+Every AC must pass one test: could someone write a failing automated test from this sentence
+alone? Convert before you write, not during review.
 
 | Vague | Concrete |
-|-------|---------|
+|-------|----------|
 | "make it faster" | "LCP < 2.5s on a 4G connection" |
-| "it should be secure" | "requires an authenticated session; all inputs validated before processing" |
-| "handle errors properly" | "returns 4xx with a structured error code, never exposes stack traces" |
+| "handle errors properly" | "returns 4xx with a structured error code, never a stack trace" |
 | "should scale" | "handles 1000 concurrent users at < 500ms p95" |
-| "works correctly" | "Given X, When Y, Then Z — independently verifiable" |
-| "good UX" | "every interactive element reachable by keyboard; focus visible at 3:1 contrast" |
-| "reliable" | "retries 3× with exponential backoff, then fails with RETRY_EXHAUSTED" |
+| "reliable" | "retries 3 times with exponential backoff, then fails with RETRY_EXHAUSTED" |
 
-Two words that almost always signal an unfinished AC: **"properly"** and **"appropriate"**.
-Both mean the writer deferred the decision to whoever implements it — which, in this
-workflow, is an agent that will decide silently.
+"Properly" and "appropriate" almost always mark an unfinished AC. Both leave the decision to
+the implementer, which here is an agent that will decide silently.
 
 ### Proof line on every `[MUST]` AC
 
@@ -149,47 +176,26 @@ Every `[MUST]` AC ends with one `**Proof:**` line naming how it is checked:
 - `**Proof:** artifact: <what to inspect>`
 - `**Proof:** manual: <why it cannot be automated>`
 
-An AC with no proof line cannot be passed by an agent that did not write it. Used by Gate 1
-and by the `validation.md` Proof column.
+Without one, only the AC's author can pass it. Gate 1 checks it, and `validation.md` uses it.
 
 ### Optional: EARS for the requirement statement
 
-Given/When/Then is a good *verification* format and a mediocre *statement* format — it says
-how to test a requirement, not under what conditions the requirement applies. EARS (Easy
-Approach to Requirements Syntax, from aerospace requirements engineering) constrains the
-sentence itself so that ambiguity becomes structurally hard to write.
+Given/When/Then says how to verify a requirement. EARS (Easy Approach to Requirements Syntax)
+constrains the requirement sentence itself:
 
-Five patterns cover almost everything:
+| Pattern | Shape |
+|---------|-------|
+| Ubiquitous | The `<system>` shall `<response>` |
+| Event-driven | When `<trigger>`, the `<system>` shall `<response>` |
+| State-driven | While `<state>`, the `<system>` shall `<response>` |
+| Unwanted behavior | If `<trigger>`, then the `<system>` shall `<response>` |
+| Optional feature | Where `<feature>`, the `<system>` shall `<response>` |
 
-| Pattern | Shape | Example |
-|---------|-------|---------|
-| **Ubiquitous** | The `<system>` shall `<response>` | The API shall reject unauthenticated requests |
-| **Event-driven** | When `<trigger>`, the `<system>` shall `<response>` | When a magic link is redeemed, the system shall create a session |
-| **State-driven** | While `<state>`, the `<system>` shall `<response>` | While a session is expired, the API shall return 401 |
-| **Unwanted behavior** | If `<trigger>`, then the `<system>` shall `<response>` | If the provider is unreachable, then the system shall return 503 with `Retry-After` |
-| **Optional feature** | Where `<feature is included>`, the `<system>` shall `<response>` | Where SSO is enabled, the system shall skip password validation |
+Example: "If the provider is unreachable, then the system shall return 503 with `Retry-After`."
 
-Use both formats together — EARS states the requirement, Given/When/Then makes it verifiable:
-
-```markdown
-### AC-4: Token expiry [MUST]
-
-**Requirement:** If a magic-link token is older than 5 minutes, then the system shall
-reject verification with `410 Gone`.
-
-Given a magic link issued more than 5 minutes ago
-When the user clicks it
-Then verification fails with `410 Gone` and redirects to `/sign-in?error=expired`.
-```
-
-**When it earns the extra line:** safety-critical or regulated domains, requirements that
-survive audits, and teams whose ACs keep coming back ambiguous after Clarify. The
-state-driven and unwanted-behavior patterns are the ones that pull their weight — both force
-you to name a condition that Given/When/Then lets you leave implicit.
-
-**When to skip it:** most features. Two formats per AC is real overhead, and a concrete
-Given/When/Then already passes Gate 1. Adopt EARS per project in `constitution.md`, not per
-feature — mixed styles across a spec are worse than either style consistently.
+Put the EARS sentence on a `**Requirement:**` line above the Given/When/Then. Use it in
+regulated domains or when ACs stay ambiguous after Clarify. A concrete Given/When/Then already
+passes Gate 1. Adopt EARS per project in `constitution.md`, never per feature.
 
 ---
 
@@ -198,12 +204,12 @@ feature — mixed styles across a spec are worse than either style consistently.
 ```markdown
 # [Feature Name]
 
-Status: Draft  <!-- lifecycle: see Status Lifecycle -->
+Status: Draft  <!-- see Status Lifecycle -->
 Version: 1.0
 Last updated: [YYYY-MM-DD]
 
 ## Overview
-<!-- 1-2 sentences describing the feature for a non-technical stakeholder -->
+<!-- 1 to 2 sentences for a non-technical stakeholder -->
 
 ## Handoff
 Goal: [one sentence]
@@ -215,35 +221,22 @@ Permissions: Boundaries section below
 Stop if: [condition]. Then stop and write why in decision_log.md
 
 ## User Stories
-
-### Primary
-As a [role], I want [goal] so that [benefit].
-
-### Secondary (optional)
 As a [role], I want [goal] so that [benefit].
 
 ## Boundaries
-<!-- Optional. Use when AI behavior constraints at the feature level need to be
-     explicit — separate from project-level rules in constitution.md. -->
-
+<!-- Optional. Feature-level rules on top of constitution.md. -->
 **Always do:**
-- [e.g., "validate all inputs before processing"]
 - [e.g., "check permissions before returning data"]
 
 **Ask first (do not proceed unilaterally):**
-- [e.g., "adding a new database table or field not in this spec"]
-- [e.g., "introducing a new dependency"]
-- [e.g., "extending scope beyond these ACs"]
+- [e.g., "adding a table, field or dependency not in this spec"]
 
 **Never do:**
-- [e.g., "skip authentication for this endpoint"]
-- [e.g., "log sensitive user data"]
 - [e.g., "modify data or contracts owned by other features"]
 
 ## Acceptance Criteria
-
-<!-- MoSCoW priority: [MUST] = required for launch, [SHOULD] = important but not blocking,
-     [COULD] = nice to have, [WONT] = explicitly excluded from this iteration -->
+<!-- [MUST] required for launch, [SHOULD] important, not blocking,
+     [COULD] nice to have, [WONT] explicitly excluded this iteration -->
 
 ### AC-1: [Short Title] [MUST]
 Given [initial context]
@@ -251,24 +244,15 @@ When [action is taken]
 Then [expected outcome]
 **Proof:** test: [command]
 
-### AC-2: [Short Title] [MUST]
-Given [initial context]
-When [action is taken]
-Then [expected outcome]
-**Proof:** command: [command and expected output]
-
-### AC-3: [Short Title] [SHOULD]
+### AC-2: [Short Title] [SHOULD]
 Given [initial context]
 When [action is taken]
 Then [expected outcome]
 
-### AC-4: [Explicitly Excluded Feature] [WONT]
-<!-- Use [WONT] to document what was considered and explicitly ruled out for this iteration.
-     This prevents the same discussion from recurring and signals deliberate scope decisions. -->
-This feature will NOT include [capability]. Reason: [why it's excluded from this iteration].
+### AC-3: [Excluded Capability] [WONT]
+This feature will NOT include [capability]. Reason: [why].
 
-<!-- Error and edge case ACs are required. Don't only spec the happy path. -->
-
+<!-- Error and edge-case ACs are required, not only the happy path. -->
 ### AC-E1: [Error Case Title] [MUST]
 Given [invalid or edge condition]
 When [action is taken]
@@ -276,24 +260,19 @@ Then [expected error response or behavior]
 **Proof:** test: [command]
 
 ## Out of Scope
-<!-- Explicitly list what this feature does NOT include -->
-- [Item 1]
-- [Item 2]
+- [Item]
 
 ## Open Questions
-<!-- Use [NEEDS CLARIFICATION] for unresolved items. ALL must be resolved before Phase 2. -->
-- [NEEDS CLARIFICATION] [Question 1]
-- [RESOLVED] [Question 2] → Decision: [answer]
+<!-- Every [NEEDS CLARIFICATION] is resolved before Phase 2. -->
+- [NEEDS CLARIFICATION] [Question]
+- [RESOLVED] [Question] → Decision: [answer]
 
 ## Non-Functional Requirements
-<!-- Performance, security, accessibility, internationalization, etc.
-     Be specific — "fast" is not a requirement, "< 200ms at p95" is. -->
+<!-- Numbers, not adjectives: "< 200ms at p95", never "fast". -->
 - Performance: [e.g., "search results in < 200ms at p95"]
-- Security: [e.g., "requires authenticated session — see constitution.md"]
+- Security: [e.g., "requires authenticated session, see constitution.md"]
 - Accessibility: [e.g., "WCAG 2.1 AA for all interactive elements"]
 ```
-
----
 
 **Handoff rules** (spec.md and delta mode; used by Gate 1):
 
@@ -304,49 +283,38 @@ Then [expected error response or behavior]
 
 ---
 
-## spec.md Template — Delta Mode
+## spec.md Template: Delta Mode
 
-*Use when changing behavior that already ships. A delta spec respecifies nothing: it declares
-a baseline and lists only what moves.*
-
-*Its length tracks the size of the **change**, not the size of the subsystem. Against a
-150-line baseline the saving is modest; against a mature auth spec it is the difference
-between a document reviewers read and one they skim. That is the point — not brevity for its
-own sake.*
+Use it to change behavior that already ships. A delta spec declares a baseline and lists only
+what moves, so its length tracks the size of the change, not of the subsystem.
 
 ```markdown
 # [Change Name]
 
-Status: Draft  <!-- lifecycle: see Status Lifecycle -->
+Status: Draft  <!-- see Status Lifecycle -->
 Version: 1.0
 Mode: Delta
-Baseline: [specs/archive/user-auth/spec.md @ v2.1]  ← or: [specs/[feature]/research.md F-1..F-8]
+Baseline: [specs/archive/user-auth/spec.md @ v2.1]  <!-- or: specs/[feature]/research.md F-1..F-8 -->
 Last updated: [YYYY-MM-DD]
 
 ## Change Summary
-<!-- 1-2 sentences: what behavior changes and for whom. Not why the feature exists. -->
+<!-- 1 to 2 sentences: what behavior changes and for whom. -->
 
 ## Handoff
 <!-- Same block and rules as the full spec.md template -->
 Goal: [one sentence]
 Done when:
 - [ ] `[command]` exits 0 (AC-1, AC-3)
-- [ ] [observable artifact or state] (AC-2)
 Isolation: branch `[name]` off `[base]`, one worktree per parallel task
 Permissions: Boundaries section, or constitution.md if the delta has none
 Stop if: [condition]. Then stop and write why in decision_log.md
 
 ## Baseline Assertion
-<!-- What the system does TODAY that this change depends on. Every line cites the baseline —
-     a prior spec's AC, or a research.md finding with its file:line. If a line here turns out
-     to be false, this spec is invalid, not merely incomplete. -->
-
-- [Sessions expire after 12h] — baseline AC-4 / `research.md` F-2 (`src/auth/middleware.ts:40`)
-- [Rate limiting is per-IP] — `research.md` F-3 (`lib/rate-limit.ts:22`)
+<!-- Cited facts this change depends on. One false line invalidates the spec. -->
+- [Sessions expire after 12h] (baseline AC-4, `research.md` F-2, `src/auth/middleware.ts:40`)
 
 ## Acceptance Criteria
-
-<!-- Every AC carries a change label AND a MoSCoW label. -->
+<!-- Every AC carries a change label and a MoSCoW label. -->
 
 ### AC-1: [Short Title] [ADDED] [MUST]
 Given [context]
@@ -355,30 +323,26 @@ Then [outcome]
 **Proof:** test: [command]
 
 ### AC-2: [Short Title] [MODIFIED] [MUST]
-**Was:** [previous behavior, quoted from the baseline — not paraphrased]
+**Was:** [previous behavior, quoted from the baseline]
 **Now:** Given [context] When [action] Then [outcome]
 **Migration:** [what happens to data, sessions, or clients created under the old behavior]
 **Proof:** test: [command]
 
 ### AC-3: [Short Title] [REMOVED]
 **Was:** [behavior being removed, quoted from the baseline]
-**Callers now see:** [the new observable result — an error, a default, nothing]
+**Callers now see:** [the new observable result: an error, a default, nothing]
 **Deprecation:** [immediate / behind flag until DATE / announced on DATE]
 
 ### AC-4: [Short Title] [UNCHANGED]
-<!-- Behavior this change must NOT break. These are the regression tests. Include every
-     behavior that shares code paths with what you are changing — this section is the
-     cheapest insurance in a brownfield change. -->
-[Behavior, quoted from the baseline] — must still hold after this change.
+<!-- Every behavior sharing code paths with the change. -->
+[Behavior, quoted from the baseline], must still hold after this change.
 **Proof:** test: [command]
 
 ## Blast Radius
-<!-- Everything that touches what you are modifying. Derived from research.md, not guessed. -->
-
+<!-- Everything that touches what you modify, derived from research.md. -->
 | Changing | What depends on it | Verified by |
 |----------|--------------------|-------------|
-| `createSession()` | 4 call sites — `src/app/auth/*.ts` | AC-4 regression tests |
-| `sessions.expires_at` | reporting export job | AC-5, manual check before merge |
+| `createSession()` | 4 call sites in `src/app/auth/*.ts` | AC-4 regression tests |
 
 ## Out of Scope
 - [Adjacent thing you are deliberately not touching]
@@ -389,14 +353,12 @@ Then [outcome]
 
 **Rules for delta specs:**
 
-- The `Baseline:` header must resolve to something a reviewer can open. "The current code" is
-  not a baseline; `research.md` findings with `file:line` citations are.
-- `[MODIFIED]` and `[REMOVED]` ACs quote the old behavior verbatim from the baseline. A
-  paraphrase hides whether the author actually read it.
-- `[UNCHANGED]` is not filler. It is the regression suite, and it is what makes a delta spec
-  safe enough to be short.
-- If more than roughly half the ACs are `[ADDED]`, you are writing a new feature — switch to
-  a full spec.
+- `Baseline:` resolves to a file a reviewer can open, such as `research.md` findings with
+  `file:line` citations. "The current code" is not a baseline.
+- `[MODIFIED]` and `[REMOVED]` ACs quote the old behavior verbatim. A paraphrase hides
+  whether the author read it.
+- `[UNCHANGED]` ACs are the regression suite. They make a short delta spec safe.
+- If more than about half the ACs are `[ADDED]`, write a full spec instead.
 
 ---
 
@@ -409,39 +371,30 @@ Then [outcome]
 Implements: `specs/[branch]/spec.md`
 
 ## Architecture Overview
-<!-- High-level description of the approach. 3-5 sentences max. -->
+<!-- 3 to 5 sentences. -->
 
 ## Caller Usage
-<!-- How callers use the new or changed interface, as code or a CLI/HTTP call. Written
-     before the contracts; contracts/ derive from it. Omit if no interface changes. -->
+<!-- The new or changed interface as a caller uses it. contracts/ derive from it.
+     Omit if no interface changes. -->
 
-[The call a real caller would write, with its result, indented four spaces]
+    [The call a real caller would write, with its result]
 
 ## Component Breakdown
 
-### [Component 1 Name]
-- **Responsibility:** [What it does]
+### [Component Name]
+- **Responsibility:** [what it does]
 - **Location:** `[file path]`
 - **Accepts:** [inputs]
 - **Returns:** [outputs]
 - **AC Coverage:** AC-1, AC-2
 
-### [Component 2 Name]
-- **Responsibility:** [What it does]
-- **Location:** `[file path]`
-- **Accepts:** [inputs]
-- **Returns:** [outputs]
-- **AC Coverage:** AC-3
-
 ## Technology Choices
-
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
 | [e.g., DB query] | [e.g., Drizzle ORM] | [e.g., already in stack, type-safe] |
 
 ## Integration Points
-<!-- External services, APIs, or other features this touches -->
-- [System]: [How it's used]
+- [System]: [usage]
 
 ## Invariants
 <!-- Optional, level L stateful features only (states, retries, locks, offline). Rules a
@@ -449,23 +402,18 @@ Implements: `specs/[branch]/spec.md`
 - [e.g., "a token is redeemed at most once, under any interleaving of two verify calls"]
 
 ## AC Coverage Map
-<!-- Every [MUST] AC from spec.md must appear here. Required for Gate 2. -->
+<!-- Every [MUST] AC from spec.md appears here. Required for Gate 2. -->
 | AC | Component(s) | Contract(s) |
 |----|-------------|-------------|
 | AC-1 | [ComponentName] | [contracts/file.md] |
-| AC-E1 | [ComponentName] | [contracts/file.md] |
 
 ## Risks
-<!-- Identify implementation risks before Phase 3. One row per risk. -->
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|-----------|
 | [e.g., Third-party API unavailable] | Low | High | Circuit breaker + fallback |
-| [e.g., Data migration fails mid-flight] | Medium | High | Idempotent migration, rollback script |
 
 ## Out of Scope (Technical)
-<!-- Technical boundaries that mirror spec.md out-of-scope -->
 - No [X]
-- No [Y]
 ```
 
 ---
@@ -486,11 +434,9 @@ Implements: `specs/[branch]/spec.md`
 | id | uuid | PK, NOT NULL | Primary key |
 | [field] | [type] | [constraints] | [description] |
 | created_at | timestamp | NOT NULL, DEFAULT now() | |
-| updated_at | timestamp | NOT NULL | |
 
 ### Relationships
 - `[EntityA]` has many `[EntityB]` (via `entity_b.entity_a_id`)
-- `[EntityA]` belongs to `[EntityC]`
 
 ## Indexes
 | Table | Columns | Type | Rationale |
@@ -498,54 +444,43 @@ Implements: `specs/[branch]/spec.md`
 | [table] | [col1, col2] | btree | [e.g., lookup by user + date] |
 
 ## Constraints
-- [e.g., `CHECK (status IN ('active', 'inactive', 'pending'))` on `users`]
+- [e.g., `CHECK (status IN ('active', 'inactive'))` on `users`]
 
 ## Migrations
-
-<!-- Add one block per schema change. Migrations are append-only — never edit past entries. -->
+<!-- Append-only: one block per schema change, never edit a past entry. -->
 
 ### [Migration 001] Initial schema
-- Create `[table_name]` table with all fields above
-- Add indexes from the Indexes section above
-- **Rollback:** drop `[table_name]` table
-
-### [Migration 002] [Short description] *(add when schema changes)*
-- [What this migration does]
-- **Rollback:** [how to undo]
+- Create `[table_name]` with the fields above, and the indexes
+- **Rollback:** drop `[table_name]`
 ```
 
 ---
 
 ## contracts/[endpoint].md Template
 
-```markdown
+````markdown
 # API Contract: [Endpoint Name]
 
 ## [HTTP METHOD] [/path/:param]
 
 ### Description
-[One sentence describing what this endpoint does]
+[One sentence]
 
 ### Authentication
 [e.g., "Bearer token required" / "Public" / "Admin role required"]
 
 ### Request
 
-**Path Parameters:**
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| [param] | string | yes | [description] |
-
-**Query Parameters:**
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| [param] | string | no | [default] | [description] |
+| Name | In | Type | Required | Description |
+|------|----|------|----------|-------------|
+| [param] | path / query | string | yes | [description] |
 
 **Request Body:**
+
 ```json
 {
-  "field": "type — description",
-  "optionalField?": "type — description"
+  "field": "type: description",
+  "optionalField?": "type: description"
 }
 ```
 
@@ -554,10 +489,7 @@ Implements: `specs/[branch]/spec.md`
 **Success (200 OK):**
 
 ```json
-{
-  "id": "uuid",
-  "field": "value"
-}
+{ "id": "uuid", "field": "value" }
 ```
 
 **Error Codes:**
@@ -567,13 +499,10 @@ Implements: `specs/[branch]/spec.md`
 | 400 | VALIDATION_ERROR | [condition] |
 | 401 | UNAUTHORIZED | [condition] |
 | 404 | NOT_FOUND | [condition] |
-| 409 | CONFLICT | [condition] |
 
 ### AC Coverage
-
-- AC-1: [How this endpoint satisfies it]
-
-```
+- AC-1: [how this endpoint satisfies it]
+````
 
 ---
 
@@ -589,7 +518,7 @@ Implements: `specs/[branch]/plan.md`
 
 ### Setup
 
-- [ ] **TASK-001** [S] Set up [component/module] skeleton
+- [ ] **TASK-001** [S] Set up [module] skeleton
   - Creates: `[file path]`
   - Depends on: none
 
@@ -606,159 +535,29 @@ Implements: `specs/[branch]/plan.md`
   - Modifies: `[existing file path]`
   - Depends on: TASK-002
 
-- [ ] **TASK-004** [S] [P] Write tests for [other component]
-  - Tests: AC-3 from `specs/[branch]/spec.md`
-  - Creates: `[other test file path]`
-  - Depends on: TASK-001
-
-- [ ] **TASK-005** [M] Implement [other component]
-  - Contract: `specs/[branch]/contracts/[file].md`
-  - Depends on: TASK-004
-
 ### Integration
 
-- [ ] **TASK-006** [L] Integration test: full [feature] flow
-  - Tests: AC-1 through AC-4
-  - Depends on: TASK-003, TASK-005
-
-### Cleanup
-
-- [ ] **TASK-007** [S] Update API documentation
-  - Depends on: TASK-006
+- [ ] **TASK-004** [L] Integration test: full [feature] flow
+  - Tests: AC-1, AC-2, AC-E1
+  - Depends on: TASK-003
 
 ## Legend
-- `[S]` Small — under 1 hour
-- `[M]` Medium — 1–3 hours
-- `[L]` Large — 3–6 hours (consider splitting)
-- `[P]` Parallelizable — can run concurrently with other `[P]` tasks at same level
+- `[S]` under 1 hour · `[M]` 1 to 3 hours · `[L]` 3 to 6 hours (consider splitting)
+- `[P]` can run concurrently with other `[P]` tasks in the same wave
+```
 
 **Graph rules** (used by Gate 3):
 
 - Waves are computed from `Depends on:`: a task runs when every task it depends on is done.
 - The files a task writes are its `Creates:` and `Modifies:` lines. Parallel `[P]` tasks in
   the same wave must not share any file.
-```
-
----
-
-## research.md Template
-
-*Phase 0.5 artifact. Produced before `spec.md` whenever the feature touches code that is
-unfamiliar, large, or ambiguous. Describes how the system works **today** — never how it
-should work. Target length: ~200 lines. Every claim carries a `file:line` citation and an evidence level.*
-
-**Evidence ladder** (defined here once; the reconcile report uses it too):
-
-| Level | Meaning |
-|-------|---------|
-| L1 | Stated: someone said it, nothing checked |
-| L2 | Cited: the line was read |
-| L3 | Showed the bad case cannot happen (grep, type, or code path) |
-| L4 | Ran it and observed the result |
-| L5 | Reproduced in the running app |
-
-The finding a change's safety depends on must reach L4, or say `unproven`.
-
-```markdown
-# Research: [Feature Name]
-
-Status: Draft
-Date: [YYYY-MM-DD]
-
-## Problem Summary
-<!-- 2-4 sentences. What are we about to change, and why does the existing system matter
-     to that change? No solution, no requirements. -->
-
-## Relevant Files
-
-| File | Role in this feature | Key entry point |
-|------|---------------------|-----------------|
-| `src/[path].ts` | [what this file is responsible for] | `functionName()` — `src/[path].ts:42` |
-| `src/[path].ts` | [what this file is responsible for] | `ClassName.method()` — `src/[path].ts:118` |
-
-<!-- Completeness matters more than depth here. A missed file becomes a wrong plan. -->
-
-## Information Flow
-<!-- How data actually moves through the code today, in order. Cite as you go. -->
-
-1. [Entry point] receives [input] — `src/[path].ts:12`
-2. [Component] validates and transforms it into [shape] — `src/[path].ts:45`
-3. [Component] persists to [table/service] — `src/[path].ts:88`
-4. [Response/side effect] returns to the caller — `src/[path].ts:103`
-
-**Where this feature intervenes:** [step number(s) above]
-
-## Key Findings
-
-### F-1: [Short factual title]
-[What is true about the codebase, stated as fact.] — `src/[path].ts:60-74`
-**Evidence:** L2
-**Consequence for this feature:** [what this constrains or enables]
-
-### F-2: [Short factual title]
-[Fact.] — `src/[path].ts:210`
-**Evidence:** L4 [what was run] or `unproven`
-**Consequence for this feature:** [...]
-
-## Existing Constraints Discovered
-<!-- Things the code already enforces that the spec must respect. These become spec inputs. -->
-
-- [e.g., "All repository methods take a transaction handle as first arg" — `src/db/base.ts:18`]
-- [e.g., "Session cookies are set only in the auth module" — `src/auth/session.ts:55`]
-
-## Prior Art in This Codebase
-<!-- Similar features already implemented that should be imitated rather than reinvented. -->
-
-- [Feature X solves a near-identical problem] — `src/features/x/`
-
-## Options Considered
-<!-- Only when multiple viable approaches exist. Omit this section otherwise. -->
-
-### Option A: [Name]
-**Description:** [1-2 sentences]
-**Pros:**
-- [Advantage 1]
-- [Advantage 2]
-**Cons:**
-- [Disadvantage 1]
-**Estimated effort:** [S / M / L]
-
-### Option B: [Name]
-**Description:** [1-2 sentences]
-**Pros:**
-- [Advantage 1]
-**Cons:**
-- [Disadvantage 1]
-**Estimated effort:** [S / M / L]
-
-## Decision
-**Chosen:** Option [A/B]
-**Rationale:** [Why this option was selected over the others]
-**Date:** [YYYY-MM-DD]
-**Decided by:** [human / team / constraint]
-
-## Open Questions for the Spec
-<!-- Things research could NOT answer from the code. These go to Phase 1 as
-     [NEEDS CLARIFICATION] items — they are product decisions, not code facts. -->
-
-- [Question the codebase cannot answer, e.g., "should expired invites be reusable?"]
-
-## Not Investigated
-<!-- Explicit boundaries of this research. Prevents false confidence in completeness. -->
-
-- [Area deliberately left unexplored and why]
-
-## References
-- [Link or document title]
-```
 
 ---
 
 ## progress.md Template
 
-*Optional Phase 4 artifact. Create only when a task outlives a single context window.
-It is the resume note a fresh session continues from without the original chat.
-Keep it under 40 lines. It is a checkpoint, not a log.*
+Optional Phase 4 artifact, created only when a task outlives one context window. A fresh
+session resumes from it without the original chat. Under 40 lines: a checkpoint, not a log.
 
 ```markdown
 # Progress: [Feature Name]
@@ -769,7 +568,7 @@ Updated: [YYYY-MM-DD HH:MM]
 [One line: phase, task in flight, how far it got]
 
 ## Last good commit
-`[sha]`  <!-- last commit where the tests named in Done when passed -->
+`[sha]`  <!-- last commit where the Done-when tests passed -->
 
 ## Next step
 [The one action a fresh session takes first]
@@ -779,17 +578,15 @@ Updated: [YYYY-MM-DD HH:MM]
 [e.g., "`pnpm test auth.test.ts` fails on AC-3: expected 403, received 401"]
 
 ## Read first
-1. `specs/[feature]/spec.md` (Handoff block)
-2. `specs/[feature]/tasks.md`
-3. `specs/[feature]/decision_log.md`
+`spec.md` (Handoff block), `tasks.md`, `decision_log.md`
 ```
 
 ---
 
 ## decision_log.md Template
 
-*Optional artifact for autonomous or overnight runs, and any phase where a decision should
-survive the session. Append-only: add rows, never edit or delete one. A reversal is a new row.*
+Optional, for autonomous runs and any decision that should outlive the session.
+Append-only: add rows, never edit or delete one. A reversal is a new row.
 
 ```markdown
 # Decision Log: [Feature Name]
@@ -803,8 +600,8 @@ survive the session. Append-only: add rows, never edit or delete one. A reversal
 
 ## specs/_current/[capability].md Template
 
-*Written at archive (Phase 5.6): the merged current state of one capability. A later delta
-spec may name it as its `Baseline:`. The merge rule is in `workflow-phases.md` Step 5.6.*
+Written at archive (Phase 5.6): the merged current state of one capability. A later delta
+spec may name it as its `Baseline:`. The merge rule is in `workflow-phases.md` Step 5.6.
 
 ```markdown
 # [Capability] (current state)

@@ -1,38 +1,34 @@
 # Enforcement and Interop
 
-How the rules in this workflow stop being requests and start binding — mechanically, through
-hooks and locks, and across tools, through `AGENTS.md`.
-
 ## Contents
 
-- The enforcement ladder — prompt, check, block
-- What can be mechanized, and what must not be
-- The validator: `sdd-check.mjs`, rung 2 for the mechanical gate checks
+- The enforcement ladder: ask, check, block
+- What can be mechanized, and what must not
+- The validator: `sdd-check.mjs`
 - Locking `contracts/` for real
-- Hooks per phase — feedback loops that run without being asked
+- Hooks per phase
 - Git worktrees for parallel tasks
-- The `AGENTS.md` bridge — one source of truth, two audiences
-- Enforcement theater — when mechanization makes things worse
+- The `AGENTS.md` bridge
+- Enforcement theater
 
 ---
 
 ## The Enforcement Ladder
 
-Every rule in this skill sits at one of three levels. Moving a rule up a rung costs setup
-effort once and removes a class of failure permanently.
+Every rule sits on one of three rungs. Moving a rule up costs setup once.
 
 | Rung | Mechanism | Fails when |
 |------|-----------|-----------|
-| **1 — Asked** | The prompt states the rule | The agent's attention decays, or the rule is 30k tokens back |
-| **2 — Checked** | CI or a script detects the violation after the fact | The violation already landed; someone has to care about a red build |
-| **3 — Blocked** | A hook prevents the action from completing | Rarely — but a bad rule now blocks legitimate work |
+| **1: Asked** | The prompt states the rule | Attention decays, or the rule is 30k tokens back |
+| **2: Checked** | CI or a script detects the violation afterwards | The violation already landed |
+| **3: Blocked** | A hook stops the action | A bad rule blocks legitimate work |
 
-Most of this skill lives at rung 1 by necessity: "the spec must be testable" is a judgment,
-not a predicate. But a surprising number of our rules are mechanical, and every one left at
-rung 1 is a rule that quietly stops holding around task twelve.
+Judgments such as "the spec must be testable" stay at rung 1. A mechanical rule left at rung 1
+stops holding a dozen tasks in.
 
-**Promote a rule when it is objectively decidable and violated more than once.** Not before —
-a hook written for a hypothetical failure is configuration nobody understands six months later.
+**Promote a rule when it is objectively decidable and was violated more than once.**
+
+The mutation-tool commands per ecosystem live in `quality-gates.md` under Gate 5.
 
 ---
 
@@ -40,36 +36,28 @@ a hook written for a hypothetical failure is configuration nobody understands si
 
 | Rule | Rung available | Mechanism |
 |------|---------------|-----------|
-| `contracts/` frozen after Gate 2 | **3 — Block** | PreToolUse hook rejecting writes to `contracts/` when the spec is `Planned` or later |
-| No `[NEEDS CLARIFICATION]` past Gate 1 | **2: Check** | Validator rule `no-open-questions` |
-| Status is a lifecycle value, AC ids unique | **2: Check** | Validator rules `status-valid`, `ac-unique` |
-| Every `[MUST]` AC has a `Proof:` line | **2: Check** | Validator rule `ac-has-proof` |
-| Handoff block complete, Done-when not a time box | **2: Check** | Validator rules `handoff-complete`, `done-when-checkable` |
-| Delta spec has a resolvable baseline | **2: Check** | Validator rule `delta-baseline` |
-| Tasks cite ACs, graph is acyclic, `[P]` tasks share no file | **2: Check** | Validator rules `task-refs-ac`, `task-graph`, `parallel-no-shared-files` |
-| Every AC has test coverage | **2 — Check** | CI AC-ID grep (already in `quality-gates.md`) |
-| Research citations resolve | **2 — Check** | CI citation check (already in `quality-gates.md`) |
-| Tests pass before commit | **3 — Block** | PostToolUse hook running the suite; failures re-injected into context |
-| Banned patterns from `constitution.md` | **3 — Block** | Linter rule + PostToolUse hook |
-| Task touches ≤3 files | **2 — Check** | Pre-commit diff stat |
-| Commit per task | **2 — Check** | Commit-message convention check |
-| **AC is independently testable** | 1 — Ask | Judgment. Gate 1, human |
-| **Plan has no unnecessary abstraction** | 1 — Ask | Judgment. Gate 2, human or critic |
-| **Research findings are true** | 1 — Ask | Citations resolve mechanically; whether the code *means* what the finding says does not |
-| **The team understands the code** | 1 — Ask | Gate C. Unmechanizable by definition |
+| `contracts/` frozen after Gate 2 | **3: Block** | PreToolUse hook rejecting writes to `contracts/` when the spec is `Planned` or later |
+| Spec and task structure: open questions, status, AC ids, `Proof:` lines, handoff, delta baseline, task refs and graph, `[P]` overlap | **2: Check** | [The Validator](#the-validator) |
+| Every AC has test coverage | **2: Check** | CI AC-ID grep in `quality-gates.md` |
+| Research citations resolve | **2: Check** | CI citation check in `quality-gates.md` |
+| Tests pass before commit | **3: Block** | PostToolUse hook running the suite; failures re-injected into context |
+| Banned patterns from `constitution.md` | **3: Block** | Linter rule + PostToolUse hook |
+| Task touches ≤3 files | **2: Check** | Pre-commit diff stat |
+| Commit per task | **2: Check** | Commit-message convention check |
+| **AC is independently testable** | 1: Ask | Judgment. Gate 1, human |
+| **Plan has no unnecessary abstraction** | 1: Ask | Judgment. Gate 2, human or critic |
+| **Research findings are true** | 1: Ask | Citations resolve mechanically; their meaning does not |
+| **The team understands the code** | 1: Ask | Gate C. Unmechanizable |
 
-The bottom four are the reason human gates exist. A workflow that mechanizes everything
-mechanizable and then treats the remainder as optional has kept the cheap half of the
-verification and discarded the expensive half — which is the half that catches the errors
-that matter.
+The bottom four are why human gates exist. They are never optional.
 
 ---
 
 ## The Validator
 
-`scripts/sdd-check.mjs` ships with the skill. Node 20+, no dependencies, one file. It parses
-each feature under `specs/` and prints `file:line: rule-id: message` per finding. It exits 1
-on any error and 0 otherwise.
+`scripts/sdd-check.mjs` ships with the skill (Node 20+, no dependencies). It parses each
+feature under `specs/`, prints `file:line: rule-id: message` per finding, and exits 1 on
+any error, 0 otherwise.
 
 | Rule | Fails when |
 |------|-----------|
@@ -85,8 +73,8 @@ on any error and 0 otherwise.
 | `parallel-no-shared-files` | Two `[P]` tasks with no dependency path between them write the same file |
 | `no-sentinel` | `.amend-in-progress` exists. Warning only, the exit code is unaffected |
 
-Setup and Cleanup groups in `tasks.md` are exempt from `task-refs-ac`. Everything the validator
-cannot decide, such as whether an AC is testable, stays at rung 1.
+Setup and Cleanup groups in `tasks.md` are exempt from `task-refs-ac`. What the validator
+cannot decide stays at rung 1.
 
 ```bash
 node skills/spec-driven-development/scripts/sdd-check.mjs            # every feature in ./specs
@@ -94,10 +82,9 @@ node skills/spec-driven-development/scripts/sdd-check.mjs specs/login # one feat
 node skills/spec-driven-development/scripts/sdd-check.mjs --json      # findings as JSON for agents
 ```
 
-**Pre-commit.** Add the same command to `.git/hooks/pre-commit` or your hook manager. It reads
-a few markdown files, so it stays well under a second.
+**Pre-commit.** Add the same command to `.git/hooks/pre-commit` or your hook manager.
 
-**CI.** Six lines in a GitHub Actions workflow:
+**CI.**
 
 ```yaml
 - uses: actions/checkout@v4
@@ -107,22 +94,21 @@ a few markdown files, so it stays well under a second.
 - run: node skills/spec-driven-development/scripts/sdd-check.mjs
 ```
 
-**No Node available.** The agent runs the same checks by hand from the gate checklist in
-`quality-gates.md` and reports `inconclusive` for each mechanical one, never `pass`. The next
-phase does not start until a person or a Node-equipped environment runs the script.
+**No Node available.** The agent runs the mechanical checks by hand from `quality-gates.md`
+and reports each as `inconclusive`, never `pass`. The next phase waits until a person or a
+Node environment runs the script.
 
 ---
 
 ## Locking `contracts/` for Real
 
-The single highest-value promotion available. `contracts/` are declared frozen after Gate 2,
-but a declaration in a markdown file does not stop an agent mid-task from "fixing" a response
-shape — and Anti-Pattern 2 exists because that is exactly what happens.
+A markdown declaration does not stop an agent from "fixing" a response shape mid-task
+(Anti-Pattern 2). A hook does.
 
-**Rule:** once `spec.md` reads `Status: Planned` or later (Gate 2 passed, see the Status
-Lifecycle in `artifact-templates.md`), writes to `specs/*/contracts/**` are rejected unless the
-change is part of an explicit `/sdd-change` run. At `Draft` and `Approved` the lock is off,
-because Phase 2 writes the contracts.
+**Rule:** once `spec.md` reads `Status: Planned` or later (Status Lifecycle in
+`artifact-templates.md`), writes to `specs/*/contracts/**` are rejected unless an explicit
+`/sdd-change` run is in progress. At `Draft` and `Approved` the lock is off, because Phase 2
+writes the contracts.
 
 Claude Code implementation, in `.claude/settings.json`:
 
@@ -170,51 +156,43 @@ if grep -qE '^Status:[[:space:]]*(Planned|In Progress|Validated|Archived)' "$spe
 fi
 ```
 
-The amend run creates `specs/<feature>/.amend-in-progress` when it starts and removes it when
-it ends, including on abort. Add `.amend-in-progress` to the project's `.gitignore` so the
-sentinel is never committed.
+The amend run creates `specs/<feature>/.amend-in-progress` and removes it when it ends or
+aborts. Add `.amend-in-progress` to `.gitignore`.
 
-The error message matters as much as the block. It states the cause, the rule's rationale,
-and the sanctioned path forward — an agent that is only told "no" will try a different way
-to do the same wrong thing.
+The message names the sanctioned path, because an agent told only "no" tries another route.
 
-Other tools: Cursor and Windsurf expose comparable pre-write hooks; where none exists, fall
-back to rung 2 with a CI check that fails the PR when `contracts/` changed without a
-corresponding `spec.md` version bump.
+Without a pre-write hook, fall back to rung 2: CI fails the PR when `contracts/` changed
+without a `spec.md` version bump.
 
 ---
 
 ## Hooks Per Phase
 
-Feedback loops that run without being asked. The pattern throughout: **run the check, inject
-the failure back into context, let the agent fix it before continuing.**
+Each hook injects its failure back into context so the agent fixes it before continuing.
 
 | Event | Phase | Hook | Effect |
 |-------|-------|------|--------|
 | PreToolUse (Edit/Write) | 4 | Contract lock | Frozen contracts stay frozen |
-| PreToolUse (Edit/Write) | 4 | Scope guard | Warn when editing a file outside the current task's declared scope |
-| PostToolUse (Edit/Write) | 4 | Lint + typecheck | Violations return to the agent immediately, not at review |
+| PreToolUse (Edit/Write) | 4 | Scope guard | Flags an edit outside the current task's declared scope |
+| PostToolUse (Edit/Write) | 4 | Lint + typecheck | Violations return to the agent immediately |
 | PostToolUse (Edit/Write) | 4 | Banned-pattern scan | `constitution.md` prohibitions enforced at write time |
 | Stop | 4 | Uncommitted-work check | Catches "task finished" with nothing committed |
-| Stop | any | Artifact staleness | Warn when code changed but `spec.md` did not, in the same session |
+| Stop | any | Artifact staleness | Flags code changed while `spec.md` did not, in the same session |
 
 Two rules for writing them:
 
 - **Fail loudly with a fix.** `"BLOCKED: no console.log in production code (constitution.md
-  § Banned Patterns). Use the logger from src/lib/logger.ts."` beats `"lint failed"` by more
-  than it looks — the second costs a round trip to rediscover.
-- **Keep them fast.** A hook on every write is on the critical path of every edit. Typecheck
-  the changed file, not the project.
+  § Banned Patterns). Use the logger from src/lib/logger.ts."` saves the round trip that
+  `"lint failed"` costs.
+- **Keep them fast.** Typecheck the changed file, not the project.
 
-Hooks are project configuration, not part of this skill. Nothing here ships them; adapt the
-patterns to your toolchain.
+Hooks are project configuration. This skill does not ship them.
 
 ---
 
 ## Git Worktrees for Parallel Tasks
 
-Tasks marked `[P]` in `tasks.md` are declared not to share files. A worktree makes that
-declaration structural rather than hopeful:
+`[P]` tasks are declared not to share files. A worktree per task makes that structural:
 
 ```bash
 git worktree add ../feature-auth-task-003 -b task/003-user-repository
@@ -222,46 +200,33 @@ git worktree add ../feature-auth-task-004 -b task/004-email-service
 # one agent session per worktree; merge each on completion
 ```
 
-When to bother: three or more genuinely independent `[P]` tasks, or any parallel work that
-runs tests — concurrent test runs in one checkout interfere through fixtures, ports, and
-build caches.
+Use them for three or more independent `[P]` tasks, or parallel work that runs tests. Skip
+them for two tasks or tasks that finish in minutes.
 
-When not to: two tasks, or tasks that finish in minutes. Worktree setup and merge overhead
-exceeds the parallelism gain, and every extra checkout is another place for state to drift.
-
-**The caveat that bites:** worktrees isolate the *filesystem*, not the *environment*. Agents
-in separate worktrees still share the local database, Redis, Docker containers, and any
-port-bound dev server. Parallel tasks that touch shared services need separate instances or
-must not run concurrently — and a merge conflict between two `[P]` tasks is a defect in
-`tasks.md`, not a merge problem. Fix the decomposition.
+Worktrees isolate the filesystem only. Tasks touching the local database, Docker, or a
+port-bound server need separate instances or must run one at a time. A merge conflict between two `[P]` tasks is a
+defect in `tasks.md`. Fix the decomposition.
 
 ---
 
 ## The `AGENTS.md` Bridge
 
-`AGENTS.md` is the closest thing to a universal agent instruction format — a single file at
-the repository root, read natively by most major coding agents, and stewarded as an open
-standard. `constitution.md` is this workflow's artifact and no tool reads it automatically.
-
-They are not competitors. They are the same rules with different jobs:
+Most coding agents read a root `AGENTS.md` natively. No tool reads `constitution.md`. They
+hold the same rules for different jobs:
 
 | | `constitution.md` | `AGENTS.md` |
 |---|---|---|
 | Audience | Humans deciding, agents in SDD prompts | Any agent, on any task, automatically |
 | Contains | Rules **and their rationale**, `[PENDING]` decisions, version history | The rules only, in imperative form |
-| Length | As long as the reasoning needs | 60–150 lines |
+| Length | As long as the reasoning needs | 60 to 150 lines |
 | Lifecycle | Edited deliberately, versioned | **Derived** from the constitution |
 
 ### Derive, never fork
 
-Generate `AGENTS.md` from `constitution.md`, in that direction only. The moment someone edits
-`AGENTS.md` directly, you have two sources of truth for the same rules, and they will
-disagree about something load-bearing within a month.
-
-Mark the derivation in the file itself:
+Generate `AGENTS.md` from `constitution.md`, in that direction only. Mark the derivation:
 
 ```markdown
-<!-- Derived from constitution.md v1.4.0. Do not edit directly — edit the constitution
+<!-- Derived from constitution.md v1.4.0. Do not edit directly. Edit the constitution
      and regenerate. -->
 ```
 
@@ -269,29 +234,20 @@ Mark the derivation in the file itself:
 
 | Constitution section | Into `AGENTS.md`? |
 |---------------------|-------------------|
-| Technology stack | Yes — versions and the "do not add dependencies" rule |
-| Banned patterns | Yes — this is the highest-value content in the file |
-| Naming conventions | Yes, compressed to the rules an agent applies while typing |
-| Security constraints | Yes — the rules; not the CWE rationale |
-| Build and test commands | Yes — and this is what `AGENTS.md` readers expect first |
-| Architecture principles | Only the ones that constrain code placement |
-| Rationale for any rule | **No** — it lives in the constitution |
-| `[PENDING]` decisions | **No** — an undecided question is not an instruction |
+| Technology stack | Yes: versions and the "do not add dependencies" rule |
+| Banned patterns | Yes, the highest-value content in the file |
+| Naming conventions | Yes, compressed |
+| Security constraints | Yes, the rules without the CWE rationale |
+| Build and test commands | Yes, the first thing `AGENTS.md` readers look for |
+| Architecture principles | Only those constraining code placement |
+| Rationale for any rule | **No**, it lives in the constitution |
+| `[PENDING]` decisions | **No**, an undecided question is not an instruction |
 
 ### Write it yourself, or curate what was generated
 
-There is a measured asymmetry worth knowing: human-authored agent instruction files improve
-task success and materially reduce bugs, while LLM-generated ones have been found to *reduce*
-success in a majority of tested settings and add steps per task.
-
-The mechanism is not mysterious. Generated instruction files restate what a competent agent
-already infers from the code, and that padding dilutes the few rules that actually deviate
-from convention. **The value of the file is concentrated entirely in the surprising rules** —
-the ones an agent would get wrong by defaulting to normal practice.
-
-So: generate a draft from the constitution, then cut every line an agent would have followed
-anyway. If a rule is what any competent developer would do by default, it is costing you
-attention on the rules that aren't.
+Generated instruction files have lowered agent success in most tested settings: they restate
+what the code already shows and dilute the surprising rules, which are the file's value.
+Generate a draft, then cut every line a competent developer would follow by default.
 
 ### Keeping them in sync
 
@@ -308,26 +264,21 @@ Add to CI:
     }
 ```
 
-This catches the common failure — the constitution is amended and the derived file is
-forgotten — without pretending to verify semantic equivalence.
+It catches a stale `AGENTS.md`, not semantic drift.
 
 ---
 
 ## Enforcement Theater
 
-Mechanization has its own failure mode, and it is worse than no mechanization because it
-looks like rigor.
+Mechanization can fail in a way that looks like rigor.
 
 | Symptom | What is actually happening |
 |---------|---------------------------|
-| Hooks that warn but never block | Warnings scroll past; the rule is at rung 1 wearing rung 3's costume |
-| A gate reduced to a CI job | The mechanical half passes, the judgment half stopped happening |
-| Blocking hooks routinely bypassed | The rule is wrong, or too broad. Fix the rule — a bypassed hook trains everyone to bypass hooks |
-| Hooks nobody can explain | Written for a hypothetical failure. Delete them |
+| Hooks that warn and never block | Theater. Warnings scroll past and the rule is back at rung 1. Make it block or delete it |
+| A CI job named after a gate | Never do this. The mechanical half passes and the judgment half stops happening |
+| Blocking hooks routinely bypassed | The rule is wrong or too broad. Fix it |
+| Hooks nobody can explain | Delete them |
 | Green CI, unread specs | Rung 2 became the whole review |
 
-The distinction to hold onto: **mechanical checks verify that rules were followed; they
-never verify that the rules were right.** Gate R asks whether the research is true, Gate 2
-whether the design is sound, Gate C whether anyone understands the result. No hook reaches
-any of those, and a workflow that quietly redefines "passed the gates" as "CI is green" has
-kept the ceremony and lost the point.
+Mechanical checks verify that rules were followed, never that the rules were right. No hook
+answers Gate R, Gate 2, or Gate C. "CI is green" never means "passed the gates".

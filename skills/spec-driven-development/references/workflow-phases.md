@@ -1,259 +1,140 @@
-# Workflow Phases — Detailed Reference
+# Workflow Phases
 
-Step-by-step execution guide for each SDD phase, including decision points and common traps.
+Step-by-step procedure per phase. Gate checklists live in [quality-gates.md](quality-gates.md),
+prompts in [prompt-patterns.md](prompt-patterns.md), templates in
+[artifact-templates.md](artifact-templates.md).
 
 ## Contents
 
-- Phase 0 — Constitution: intake, generation, security review, `[PENDING]` resolution, Gate 0
-- Phase 0.5 — Research: run/skip decision, subagent dispatch, consolidation, citation verification, Gate R
-- Phase 1 — Specify: intake, `[PENDING]` check, assumptions, generation, clarify, Gate 1
-- Delta specs — brownfield mode: baseline, change labels, blast radius, folding deltas back
-- Phase 2 — Plan: plan, data model, contracts, AC tracing, critics, contract lock, Gate 2
-- Phase 3 — Tasks: breakdown, test-first ordering, sizing, parallelism, Gate 3
-- Phase 4 — Implement: per-task session setup, verification, commits, context budget, handover
-- Phase 5 — Validate: traceability, drift detection, acceptance run, linear walkthrough, archive
-- Reconcile — when code changed outside the workflow: classification rules, evidence, cascade
+- [Phase 0: Constitution](#phase-0-constitution)
+- [Phase 0.5: Research](#phase-05-research)
+- [Phase 1: Specify](#phase-1-specify)
+- [Delta Specs](#delta-specs)
+- [Phase 2: Plan](#phase-2-plan)
+- [Phase 3: Tasks](#phase-3-tasks)
+- [Phase 4: Implement](#phase-4-implement), including when to amend the plan
+- [Phase 5: Validate](#phase-5-validate)
+- [Reconcile](#reconcile-when-code-changed-outside-the-workflow), for code changed outside the workflow
 
 ---
 
-## Phase 0 — Constitution
+## Phase 0: Constitution
 
-### Goal
+Goal: a `constitution.md` at the project root with the constraints every feature must respect.
+Every implementation prompt includes it and every gate checks against it.
 
-Produce a `constitution.md` at the project root that encodes immutable constraints for
-all future feature work. Every AI prompt during implementation will include it. Every
-gate check will verify compliance with it. It is written once and updated only when
-a fundamental project decision changes.
+**Step 0.1: Intake.** Gather the stack, team conventions, compliance requirements, known
+anti-patterns, and any existing `CLAUDE.md`, `.cursorrules` or `AGENTS.md`.
 
-### Step-by-Step
+**Step 0.2: Generate.** Run the Initial Constitution Generation Prompt
+([prompt-patterns.md](prompt-patterns.md), Phase 0). On an existing codebase, use Constitution
+from Existing Codebase instead. Write the result to `constitution.md`.
 
-**Step 0.1 — Project intake**
-Before generating the constitution, gather:
+**Step 0.3: Review security.** Every security rule must be specific and verifiable. Cover at
+least auth, input validation, secret handling, logging and CORS. For security-sensitive
+domains, add CWE-targeted rules with the Constitution Security Constraints Prompt.
 
-- Tech stack: languages, frameworks, databases, auth mechanism
-- Team conventions: naming, file structure, testing approach
-- Compliance or security requirements: OWASP, GDPR, PCI-DSS, etc.
-- Known anti-patterns to avoid (from past projects or code reviews)
-- Any existing CLAUDE.md, .cursorrules, or AGENTS.md files to incorporate
+**Step 0.4: Resolve `[PENDING]` items.** Decide them before the first spec. An undecided
+choice here ("Redis for sessions?") turns into a `[NEEDS CLARIFICATION]` item in every spec
+that touches it. Anything still undecided gets a target date.
 
-**Step 0.2 — Generate constitution.md**
-Use the prompts in `references/prompt-patterns.md → Phase 0 → Initial Constitution Generation Prompt`.
-Place output at the project root: `constitution.md`.
+**Step 0.5: Gate 0.** A human approves with the Gate 0 checklist.
 
-**Step 0.3 — Security section review**
-Pay special attention to the security constraints section:
-
-- Every rule must be specific and verifiable (not "handle errors securely")
-- At minimum, cover: auth requirements, input validation, secret handling, logging rules, CORS
-- For security-sensitive domains, run the Security Constraints Prompt to add CWE-targeted rules
-
-**Step 0.4 — Resolve PENDING items**
-All `[PENDING]` items must be resolved before writing the first feature spec.
-A pending tech decision (e.g., "do we use Redis for sessions?") will cause the first
-spec to have `[NEEDS CLARIFICATION]` items that could have been decided here.
-
-**Step 0.5 — Human review (Gate 0)**
-The constitution requires the same human approval gate as any other artifact.
-Review using the Gate 0 checklist in `references/quality-gates.md`.
-Common review feedback:
-
-- "This banned pattern is too vague" → make it a specific code example
-- "We haven't decided on X yet" → add as `[PENDING]` with a target date
-- "Security rule Y is missing" → add it now, not in the first feature spec
-
-**Step 0.6 — Commit**
+**Step 0.6: Commit.**
 
 ```bash
 git add constitution.md
 git commit -m "chore: add project constitution"
 ```
 
-### When to Update
-
-- New major dependency added to the project
-- Security policy change (new compliance requirement, audit finding)
-- Architecture decision that invalidates an existing principle
-- Always: bump the Version field and note what changed with a date
-
-### Time Distribution
-
-Constitution takes 30–60 minutes for a new project. Skipping it means paying the same
-cost (resolving conflicting decisions) repeatedly across every feature spec.
+Update it when a major dependency, security policy or architecture decision changes. Bump its
+Version field and date the change.
 
 ---
 
-## Phase 0.5 — Research
+## Phase 0.5: Research
 
-### Goal
+Goal: `specs/[feature]/research.md`, a cited map of about 200 lines of how the touched part of
+the system works today. Phase 1 then writes requirements against the real system.
 
-Produce `specs/[feature]/research.md`: an accurate, cited, ~200-line map of how the part of
-the system this feature touches works **today**. It exists so that Phase 1 writes
-requirements against the real system instead of an imagined one.
+research.md is descriptive only. It never holds acceptance criteria, user stories or a proposed
+design. Anything the research could not answer goes in its explicit Open Questions and Not
+Investigated sections, so nobody reads it as complete.
 
-### Decide whether to run it
+Run it when you cannot name every file the feature touches, the code is someone else's or over
+a month old, two architectures look equally reasonable, or for a refactor, migration or
+unfamiliar library. Skip it when you can name the touchpoints and data flow from memory. When
+unsure, run it.
 
-| Signal | Run research? |
-|--------|--------------|
-| You cannot name every file the feature will touch | Yes |
-| The code was written by someone else, or by you more than a month ago | Yes |
-| Two or more architectures look equally reasonable | Yes |
-| Refactor, migration, or first use of an unfamiliar library | Yes |
-| Greenfield module with no existing code to integrate with | No |
-| You can name the touchpoints and the data flow from memory | No |
+**Step 0.5.1: Frame the question.** One or two sentences on what will change. Leave out your
+proposed solution, or the agent confirms it instead of mapping the system.
 
-When in doubt, run it. The cost is one short session; the cost of skipping it is a spec
-built on a wrong model, discovered in Phase 4.
+**Step 0.5.2: Dispatch subagents.** Run the Codebase Research Prompt
+([prompt-patterns.md](prompt-patterns.md), Phase 0.5) on four axes in parallel:
 
-### Step-by-Step
+| Subagent | Question |
+|----------|----------|
+| Files | Which files are involved and what does each own? |
+| Flow | How does data move from entry to transform, persistence and response? |
+| Prior art | What in this repo already solves a similar problem? |
+| Constraints | Which conventions, base classes or middleware must a change respect? |
 
-**Step 0.5.1 — Frame the question**
-Write one or two sentences describing what you are about to build or change. This is the
-only input the research phase gets. Do not include your proposed solution — it biases the
-agent into confirming your plan instead of mapping the system.
+Only summaries of at most 300 words come back to the main context.
 
-**Step 0.5.2 — Dispatch parallel subagents**
-Use the Codebase Research Prompt from
-`references/prompt-patterns.md → Phase 0.5 → Codebase Research Prompt`.
+**Step 0.5.3: Consolidate.** Run the Research Consolidation Prompt into the `research.md`
+template ([artifact-templates.md](artifact-templates.md)). A claim with no `file:line`
+citation is deleted. When subagents disagree, mark `[CONFLICT]` and leave it for the human.
 
-Four axes cover most features:
+**Step 0.5.4: Verify citations.** Run the Research Verification Prompt in a separate context.
+The author anchors to its own output (Anti-Pattern 15 in [anti-patterns.md](anti-patterns.md)).
+The verifier checks that each cited line exists and supports the claim.
 
-| Subagent | Question it answers |
-|----------|--------------------|
-| Files | Which files are involved and what is each responsible for? |
-| Flow | How does data move end to end — entry → transform → persist → respond? |
-| Prior art | What already solves a similar problem in this repo? |
-| Constraints | What conventions, base classes, or middleware must any change here respect? |
+**Step 0.5.5: Gate R.** A human reviews with the Gate R checklist and opens three or four
+citations at random.
 
-Subagents exist to keep the noise out. Glob results, grep output, and full file bodies stay
-in their contexts; only the ≤300-word summaries come back.
-
-**Step 0.5.3 — Consolidate into research.md**
-Use the Research Consolidation Prompt. Apply the `research.md` template from
-`references/artifact-templates.md`.
-
-Two rules do most of the work:
-
-- **No `file:line` citation → the claim is deleted.** Not softened, deleted.
-- **Disagreement between subagents → mark `[CONFLICT]`, never silently resolve.**
-  A conflict means one of them misread the code, and that is exactly what the human
-  needs to look at.
-
-**Step 0.5.4 — Verify the citations**
-Run the Research Verification Prompt in a *separate* context. The agent that wrote the
-research cannot audit it — it anchors to its own output (see
-`references/anti-patterns.md → Anti-Pattern 15`).
-
-The verifier opens each cited location and checks that the line exists, that the code there
-supports the claim, and that no branch or error path was omitted.
-
-**Step 0.5.5 — Human review (Gate R)**
-Use the Gate R checklist in `references/quality-gates.md`.
-
-Spot-check citations yourself — open three or four at random. This is the highest-leverage
-reading you will do on the whole feature: an error here propagates into the spec, the plan,
-and every task. Common review feedback:
-
-- "This finding has no citation" → delete it or verify it
-- "You missed the [X] middleware" → add to Relevant Files, re-run flow analysis
-- "This says the system *should* validate here" → prescriptive language, cut it
-- "Nothing under Not Investigated" → the research is claiming completeness it does not have
-
-**Step 0.5.6 — Commit**
+**Step 0.5.6: Commit.**
 
 ```bash
 git add specs/[feature-name]/research.md
 git commit -m "research: [feature name] codebase analysis"
 ```
 
-### Handoff to Phase 1
-
-`research.md` becomes the primary context for `/sdd-specify`. Two sections carry directly:
-
-- **Existing Constraints Discovered** → non-functional requirements and `Boundaries` in spec.md
-- **Open Questions for the Spec** → seed the `[NEEDS CLARIFICATION]` list
-
-### Time Distribution
-
-30–90 minutes for a mid-sized feature in an unfamiliar codebase. It is not additive to the
-total — a good research doc makes Phases 1 and 2 markedly faster, because both stop guessing.
+In Phase 1, Existing Constraints Discovered feeds the non-functional requirements and
+`Boundaries`, and Open Questions for the Spec seeds the `[NEEDS CLARIFICATION]` list.
 
 ---
 
-## Phase 1 — Specify
+## Phase 1: Specify
 
-### Goal
+Goal: a `spec.md` a reader with no context can build from without questions.
 
-Produce a `spec.md` that a developer (or AI agent) with no prior context can read and
-understand exactly what to build — without needing to ask clarifying questions.
+**Step 1.1: Intake.** Ask the problem, the users, what success looks like, and the hard
+constraints. If `research.md` exists,
+load it first and treat it as ground truth. A spec that contradicts verified research is wrong
+until the research is disproven.
 
-### Step-by-Step
+**Step 1.2: Check constitution `[PENDING]` items.** An item blocks when the spec would have
+to make the same undecided choice, like `[PENDING] auth: cookie vs. JWT` for a feature that
+needs auth. Resolve blocking items in `constitution.md` first. Ignore the rest.
 
-**Step 1.1 — Feature intake**
-Ask the user (or gather from issue/PRD):
+**Step 1.3: Surface assumptions.** Run the Assumptions Surface Prompt with the intake context.
+Correct its assumptions about roles, permissions, error behavior, integrations and scope
+before generating the spec.
 
-- What problem does this solve?
-- Who uses it?
-- What does success look like?
-- What are hard constraints (performance, security, compatibility)?
+**Step 1.4: Generate.** Run the Initial Specification Prompt (or the Delta Specification
+Prompt, see [Delta Specs](#delta-specs)) with the corrected assumptions. Write to
+`specs/[feature-branch-name]/spec.md`.
 
-If `specs/[feature]/research.md` exists, load it first and treat it as ground truth about
-the current system. Its "Existing Constraints Discovered" section is an input to the hard
-constraints question above, and its "Open Questions for the Spec" section pre-seeds the
-`[NEEDS CLARIFICATION]` list. A spec that contradicts verified research is wrong until the
-research is disproven.
+**Step 1.5: Clarify.** Run the Clarify Phase Prompt and show the output to the human. After
+they approve the answers, apply them with the Post-Clarify Spec Update Prompt. Every
+`[NEEDS CLARIFICATION]` item must be `[RESOLVED]` before Phase 2. Do not assume and do not defer.
 
-**Step 1.2 — Constitution [PENDING] check**
-Before generating spec.md, scan `constitution.md` for any `[PENDING]` items that
-intersect with this feature's domain. A [PENDING] item is blocking when the spec
-would need to make the same undecided choice.
+**Step 1.6: Gate 1.** At M and L, first run the Cold Read Prompt in a fresh agent that sees
+only `spec.md`, `constitution.md` and files named in `Baseline:`. Its restatement of the goal
+and Done-when checks must match your intent, and every reading it had to choose is a spec fix.
+Then a human approves `spec.md` with the Gate 1 checklist. On pass, set `Status: Approved`.
 
-Common blocking cases:
-
-- Feature requires authentication → `[PENDING] auth: cookie vs. JWT` is blocking
-- Feature writes to the database → `[PENDING] ORM: Drizzle vs. raw SQL` is blocking
-- Feature exposes a public API → `[PENDING] rate limiting strategy` is blocking
-
-**Action:** List every [PENDING] item in constitution.md that touches the feature's scope.
-For each blocking item: resolve it in constitution.md first, then proceed.
-For non-intersecting [PENDING] items: proceed — they don't affect this spec.
-
-**Step 1.3 — Surface AI assumptions**
-Run the Assumptions Surface Prompt from
-`references/prompt-patterns.md → Phase 1 → Assumptions Surface Prompt`.
-
-Use the full context from Step 1.1. The AI will list every implicit assumption it's
-making about: user roles, permissions, error behavior, system integrations, and scope
-boundaries. Review and correct these *before* the spec is generated.
-
-Doing this after intake (not before) produces targeted corrections — the AI's assumptions
-about a "B2B SaaS with SSO" are more specific than assumptions about "user auth".
-
-**Step 1.4 — Generate spec.md**
-Use the prompt in `references/prompt-patterns.md → Phase 1 → Initial Specification Prompt`.
-Include corrected assumptions from Step 1.3 in the prompt.
-Place output at `specs/[feature-branch-name]/spec.md`.
-
-**Step 1.5 — Clarify**
-Run the Clarify Phase Prompt from `references/prompt-patterns.md → Phase 1 → Clarify Phase Prompt`.
-Present the output to the human for review. After the human approves answers, run the
-Post-Clarify Spec Update Prompt (`references/prompt-patterns.md → Post-Clarify Spec Update Prompt`)
-to apply the approved resolutions to spec.md.
-
-All `[NEEDS CLARIFICATION]` items must be `[RESOLVED]` before proceeding. Do not assume. Do not defer.
-
-**Step 1.6 — Human review (Gate 1)**
-First run the Cold Read Prompt (`references/prompt-patterns.md → Cold Read Prompt`) in a
-fresh agent that sees only `spec.md`, `constitution.md` and any file named in `Baseline:`.
-Approve only if its restatement of the goal and the Done-when checks matches your intent;
-every reading it had to choose is a spec fix. Then the human must read and approve the updated `spec.md`. Use the Gate 1 checklist in
-`references/quality-gates.md`. This gate is non-negotiable. On pass, set `Status: Approved`.
-Common review feedback:
-
-- "AC is too vague" → rewrite as Given/When/Then
-- "This is actually out of scope" → move to out-of-scope section
-- "Missing error case" → add AC for the error case
-
-**Step 1.7 — Branch and commit**
+**Step 1.7: Branch and commit.**
 
 ```bash
 git checkout -b feature/[feature-name]
@@ -261,166 +142,85 @@ git add specs/[feature-name]/spec.md
 git commit -m "spec: [feature name] requirements"
 ```
 
-### Time Distribution
-
-Expect to spend 30–60% of total feature time on Phases 1–2. This is correct.
-Reduced execution time more than compensates.
-
 ---
 
 ## Delta Specs
 
-Most real work is brownfield: you are not building auth, you are changing how auth expires.
-Respecifying the whole subsystem to change one rule produces a long document whose reviewers
-skim — and skimmed specs are the mechanism by which SDD becomes ceremony.
-
-A delta spec declares a **baseline** and lists only what moves.
-
-### Choosing the mode
+A delta spec declares a baseline and lists only what moves. Use it for behavior that already
+ships, so reviewers read the change instead of a whole subsystem.
 
 | Signal | Mode |
 |--------|------|
-| No existing behavior to preserve — new surface entirely | Full |
-| Changing, extending, or removing behavior that already ships | Delta |
-| Rewriting a subsystem end to end | Full — the old spec becomes the baseline for comparison, not for reuse |
-| More than roughly half the ACs would be `[ADDED]` | Full — this is a new feature wearing a change's clothes |
+| New surface, no existing behavior to preserve | Full |
+| Changing, extending or removing shipped behavior | Delta |
+| Rewriting a subsystem end to end | Full, with the old spec as a comparison |
+| More than about half the ACs would be `[ADDED]` | Full |
 
-Mode is recorded in the `Mode:` header of `spec.md`. Everything downstream — plan, tasks,
-validation — works identically; only the spec's shape differs.
+Record the mode in the `Mode:` header. Later phases work the same in both modes.
 
-### Step-by-Step
+**Step D.1: Establish the baseline.** Cite a prior spec (`specs/archive/[feature]/spec.md @
+v2.1`) or `research.md` findings (`research.md F-2 (src/auth/middleware.ts:40)`). There is no
+third source. With neither, run Phase 0.5 first.
 
-**Step D.1 — Establish the baseline**
+**Step D.2: Write the Baseline Assertion.** List what the change depends on being true today,
+each line citing the baseline. If a line is false the spec is invalid, so Gate 1 checks these
+lines against the code.
 
-A delta spec is meaningless without a resolvable baseline. Two legitimate sources:
-
-| Source | Use when | Cite as |
-|--------|----------|---------|
-| A prior spec | The feature was previously specified | `specs/archive/[feature]/spec.md @ v2.1` |
-| `research.md` | The behavior predates SDD adoption | `research.md F-2 (src/auth/middleware.ts:40)` |
-
-There is no third option. "The current behavior" as an unstated premise is how a delta spec
-silently encodes a misunderstanding — and unlike a full spec, there is nothing else in the
-document to contradict it.
-
-If neither source exists, run Phase 0.5 first. This is the most common reason a brownfield
-change needs research: not to design, but to have something to write `Baseline:` against.
-
-**Step D.2 — Write the Baseline Assertion**
-
-List what the change depends on being true today, each line citing the baseline. Keep it
-short — only what this change actually leans on.
-
-This section has a property worth understanding: **if a line here is false, the spec is
-invalid rather than incomplete.** That is a stronger failure than a missing AC, and it is
-why Gate 1 verifies these lines against the code rather than accepting them.
-
-**Step D.3 — Label every AC**
-
-Each AC carries a change label and a MoSCoW label:
+**Step D.3: Label every AC.** Each AC carries a change label and a MoSCoW label:
 
 | Label | Means | Also requires |
 |-------|-------|---------------|
 | `[ADDED]` | New behavior | — |
 | `[MODIFIED]` | Existing behavior changes | `Was:` quoted verbatim, and a `Migration:` line |
 | `[REMOVED]` | Existing behavior goes away | `Was:`, what callers see now, deprecation timing |
-| `[UNCHANGED]` | Must not break | Nothing — but this is the regression suite |
+| `[UNCHANGED]` | Must not break | Nothing; this is the regression suite |
 
-`[UNCHANGED]` is the section people skip and the one that earns the mode. A delta spec is
-only safe to be short if it is explicit about what it is *not* allowed to disturb.
+A delta spec is safe to keep short only when its `[UNCHANGED]` list is explicit.
 
-**Step D.4 — Map the blast radius**
+**Step D.4: Map the blast radius.** For each modified thing, list its dependents and the AC
+that verifies each still works. Derive it from `research.md`, never from memory.
 
-For each thing you are modifying, list what depends on it and which AC verifies it still
-works. Derive this from `research.md`, never from memory — the whole risk of brownfield work
-is the caller you forgot.
+**Step D.5: Gate 1.** The standard checks apply plus the delta checks under Gate 1 in
+[quality-gates.md](quality-gates.md).
 
-**Step D.5 — Gate 1 (delta variant)**
-
-Standard Gate 1 checks apply, plus the delta-specific ones in
-`quality-gates.md → Gate 1 — spec.md Approval`.
-
-### After the change ships
-
-Fold the delta into the baseline: update the prior spec to its new version, or promote the
-delta to a full spec if the baseline was `research.md`. A chain of five delta specs against
-one baseline is unreadable by the sixth change — reviewers end up reconstructing current
-behavior by replaying history.
-
-Rule of thumb: **at most two unfolded deltas against a baseline.** The third is a signal to
-consolidate.
+After the change ships, fold the delta into the baseline: version up the prior spec, or promote
+the delta to a full spec if the baseline was `research.md`. Allow at most two unfolded deltas
+per baseline. The third means consolidate.
 
 ---
 
-## Phase 2 — Plan
+## Phase 2: Plan
 
-### Goal
+Goal: a blueprint that leaves the implementer no design to invent.
 
-Translate `spec.md` into a concrete technical blueprint that AI can implement without
-inventing solutions. Every design decision must be explicit.
+**Step 2.1: Generate `plan.md`.** Run the Technical Plan Generation Prompt with the stack and
+conventions. `/sdd-plan` also reads `research.md` when present. The plan needs a Risks section
+with a mitigation for every High-impact risk. At level L, sketch at least two structurally
+distinct designs (different module boundaries or data flow), compare them on what callers must
+learn, and record the rejected one and why in `decision_log.md`.
 
-### Step-by-Step
+**Step 2.2: Generate `data-model.md`** if the feature touches the database: entities, typed
+fields with constraints, relationships and indexes.
 
-**Step 2.1 — Generate plan.md**
-Use the Technical Plan Generation Prompt from `references/prompt-patterns.md`.
-Include your stack constraints and existing conventions. If `specs/[feature]/research.md`
-exists (pre-generated via parallel subagents before Phase 1), include it as additional
-context — `/sdd-plan` reads it automatically if present. The plan must include a
-Risks section — identify implementation risks and a mitigation for every High-impact
-risk before Phase 3 begins (see template in `references/artifact-templates.md`).
+**Step 2.3: Generate `contracts/`.** One file per domain with exact request and response
+shapes, every error code, and the ACs each endpoint satisfies.
 
-At level L, sketch at least two structurally distinct designs before committing to one
-(different module boundaries or data flow; renaming one shape does not count). Compare them
-on interface size: what callers must learn. Record the rejected design and why in
-`decision_log.md`.
+**Step 2.4: Trace to spec.** Every AC must map to a component in `plan.md` or a contract.
 
-**Step 2.2 — Generate data-model.md**
-If the feature touches the database:
+**Step 2.5: Run critics.** Optional at M, required at L. Run the Phase 2 critic agents from
+[ai-agent-patterns.md](ai-agent-patterns.md) and resolve their findings before the human
+review. Critics report only what they can check against the current tree. An open question
+that running something could answer gets a throwaway prototype outside the feature branch, and
+the plan cites its result.
 
-- List every entity the feature creates, reads, updates, or deletes
-- Define all fields with types and constraints
-- Define foreign keys and relationships
-- Identify required indexes (think about query patterns)
+**Step 2.6: Gate 2.** A checker that did not write the plan runs the completeness rows and
+attaches evidence. Then the human reviews the design calls in the Gate 2 checklist.
 
-**Step 2.3 — Generate contracts/**
-For each API endpoint, event, or public interface:
+**Step 2.7: Lock contracts.** On approval, set `Status: Planned`. `contracts/` is frozen for
+Phase 4. Changing a contract mid-implementation is drift ([enforcement.md](enforcement.md)
+covers the lock).
 
-- One file per domain (e.g., `contracts/user-api.md`, `contracts/events.md`)
-- Define exact request/response shapes
-- Define all error codes and when they're returned
-- Reference which ACs each endpoint satisfies
-
-**Step 2.4 — Trace to spec**
-Every AC in `spec.md` must appear in at least one:
-
-- Component in `plan.md`
-- Contract in `contracts/`
-
-If an AC has no technical implementation path, the plan is incomplete.
-
-**Step 2.5 — Run critic agents (optional, recommended for complex features)**
-Before the human review, run the Phase 2 critic agents from
-`references/ai-agent-patterns.md → Phase 2 Critic Agents`:
-Constitution Critic, Architecture Critic, Contract Critic, Data Model Critic, Risks Critic.
-Aggregate their output and resolve issues before presenting to the human. Critics report
-only what they can check against the current tree; an open question that running something
-could answer gets a throwaway prototype outside the feature branch, and the plan cites its result.
-
-**Step 2.6: Gate 2, checker then human**
-Gate 2 is half evidence, half intent (`references/quality-gates.md → Gate 2`). A checker that
-did not write the plan runs the completeness rows and attaches evidence. Then the human
-reviews `plan.md`, `data-model.md`, and `contracts/` for the design calls. Particular focus:
-
-- Are contracts complete enough to implement without questions?
-- Does the data model handle all the spec's data requirements?
-- Are there simpler approaches to any components?
-- Does the Risks section cover all High-impact risks with concrete mitigations?
-
-**Step 2.7 — Lock contracts**
-Once approved, set `Status: Planned`. `contracts/` are **frozen** for the duration of Phase 4.
-Changing a contract during implementation is spec drift — plan first, then execute.
-
-**Step 2.8 — Commit**
+**Step 2.8: Commit.**
 
 ```bash
 git add specs/[feature-name]/plan.md specs/[feature-name]/data-model.md specs/[feature-name]/contracts/
@@ -429,45 +229,28 @@ git commit -m "plan: [feature name] technical design"
 
 ---
 
-## Phase 3 — Tasks
+## Phase 3: Tasks
 
-### Goal
+Goal: tasks small enough for one AI session each, about 30 to 60 minutes of work.
 
-Break `plan.md` into granular, sequential tasks small enough for a single AI session
-(~30–60 minutes of implementation work).
+**Step 3.1: Generate `tasks.md`** with the Task Breakdown Prompt.
 
-### Step-by-Step
+**Step 3.2: Order tests first.** Every implementation task has a test task right before it:
 
-**Step 3.1 — Generate tasks.md**
-Use the Task Breakdown Prompt from `references/prompt-patterns.md`.
-
-**Step 3.2 — Apply test-first ordering**
-For every implementation task, there must be a test task immediately preceding it:
-
-```
+```text
 TASK-003: Write tests for UserRepository.create()   ← test first
 TASK-004: Implement UserRepository.create()          ← implementation after
 ```
 
-**Step 3.3 — Size tasks**
+**Step 3.3: Size tasks.** `S` is under an hour, `M` 1 to 3 hours, `L` 3 to 6 hours. Split an `L`
+into two `M` tasks.
 
-- `S` (< 1 hour): single function, small component, migration
-- `M` (1–3 hours): a full repository method + tests, an API route + tests
-- `L` (3–6 hours): consider splitting into two `M` tasks
+**Step 3.4: Mark parallel tasks.** Tasks with no shared dependencies get `[P]`.
 
-**Step 3.4 — Identify parallelism**
-Tasks with no shared dependencies can be marked `[P]` and run simultaneously
-(in separate AI sessions or by separate developers).
+**Step 3.5: Gate 3.** A checker that did not write `tasks.md` returns a verdict with the Gate 3
+checklist, and the human audits it.
 
-**Step 3.5: Gate 3 (evidence)**
-A checker that did not write `tasks.md` runs Gate 3 and returns a verdict; the human audits
-it. The checker looks for:
-
-- Tasks that seem too large (will need mid-task context reset)
-- Test tasks that don't reference specific ACs
-- Implementation tasks that reference "see plan.md" vaguely (add specific section)
-
-**Step 3.6 — Commit**
+**Step 3.6: Commit.**
 
 ```bash
 git add specs/[feature-name]/tasks.md
@@ -476,169 +259,79 @@ git commit -m "tasks: [feature name] task breakdown"
 
 ---
 
-## Phase 4 — Implement
+## Phase 4: Implement
 
-### Goal
+Goal: run each task constrained by the spec artifacts, one commit per task.
 
-Execute tasks from `tasks.md` with AI constrained by spec artifacts, committing after
-each task to maintain clean rollback points.
+**Step 4.1: Set up each session.** When the first task starts, set `Status: In Progress`. Each
+task gets a fresh context with `constitution.md` in full, the task, its ACs and `Boundaries`
+from `spec.md`, and only the relevant parts of `plan.md`, `contracts/` and `data-model.md`.
 
-### Step-by-Step
+**Step 4.2: Implement** with the Single Task Implementation Prompt.
 
-**Step 4.1 — Session setup per task**
-When the first task starts, set `Status: In Progress`.
-Start a fresh context window for each task. Include:
+**Step 4.3: Gate 4 before committing.** The implementer hands its test run to a checker that
+did not write the code. The checker reruns it and works the Gate 4 checklist. At S that is the
+quoted failing run before the change and the passing run after, and a fresh session counts as
+the checker. M and L add the mutant and tautology rows. The task is not done on the
+implementer's own green run, and not on `inconclusive`.
 
-- `constitution.md` (always — project-level constraints, never violate)
-- The task description from `tasks.md`
-- Relevant ACs from `spec.md`
-- `Boundaries` section from `spec.md` (if present — feature-level constraints)
-- Relevant section from `plan.md`
-- Relevant contract from `contracts/`
-- Relevant entities from `data-model.md`
-
-Do NOT paste the entire spec — include only what's relevant to the current task.
-`constitution.md` is the one exception: always include it in full, it is compact by design.
-
-**Step 4.2 — Use the single-task implementation prompt**
-See `references/prompt-patterns.md → Phase 4 → Single Task Implementation Prompt`.
-
-**Step 4.3: Gate 4 (evidence) before committing**
-The implementer runs the tests and hands its run to a checker that did not write the code.
-The checker reruns them and works through the Gate 4 checklist in
-`references/quality-gates.md`. At S that is the failing-before run, quoted, and the passing
-run after; a fresh session counts as the checker. At M and L it adds the mutant and the
-tautology rows. The task is not complete on the implementer's own green run, and not on an
-`inconclusive` verdict.
-
-**Step 4.4 — Commit after each task**
+**Step 4.4: Commit.** One task, one commit, so a drifting task rolls back alone. Mark the task
+`[x]` in `tasks.md` in the same commit.
 
 ```bash
 git add [files]
 git commit -m "feat([scope]): [task title]"
 ```
 
-Do not batch multiple tasks into one commit. Each task = one commit.
-This enables precise rollback if a task introduced drift.
-
-**Step 4.5 — Mark task complete in tasks.md**
-
-```markdown
-- [x] **TASK-003** [M] Write tests for UserRepository.create()
-```
-
-Commit the updated `tasks.md` with the implementation commit.
-
 ### When to Stop and Amend the Plan
 
-Stop patching and propose `/sdd-change` at the plan level when any of these appear:
+Stop patching and propose `/sdd-change` at the plan level when the same workaround appears in
+unrelated places, types need casts or `any` to compile, or two task deviations share a shape.
+Each means the design is wrong, and fixing it task by task spreads the error. Write the trigger
+and the evidence (files, commits) to `decision_log.md`, then stop.
 
-- The same workaround shows up in unrelated places
-- Types need casts or `any` to compile
-- Two task deviations share a shape
+### Context Budget
 
-Each one means the plan's design is wrong, and fixing it task by task spreads the error.
-Write the trigger and the evidence (files, commits) to `decision_log.md`, then stop.
-
-### Context Reset Between Tasks
-
-Clear the AI context between tasks to prevent:
-
-- Accumulated assumptions from prior sessions
-- The AI "remembering" wrong implementations it wrote earlier
-- Conflicting information about how the system works
-
-This is especially important when tasks are implemented across multiple days.
-
-### Context Budget Within a Task
-
-Task boundaries are the planned resets. Within a task, watch utilization and act early:
-
-| Utilization | State | Action |
-|-------------|-------|--------|
-| 0–40% | Loading context | Continue |
-| 40–60% | Productive band | Continue — this is where you want to live |
-| 60–80% | Degrading | Finish the current step, then hand over |
-| 80%+ | Unreliable | Stop. Write `progress.md` now, before quality drops further |
-
-If a task repeatedly runs past its window, the task is too large — fix `tasks.md`, do not
-compensate with longer sessions.
-
-**Mid-task handover:**
-
-1. Run the Context Handover Prompt (`references/prompt-patterns.md → Phase 4`) — while the
-   session still has room to think, not after it has degraded
-2. Commit `progress.md` alongside any working code
-3. Start a fresh session with the Session Resume Prompt
-
-See `references/ai-agent-patterns.md → Context Engineering` for the underlying model.
+Clear context between tasks so earlier assumptions do not carry over. Within
+a task, finish the current step and hand over at 60 to 80% utilization, and stop at once past
+80%. Hand over with the Context Handover Prompt while the session still has room, commit
+`progress.md` with any working code, and resume in a fresh session with the Session Resume
+Prompt. A task that keeps outgrowing its window is too large: fix `tasks.md`. The full model
+is in [ai-agent-patterns.md](ai-agent-patterns.md).
 
 ---
 
-## Phase 5 — Validate
+## Phase 5: Validate
 
-### Goal
+Goal: prove every AC holds and nothing drifted. Gate 5 is an evidence gate. Steps 5.1, 5.2 and
+5.4 run in a checker that did not write the code, and fixes in 5.3 go back to the implementer.
 
-Verify the implementation satisfies every acceptance criterion and no spec drift occurred.
+**Step 5.1: Traceability.** The Post-Implementation Validation Prompt writes each AC's test,
+file and verdict to `validation.md`.
 
-### Step-by-Step
+**Step 5.2: Drift.** Run the Drift Detection Prompt against API signatures, schema and
+behavior. At M and L, also run the Adversary Prompt in its own worktree. The coordinator
+(Subagent Review Pattern in [ai-agent-patterns.md](ai-agent-patterns.md)) reruns each finding,
+and only reproduced findings count as drift.
 
-Gate 5 is an evidence gate. Steps 5.1, 5.2 and 5.4 run in a checker that did not write the
-code; fixes in 5.3 go back to the implementer. The human audits `validation.md`, the attached
-evidence and the walkthrough, then approves the merge.
+**Step 5.3: Fix drift.** The checker hands the drift report to the implementer and stops. A
+checker that edits code has become its author. The implementer fixes the code to match the
+spec, never the reverse. If the spec is wrong, update `spec.md`, then `plan.md`, then the code,
+without skipping a link. A fresh checker then reruns 5.1 and 5.2 on the new commit.
 
-**Step 5.1 — Generate traceability matrix**
-Use the Post-Implementation Validation Prompt from `references/prompt-patterns.md`.
-Produces: for each AC, which test covers it, which file implements it, pass/fail.
+**Step 5.4: Acceptance run.** The checker exercises each user story in the running application
+as a user would and attaches an artifact per story (log, screenshot, recording) to
+`validation.md`. A story with no artifact is `inconclusive`.
 
-**Step 5.2 — Run drift detection**
-Use the Drift Detection Prompt from `references/prompt-patterns.md`.
-Checks API signatures, database schema, and behavior against specs.
+**Step 5.5: Linear walkthrough.** Run the Linear Walkthrough Prompt for an execution-ordered
+narration with `file:line` citations. If you could not debug the feature without the agent,
+that is a finding to fix now. Behavior the agent cannot trace to an AC is unrequested scope.
+Attach it to the PR or save `specs/[feature]/walkthrough.md`.
 
-At M and L, also run the Adversary Prompt (`references/prompt-patterns.md → Adversary
-Prompt`) in its own worktree. The coordinator (`references/ai-agent-patterns.md → Subagent
-Review Pattern`) reruns each finding; only reproduced ones count, and each is drift to fix in
-Step 5.3.
+The human audits the Gate 5 verdict, its evidence and the walkthrough, sets
+`Status: Validated`, and approves the merge.
 
-**Step 5.3 — Fix drift immediately**
-If drift is found, the checker hands the drift report to the implementer and stops. The
-checker never fixes code: a checker that edits the code has become its author.
-
-- Do not "adjust the spec to match the code"
-- The implementer fixes the implementation to match the spec
-- If the spec is genuinely wrong, update spec.md, then plan.md, then implementation
-  (never skip the update chain)
-
-After the fix, a fresh checker reruns Steps 5.1 and 5.2 against the new commit. The earlier
-verdict does not carry over.
-
-**Step 5.4: Acceptance walkthrough with evidence**
-The checker exercises each user story from `spec.md` in the running application, as a user
-and not as a developer, and attaches the artifact for each one (log, screenshot, recording)
-to `validation.md`. The human audits those artifacts instead of repeating the run. A story
-with no artifact is `inconclusive`.
-
-**Step 5.5 — Linear walkthrough (comprehension check)**
-Run the Linear Walkthrough Prompt from `references/prompt-patterns.md → Phase 5`.
-It produces an execution-ordered narration of the implementation with `file:line` citations.
-
-This step exists for the humans, not the spec. Validation proves the code is *correct*; the
-walkthrough proves the team can *maintain* it. Skipping it is how a codebase accumulates
-working features nobody can change.
-
-Read it and confirm you could debug this feature at 3am without the agent. If you cannot,
-that is a finding — usually unnecessary indirection introduced during Phase 4, or a
-component the plan never justified. Fix it now, while the context is fresh.
-
-Attach the walkthrough to the PR description, or save it as `specs/[feature]/walkthrough.md`.
-Pay particular attention to anything the agent flags as behavior it cannot trace back to an
-AC — that is unrequested scope, and it is easiest to remove before merge.
-
-Once the human has audited the Gate 5 verdict and its evidence and read the walkthrough, set
-`Status: Validated`. Then the human approves the merge.
-
-**Step 5.6 — Archive specs (optional)**
-After validation passes, consider archiving completed specs to keep `specs/` clean. On archive, set `Status: Archived`:
+**Step 5.6: Archive (optional).** Set `Status: Archived` and move the folder:
 
 ```bash
 mkdir -p specs/archive/[feature-name]
@@ -647,55 +340,35 @@ cp -r specs/[feature-name]/* specs/archive/[feature-name]/
 rm -rf specs/[feature-name]
 ```
 
-**Merge into the current-state spec.** Archiving a validated spec also updates
-`specs/_current/[capability].md` (template in `artifact-templates.md`). A full spec creates the
-file from its ACs. A delta spec merges by label: `[ADDED]` ACs are appended with the next free
-id, `[MODIFIED]` ACs replace the AC named in `Baseline:` with their **Now** text, `[REMOVED]`
-ACs are deleted, `[UNCHANGED]` ACs are kept as they are. Each merged AC records its `Source:`
-and the file's `Merged from:` line gains the archived spec and commit. A later delta spec may
-use the file as its `Baseline:`.
-
-Keep `specs/archive/` in version control — specs are invaluable for regression analysis
-when bugs appear in features implemented months earlier. Skip this step if your team
-prefers to keep all specs in `specs/` indefinitely.
+Archiving also updates `specs/_current/[capability].md`. A full spec creates it from its ACs. A delta
+merges by label: `[ADDED]` appends with the next free id, `[MODIFIED]` replaces the baseline AC
+with its Now text, `[REMOVED]` deletes, `[UNCHANGED]` stays. Each merged AC records its
+`Source:`, and the file's `Merged from:` line gains the archived spec and commit. A later delta
+may use the file as its `Baseline:`. Keep `specs/archive/` in version control for regression
+analysis.
 
 ---
 
-## Reconcile — When Code Changed Outside the Workflow
+## Reconcile: When Code Changed Outside the Workflow
 
-**Invoke:** `/sdd-change [feature]`
+Invoke with `/sdd-change [feature]` when a hotfix, a dependency upgrade or an unspecified PR
+left the spec behind the code. One careless step turns it into Anti-Pattern 6, adjusting the
+spec to match the code.
 
-Real codebases move outside the process. A 3am hotfix ships, a dependency upgrade changes
-behavior, another team refactors a shared module, someone merges a PR that never saw a spec.
-The spec is now stale documentation, and every future `/sdd-validate` run reports the same
-noise until someone resolves it.
-
-Reconcile is the only sanctioned path from "the code is right and the spec is behind" back to
-a trustworthy spec. It is also the single most dangerous command in this skill, because it is
-one careless step from Anti-Pattern 6 — adjusting the spec to match the code.
-
-### The safeguard
-
-**Reconcile never edits anything.** It classifies each difference, states the evidence, and
-proposes a direction. A human approves each item individually. There is no "accept all".
-
-The classification rule is what keeps it honest:
+Reconcile edits nothing on its own. It classifies each difference individually, quotes the
+evidence and proposes a direction. A human approves each item. There is no "accept all".
 
 | Classification | Requires | Direction |
 |----------------|----------|-----------|
-| `INTENTIONAL` | **Evidence** — a commit, PR, incident ticket, or changelog entry showing the change was deliberate | Update the spec |
-| `EXTERNAL` | The cause is outside your code — dependency upgrade, platform change, upstream API | Update the spec, record the cause |
-| `DRIFT` | No such evidence exists | Fix the **code** |
-| `AMBIGUOUS` | Evidence exists but does not clearly cover this difference | Human decides; **defaults to `DRIFT`** |
+| `INTENTIONAL` | Quoted evidence (commit, PR, incident ticket, changelog entry) that the change was deliberate | Update the spec |
+| `EXTERNAL` | A cause outside your code: dependency upgrade, platform change, upstream API | Update the spec, record the cause |
+| `DRIFT` | No such evidence | Fix the code |
+| `AMBIGUOUS` | Evidence that does not clearly cover this difference | Human decides, defaulting to `DRIFT` |
 
-**Absence of evidence is evidence of drift.** A difference nobody can trace to a deliberate
-decision is drift, and drift gets fixed in the code. Without this rule, reconcile degrades
-into a machine for retroactively legitimizing whatever the code happens to do — which is
-exactly the failure specs exist to prevent.
+No evidence means drift, fixed in the code. Push back on "make the spec match what's
+deployed": deployed behavior is not evidence.
 
-### Step-by-Step
-
-**Step R.1 — Establish what to compare**
+**Step R.1: Find the range.**
 
 ```bash
 # The commit the spec was last validated against
@@ -704,50 +377,29 @@ git log --oneline -1 -- specs/[feature]/validation.md
 git log --oneline [that-sha]..HEAD -- src/[feature paths]
 ```
 
-If `validation.md` does not exist, the baseline is the commit that last modified
-`specs/[feature]/spec.md`.
+Without `validation.md`, start from the commit that last changed `specs/[feature]/spec.md`.
 
-**Step R.2 — Run the reconcile prompt**
+**Step R.2: Classify.** Run the Reconcile Prompt ([prompt-patterns.md](prompt-patterns.md)).
+It returns one row per difference with its classification and evidence.
 
-`references/prompt-patterns.md → Reconcile Prompt`. It produces one row per difference with
-a classification and the evidence behind it.
+**Step R.3: Human decides each item.** Check that the evidence authorizes this exact change
+("fix login" does not authorize a new error code). A deliberate change can still be wrong, so
+check any spec update against the original user story. Items can move in either direction.
 
-**Step R.3 — Human decides, item by item**
+**Step R.4: Apply through the chain.** Code fixes become tasks in `tasks.md` and run through
+Phase 4. Spec updates cascade through `/sdd-change` to spec, plan, contracts and data model.
+Editing `spec.md` alone is not a reconcile.
 
-Review each row. The two questions per item:
+**Step R.5: Record why.** Log each approved spec update and its evidence in `decision_log.md`.
 
-- Does the cited evidence actually authorize this change? A commit message saying "fix login"
-  does not authorize a changed error code.
-- If the spec is updated, does the new behavior still satisfy the original user story? A
-  hotfix can be both deliberate *and* wrong.
-
-An item can be reclassified in either direction during review. That is the point of the step.
-
-**Step R.4 — Apply approved changes through the normal chain**
-
-Reconcile does not get to shortcut the workflow it is repairing:
-
-- Items resolved as **fix the code** become tasks in `tasks.md` and run through Phase 4
-- Items resolved as **update the spec** cascade through `/sdd-change`: spec → plan → contracts
-  → data model. Never edit `spec.md` alone and call it reconciled.
-
-**Step R.5 — Record why**
-
-Every approved spec update gets a `decision_log.md` entry naming the evidence. Six months
-later, "why does the spec say 401 here when the user story implies 403?" must have an answer
-that is not "someone reconciled it once".
-
-**Step R.6 — Re-validate and commit**
+**Step R.6: Re-validate and commit.**
 
 ```bash
 git add specs/[feature]/ && git commit -m "reconcile: [feature] spec to shipped behavior"
 ```
 
-Then run `/sdd-validate` — a clean run is what proves the reconciliation is complete.
+Then run `/sdd-validate`. A clean run proves the reconcile is complete.
 
-### When not to reconcile
-
-- **The requirement changed** → `/sdd-change`. Reconcile is for code that moved, not intent.
-- **You are mid-Phase 4** → that is drift; fix it now rather than legitimizing it later.
-- **You cannot find evidence for most differences** → the feature was rebuilt outside the
-  process. Re-specify it rather than patching a spec that no longer describes anything.
+Do not reconcile when the requirement changed (use `/sdd-change` to amend), when you are in
+Phase 4 (that is drift, fix it now), or when most differences have no evidence (the feature was
+rebuilt outside the process, so re-specify it).

@@ -1,997 +1,591 @@
 # Prompt Patterns
 
-Effective prompts for each phase of the SDD workflow. The quality of your specs directly
-determines the quality of AI output — vague input = vague output.
+Prompts for each SDD phase. Report formats and line budgets live in
+[output-formats.md](output-formats.md).
 
 ## Contents
 
-- Phase 0 — Constitution: initial generation, security constraints
-- Phase 0.5 — Research: codebase research (Format A/B), consolidation, verification
-- Phase 1 — Specify: assumptions surface, initial spec, delta spec (brownfield), clarify, checklist generation, completeness check
-- Gate 1 cold read: a fresh agent restates the spec
-- Phase 2 — Plan: technical plan generation, plan review
-- Phase 3 — Tasks: task breakdown, task validation
-- Phase 4 — Implementation: single task (Format A/B), context handover, session resume, mid-implementation correction
-- Reconcile (`/sdd-change`) · Amend (`/sdd-change`) · Analyze (`/sdd-validate`) · Status (`/sdd-status`)
-- Phase 5 — Validate: drift detection, post-implementation validation, linear walkthrough
-- Phase 5 adversary: a non-author agent tries to break each MUST and UNCHANGED AC
-- Multi-agent review pattern · Constitution from existing codebase · Cross-feature conflict detector
-
-Every prompt in this file produces either a file or a user-facing report. For the format of
-the user-facing ones, see `output-formats.md`.
+- Phase 0, Constitution: generation, security constraints
+- Phase 0.5, Research: codebase research, consolidation, verification
+- Phase 1, Specify: assumptions, initial spec, delta spec, clarify, post-clarify, checklist, targeted clarification, completeness, cold read
+- Phase 2, Plan: generation, review
+- Phase 3, Tasks: breakdown, validation
+- Phase 4, Implementation: single task, handover, resume, correction
+- Reconcile, Amend, Analyze, Status
+- Phase 5, Validate: drift, post-implementation validation, walkthrough, adversary
+- Multi-agent review, constitution from existing codebase, cross-feature conflicts
 
 ---
 
-## Phase 0 — Constitution Prompts
+## Phase 0: Constitution Prompts
 
 ### Initial Constitution Generation Prompt
 
 ```
-Generate a constitution.md for this project.
+Generate constitution.md for this project using the constitution.md template in
+references/artifact-templates.md.
 
-Project context:
-- Name: [project name]
-- Purpose: [1-2 sentences]
-- Tech stack: [list languages, frameworks, databases, auth]
-- Team size: [1 dev / small team / larger org]
-- Domain: [e.g., fintech, e-commerce, internal tooling]
-- Special constraints: [security requirements, compliance, performance SLAs]
+Name: [project]  Purpose: [1-2 sentences]  Stack: [languages, frameworks, DB, auth]
+Team: [solo / small / large]  Domain: [e.g. fintech]  Constraints: [compliance, SLAs]
 
-The constitution should cover:
-1. Architecture principles (how code is organized)
-2. Technology stack (locked choices with rationale)
-3. Security constraints (non-negotiable rules for ALL generated code)
-4. Naming conventions
-5. Banned patterns (things AI must never introduce)
-6. File structure rules
-
-Format as constitution.md using the template in references/artifact-templates.md.
-Mark anything uncertain as [PENDING] for human review.
+Fill every template section. Mark anything uncertain [PENDING] for human review.
 ```
 
 ### Constitution Security Constraints Prompt
 
 ```
-Enhance the security section of constitution.md for this domain: [domain]
-
-Add specific constraints to prevent the top CWE vulnerabilities relevant to this stack:
-- [e.g., "Node.js API": CWE-89 SQL injection, CWE-79 XSS, CWE-306 missing auth]
-- [e.g., "payment processing": PCI-DSS constraints, no logging of card data]
-
-For each constraint, write it as an explicit rule an AI agent can check:
-❌ Vague: "handle errors securely"
-✅ Specific: "never expose stack traces or internal error details in API responses"
+Extend constitution.md Security Constraints for [domain] on [stack] with rules against the
+relevant CWEs (e.g. CWE-89, CWE-306) and domain rules (PCI-DSS: never log card data).
+Write each rule so an agent can check it in a diff.
+Vague: "handle errors securely". Checkable: "never return stack traces in API responses".
 ```
 
 ---
 
-## Phase 0.5 — Research Prompts
+## Phase 0.5: Research Prompts
 
-Run these before Phase 1 whenever the feature touches unfamiliar or large existing code.
-The output is a map of the system as it is — not a design, not a requirement list.
+Research maps the system as it is today. research.md never contains acceptance criteria,
+user stories, or a proposed design. Gate R in [quality-gates.md](quality-gates.md) is the
+checklist.
 
 ### Codebase Research Prompt (`/sdd-research`)
 
-*Format A — agent with filesystem access and subagent dispatch.*
+Format A, for an agent with file access and subagents:
 
 ```
-Research how [feature area] currently works in this codebase. Do NOT propose a design,
-write requirements, or suggest improvements. Report only what exists.
+Research how [feature area] works today. Report only what exists.
+Upcoming change, for orientation: [1-2 sentences]
 
-Task: [1-2 sentence description of what we are about to build or change]
+1. Dispatch parallel subagents, each returning at most 300 words:
+   - files involved in [area] and each file's responsibility
+   - the information flow: entry point, transformation, persistence, response
+   - prior art: features here that solve a similar problem
+   - constraints the code already enforces (base classes, middleware, validation)
+2. Consolidate into specs/[feature]/research.md with the research.md template.
 
-Method:
-1. Dispatch parallel subagents for the noisy work. Each returns at most 300 words:
-   - Agent 1: locate every file involved in [area] and state each file's responsibility
-   - Agent 2: trace the information flow end to end — entry point → transformation → persistence → response
-   - Agent 3: find prior art — features in this repo that already solve a similar problem
-   - Agent 4: find the constraints the code already enforces (base classes, middleware,
-     conventions, validation layers) that any change here must respect
-2. Consolidate their output into specs/[feature]/research.md using the research.md
-   template in references/artifact-templates.md.
-
-Hard rules:
-- Every factual claim ends with a `file:line` citation. No citation = delete the claim.
-- If you could not verify something, list it under "Open Questions for the Spec" —
-  never fill the gap with a plausible guess.
-- List what you did NOT investigate under "Not Investigated".
-- Target 200 lines. If you exceed it, you are dumping rather than compacting.
-- Do not write acceptance criteria, user stories, or solution proposals.
+Rules:
+- Every claim ends with a file:line citation. Delete any claim you cannot cite.
+- What you could not verify goes under "Open Questions for the Spec", never a plausible
+  guess. What you skipped goes under "Not Investigated".
+- No ACs, no user stories, no proposed design or improvements.
+- About 200 lines at most. Past that you are dumping, not compacting.
 ```
 
-*Format B — stateless interface with no filesystem access.*
-
-```
-I will paste code from my repository. Build a research document describing how
-[feature area] currently works.
-
-For each claim you make, cite the file and line I gave you, in the form `path/file.ts:42`.
-If the pasted code is insufficient to answer something, say so explicitly under
-"Open Questions for the Spec" and tell me which file you need next.
-
-Output format: [paste the research.md template from artifact-templates.md]
-
-Do not propose changes, requirements, or designs. Describe only what the code does today.
-```
+Format B, for a stateless interface: paste the code and the research.md template, and use
+the same rules. Citations point at the pasted code (`path/file.ts:42`), and each open
+question names the file the agent needs next.
 
 ### Research Consolidation Prompt
 
-*Run when several subagents or several sessions produced overlapping findings.*
+Run when subagents or sessions produced overlapping findings.
 
 ```
-Consolidate the following research fragments into a single specs/[feature]/research.md.
+Consolidate these fragments into one specs/[feature]/research.md:
+[paste each fragment]
 
-Fragments:
-[paste each subagent output]
-
-Rules:
-- Deduplicate findings that describe the same code path.
-- Where two fragments disagree, keep both and mark the item [CONFLICT] — do not silently
-  pick one. A conflict means at least one agent read the code wrong, and the human needs
-  to see it.
-- Drop any claim that arrived without a `file:line` citation.
-- Preserve every "Open Question" from every fragment.
-- Final document must be under 200 lines.
+- Merge findings about the same code path. Drop claims without file:line.
+- When fragments disagree, keep both and mark [CONFLICT]. Never pick one silently: an
+  agent misread the code and the human must see it.
+- Keep every open question and "Not Investigated" item. No ACs, stories, or design.
+  Under about 200 lines.
 ```
 
 ### Research Verification Prompt (Gate R)
 
-*Run before the human reviews `research.md`. Catches the failure that matters most:
-confident findings that are not actually true.*
+Run in a non-author agent before the human reviews research.md.
 
 ```
-You are verifying a research document against the real codebase. You did not write it.
+You did not write specs/[feature]/research.md. Verify it against the code.
 
-Read: specs/[feature]/research.md
+Open every cited location: does the line exist, support the claim, and cover every branch,
+guard, and error path? Also report involved files missing from "Relevant Files", sentences
+saying what the system SHOULD do, and uncited claims.
 
-For every claim with a `file:line` citation, open that location and check:
-- Does the cited line exist?
-- Does the code there actually support the claim?
-- Is the claim complete, or does it omit a branch, guard, or error path?
+[ISSUE] [F-N or Section] Research [BadCitation|Unsupported|Incomplete|Missing|Prescriptive] [CONFIRMED|VERIFY] <description>
 
-Also report:
-- Files that are clearly involved in this area but missing from "Relevant Files"
-- Any sentence that states what the system SHOULD do rather than what it DOES
-- Any claim with no citation at all
-
-Return findings in this format:
-[ISSUE] [F-N or Section] Research [Type: BadCitation/Unsupported/Incomplete/Missing/Prescriptive] [CONFIRMED|VERIFY] [Description]
-
-Do not rewrite the document. Do not approve or compliment. Issues only.
+Do not rewrite or approve. Issues only.
 ```
 
 ---
 
-## Phase 1 — Specify Prompts
+## Phase 1: Specify Prompts
 
 ### Assumptions Surface Prompt
 
-*Run this BEFORE the Initial Specification Prompt. Forces AI transparency about
-implicit decisions before they get baked into acceptance criteria.*
-
 ```
-I want to build: [feature description]
+I want to build: [feature]
 
-Before generating any spec, surface your assumptions. List every assumption
-you are making about:
-
-1. User roles and permissions — who can trigger this feature?
-2. Data ownership — whose data is this, and who can read or modify it?
-3. Error behavior — what happens when inputs are invalid or dependencies fail?
-4. Integration — what other parts of the system does this feature touch?
-5. Scope boundaries — what does "done" mean for this feature?
-6. Performance — any implicit thresholds (latency, rate limits, data volume)?
-
-Do NOT write any spec yet. Return only the assumption list.
-Human will review and correct assumptions before the spec is written.
+Before any spec, list every assumption you make about roles (who triggers this), data
+ownership (who reads or changes it), error behavior, integration with other parts,
+scope (what done means), and performance limits. Return only the list. No spec yet.
 ```
 
-After reviewing the AI's assumption list, pass your corrections into the Initial
-Specification Prompt below by adding a `Corrected assumptions:` block before the
-`Requirements:` section. Match the 6 areas from the surface prompt:
-
-```
-Corrected assumptions:
-- Roles: [your correction or "confirmed"]
-- Data ownership: [your correction or "confirmed"]
-- Error behavior: [your correction or "confirmed"]
-- Integration: [your correction or "confirmed"]
-- Scope: [your correction or "confirmed"]
-- Performance: [your correction or "confirmed"]
-```
-
----
+The human's corrections become the `Corrected assumptions:` block of the next prompt.
 
 ### Initial Specification Prompt
 
 ```
-I want to build: [feature description in plain language]
+I want to build: [feature in plain language]
+Users: [who]  Constraints: [hard limits]
 
-[If you ran the Assumptions Surface Prompt, insert your corrected assumptions here:]
 Corrected assumptions:
-- Roles: [confirmed / correction]
-- Data ownership: [confirmed / correction]
-- Error behavior: [confirmed / correction]
-- Integration: [confirmed / correction]
-- Scope: [confirmed / correction]
-- Performance: [confirmed / correction]
+- [one line per area: Roles, Data ownership, Errors, Integration, Scope, Performance]
 
-Generate a spec.md for this feature following the SDD workflow. Use the template in
-references/artifact-templates.md.
-
-Requirements:
-- No implementation details in the spec (no technology names, no function names)
-- Each acceptance criterion must be independently testable
-- Mark any ambiguous requirements with [NEEDS CLARIFICATION]
-- Explicitly list what is OUT OF SCOPE
-- Use MoSCoW priority on every AC: [MUST] / [SHOULD] / [COULD] / [WONT]
-- Include error/edge case ACs — not just the happy path
-
-Target users: [who uses this feature]
-Constraints: [any hard limits — performance, security, platform]
+Write specs/[feature]/spec.md with the spec.md template in references/artifact-templates.md.
+It must pass Gate 1 in references/quality-gates.md: no implementation details, every AC
+independently testable with a MoSCoW label, error ACs beside the happy path, explicit Out
+of Scope. Mark anything ambiguous [NEEDS CLARIFICATION] instead of choosing for me.
 ```
 
 ### Delta Specification Prompt (brownfield changes)
 
-*Use instead of the Initial Specification Prompt when changing behavior that already ships.
-Requires a resolvable baseline — a prior spec, or research.md findings.*
+Use instead of the Initial Specification Prompt when changing behavior that already ships.
+It needs a baseline: a prior spec version or research.md findings.
 
 ```
-Write a DELTA spec for this change. Do not respecify existing behavior.
+Write a DELTA spec with the delta-mode spec.md template. Do not respecify existing behavior.
+Change: [1-2 sentences]
+Baseline: [specs/archive/[feature]/spec.md @ v2.1 | specs/[feature]/research.md]
 
-Change: [1-2 sentences describing what should be different]
-Baseline: [specs/archive/[feature]/spec.md @ v2.1  OR  specs/[feature]/research.md]
+1. Baseline Assertion: what must be true today for this change, one line each, citing a
+   prior AC or a file:line finding. An uncitable line goes to Open Questions.
+2. Write only the ACs that move, labeled [ADDED] / [MODIFIED] / [REMOVED] / [UNCHANGED]
+   plus MoSCoW. Quote previous behavior verbatim for [MODIFIED] and [REMOVED]; add a
+   Migration line to [MODIFIED] and deprecation timing to [REMOVED].
+3. [UNCHANGED] holds behavior sharing code paths with the change: the regression suite.
+4. Blast radius, from the baseline: each modified item, its dependents, the AC verifying them.
 
-Use the delta-mode spec.md template from references/artifact-templates.md.
-
-Method:
-1. Read the baseline first. Write the Baseline Assertion section: what this change depends
-   on being true today, one line each, every line citing the baseline (a prior AC, or a
-   research finding with its file:line).
-2. Write only the ACs that move. Label each [ADDED], [MODIFIED], [REMOVED], or [UNCHANGED],
-   in addition to its MoSCoW label.
-3. For [MODIFIED] and [REMOVED], quote the previous behavior verbatim from the baseline —
-   never paraphrase it. Add a Migration line for [MODIFIED] and a deprecation timing line
-   for [REMOVED].
-4. Fill [UNCHANGED] with behavior that shares code paths with what you are changing. This is
-   the regression suite; it is what makes a short spec safe.
-5. Map the blast radius: for each thing being modified, what depends on it and which AC
-   verifies it still works. Derive this from the baseline, not from assumption.
-
-Hard rules:
-- If you cannot cite the baseline for a Baseline Assertion line, do not write the line —
-  list it under Open Questions instead.
-- Do not restate behavior that is not changing, except in [UNCHANGED].
-- If more than half your ACs are [ADDED], stop and tell me this should be a full spec.
+If more than half the ACs are [ADDED], stop and tell me this needs a full spec.
 ```
 
 ### Clarify Phase Prompt
 
-*Run after generating spec.md, before creating the plan. After the human reviews and approves
-the output, run the Post-Clarify Spec Update Prompt below to apply the changes to spec.md.*
+Run after spec.md exists and before the plan. Then apply the approved answers with the
+Post-Clarify Spec Update Prompt.
 
 ```
-You are a spec reviewer. Read specs/[feature]/spec.md and perform a full clarification pass.
-
-Step 1 — Resolve open questions:
-List every [NEEDS CLARIFICATION] item and propose a resolution for human approval.
-Do not resolve them unilaterally.
-
-Step 2 — Find missing edge cases:
-For each [MUST] AC, identify edge cases not yet covered:
-- What happens with empty/null inputs?
-- What happens with concurrent requests?
-- What happens when dependent services are unavailable?
-- What are the permission boundary cases?
-
-Step 3 — Automated validation:
-Flag any AC that contains vague terms:
-- "fast", "slow", "quickly", "efficiently" → needs a numeric threshold
-- "works correctly", "functions properly" → needs a specific testable outcome
-- "secure", "safe" → needs a specific constraint
-- "simple", "easy" → not a requirement
-
-Return: a list of proposed resolutions + a list of new ACs to add.
-Do NOT write a new spec.md. Return only the delta.
+Review specs/[feature]/spec.md and return only a delta:
+1. Each [NEEDS CLARIFICATION] with a proposed resolution. Resolve none yourself.
+2. Edge cases missing per [MUST] AC: empty input, concurrency, dependency down, permissions.
+3. Vague terms ("fast", "secure", "works correctly", "easy") with the measurable
+   replacement each needs.
+4. New ACs to add.
+Do not write a new spec.md.
 ```
 
 ### Post-Clarify Spec Update Prompt
 
-*Run after the human has reviewed and approved the clarification output. Takes human answers
-and applies them to spec.md.*
-
 ```
-You have received human-approved resolutions to the clarification questions for
-specs/[feature]/spec.md.
+Apply these human-approved resolutions to specs/[feature]/spec.md:
+[paste approved resolutions]
 
-Apply the approved resolutions:
-
-1. For each resolved [NEEDS CLARIFICATION] item:
-   - Change the marker from [NEEDS CLARIFICATION] to [RESOLVED]
-   - Append: → Decision: [human's answer]
-   - Keep the original question text — do not delete it
-
-2. For each new AC approved during clarification:
-   - Add it to the Acceptance Criteria section with the correct MoSCoW priority
-   - Assign the next available AC number (continuing the existing sequence)
-
-3. For each vague term replaced (e.g., "fast" → "< 200ms at p95"):
-   - Update the AC text with the specific threshold approved by the human
-
-Do NOT add, remove, or modify any AC that was not part of the clarification output.
-Return the full updated spec.md.
+- Resolved items: change [NEEDS CLARIFICATION] to [RESOLVED], keep the question, append
+  "Decision: [answer]".
+- Approved new ACs: add with their MoSCoW label, numbered after the last existing AC.
+- Replaced vague terms: write the approved threshold into the AC.
+Touch nothing outside the approved list. Return the full updated spec.md.
 ```
-
----
 
 ### Checklist Generation Prompt (`/sdd-validate [domain]`)
 
-*Generates a feature-specific, domain-specific checklist that tests the **spec**, not the
-software. Run before Gate 1 — for every relevant domain at level L, for the highest-risk one
-at level M.*
+A checklist tests the spec, never the software. Its rules and when to run it are in the
+generated checklists section of [quality-gates.md](quality-gates.md).
 
 ```
-Generate a [domain] quality checklist for specs/[feature]/spec.md.
+Generate a [domain] checklist for specs/[feature]/spec.md and write it to
+specs/[feature]/checklists/[domain].md, presented in the Checklist format of
+references/output-formats.md.
 
-This checklist tests the REQUIREMENTS, not the implementation. Every item must be
-answerable by reading the spec alone. If answering an item would require running the
-code, it does not belong here.
-
-Do NOT write items containing: displays, renders, loads, executes, clicks, navigates,
-works, correctly, properly. Those describe behavior — the ACs and the test suite cover it.
-
-Cover all five scenario classes for this domain:
-- Primary:        are the main-path requirements complete and measurable?
-- Alternate:      are valid secondary paths specified, or silently assumed?
-- Exception:      does every failure mode in this domain have a specified outcome?
-- Recovery:       after a failure, is the required system and user state stated?
-- Non-functional: does this domain's quality attributes have numeric thresholds?
-
-For each item, cite the spec section it examines, and mark findings:
-[Gap]        a requirement this domain needs that the spec does not have
-[Ambiguity]  a requirement that admits more than one reading
-[Conflict]   two requirements that cannot both hold
-[Assumption] something the spec depends on but never states
-
-An item is allowed to pass as "intentionally excluded" only if the exclusion is written in
-the spec's Out of Scope section. An exclusion that exists only in someone's head is a [Gap].
-
-Present using the Checklist format in references/output-formats.md and write the file to
-specs/[feature]/checklists/[domain].md.
-
-Do not rewrite the spec. Do not propose ACs. Report only.
+- Every item must be answerable by reading the spec alone. No item may use displays,
+  renders, loads, executes, clicks, navigates, works, correctly, properly.
+- Cover Primary, Alternate, Exception, Recovery, and Non-functional scenarios.
+- Cite the spec section per item; mark [Gap], [Ambiguity], [Conflict], or [Assumption].
+- An exclusion passes only when Out of Scope states it. Otherwise it is a [Gap].
+Do not rewrite the spec or propose ACs.
 ```
-
-**Domain starting points** — adapt to the feature rather than running all of them:
 
 | Domain | Ask about |
 |--------|-----------|
-| `security` | authn/authz per path, input validation boundary, secret handling, enumeration, rate limits |
-| `ux` | empty/loading/error states, destructive-action confirmation, what the user sees when a dependency is down |
-| `accessibility` | keyboard reachability, focus order, announcements for async changes, contrast thresholds |
-| `performance` | numeric latency targets and at which percentile, payload limits, N+1 risk in stated queries |
-| `data-integrity` | uniqueness, referential rules, concurrent-write outcome, partial-failure state |
-| `i18n` | locale-dependent formatting, timezone semantics, text expansion, right-to-left |
-| `observability` | what must be logged, what must never be, which failures page someone |
-| `migration` | backward compatibility window, rollback path, behavior for in-flight data |
+| `security` | authz per path, input validation, secrets, enumeration, rate limits |
+| `ux` | empty, loading, error states; destructive confirmation |
+| `accessibility` | keyboard reach, focus order, async announcements, contrast |
+| `performance` | latency at a percentile, payload limits, N+1 risk |
+| `data-integrity` | uniqueness, referential rules, concurrent writes, partial failure |
+| `i18n` | locale formats, timezones, text expansion, right-to-left |
+| `observability` | what to log, what never to log, what pages someone |
+| `migration` | compatibility window, rollback, in-flight data |
 
 ### Spec Clarification Prompt (targeted)
 
 ```
-Review specs/[feature]/spec.md and identify:
-1. Acceptance criteria that are ambiguous or not independently testable
-2. Missing edge cases for AC-[N]
-3. Any implicit assumptions that should be made explicit
-4. Scope boundaries that need clarification
-
-Do NOT suggest implementation approaches. Focus on requirements only.
+In specs/[feature]/spec.md, find ambiguous or untestable ACs, missing edge cases for
+AC-[N], implicit assumptions, and unclear scope. Requirements only, no implementation.
 ```
 
 ### Spec Completeness Check Prompt
 
 ```
-Act as a product manager reviewing specs/[feature]/spec.md.
-
-Check:
-- Are all user stories covered by acceptance criteria?
-- Are error scenarios and edge cases specified?
-- Are performance requirements stated (if applicable)?
-- Are security requirements stated (if applicable)?
-- Is the "out of scope" section complete?
-
-Return only gaps and missing items, not a full rewrite.
+As a product manager, check spec.md against Gate 1 in references/quality-gates.md and
+confirm an AC covers every user story. Return only gaps.
 ```
 
 ### Cold Read Prompt (before Gate 1)
 
-*Run in a fresh agent with no conversation history (a subagent, or a new session per
-`ai-agent-patterns.md → No-Subagent Fallback`). Give it the spec, the constitution and, for a
-delta spec, the files its `Baseline:` line names; nothing else. The
-human compares the restatement with what they meant; a mismatch is a Gate 1 failure in the
-spec, never in the reader.*
+Run in a fresh agent: a subagent, or a new session per the
+[No-Subagent Fallback](ai-agent-patterns.md#no-subagent-fallback). It gets only spec.md and
+constitution.md, plus the `Baseline:` files of a delta spec.
+With no fresh context available, the cold read is `inconclusive`.
 
 ```
 You have never seen this project or any conversation about it.
-Read only: specs/[feature]/spec.md, constitution.md, and any file the spec's Baseline: line
-names. Do not open any other file.
+Read only specs/[feature]/spec.md, constitution.md, and files the spec's Baseline: line
+names. Open nothing else.
 
 In your own words, without quoting the spec:
 1. The goal, in one sentence.
 2. Each Done-when check: what you would run or inspect, and what result means done.
-3. For each [MUST] AC: what you would build, and what you would NOT build.
-4. Every place where you had to choose between two readings. Name both readings and the
-   one you would pick.
+3. For each [MUST] AC: what you would build and what you would not build.
+4. Every AC phrase with more than one reading. Name each reading. Example: "records
+   belonging to M" could mean created by M, assigned to M, or shared with M.
 
-Do not suggest improvements. Do not fill gaps silently: a gap you had to guess goes in item 4.
+Do not suggest improvements. Do not pick a reading silently: every guess goes in item 4.
 ```
+
+Each item 4 phrase is a Gate 1 finding, fixed in spec.md. A restatement that misses what
+the human meant is a spec failure, never a reader failure.
 
 ---
 
-## Phase 2 — Plan Prompts
+## Phase 2: Plan Prompts
 
 ### Technical Plan Generation Prompt
 
 ```
-Read specs/[feature]/spec.md and generate:
-1. plan.md — technical architecture, component breakdown, risks
-2. data-model.md — entities, fields, relationships, indexes
-3. contracts/[name].md — API endpoints (one file per domain)
+Read specs/[feature]/spec.md, and specs/[feature]/research.md as input if it exists.
+Write plan.md, then data-model.md, then contracts/[name].md (one per domain), using the
+templates in references/artifact-templates.md.
 
-If specs/[feature]/research.md exists, read it first as additional context
-(pre-generated alternatives analysis). Do not generate it — use it as input only.
-
-Open questions that running something could answer (layout, timing, library behavior):
-answer each with a throwaway prototype outside the feature branch and cite the result in
-plan.md. Do not decide them by argument.
-
-Constraints:
-- Use existing stack: [list your stack, e.g., TypeScript, Hono, Drizzle, PostgreSQL]
-- Do not introduce new dependencies unless justified in plan.md
-- Use framework features directly — avoid unnecessary wrapper layers
-- Every AC in spec.md must map to at least one component in plan.md
-- Follow existing patterns in: [reference file or convention]
-
-For plan.md, include a Risks section: identify implementation risks (third-party
-dependencies, data migrations, external APIs, concurrency issues) and a mitigation
-for every High-impact risk. Use the template in references/artifact-templates.md.
-
-Generate files sequentially: plan.md first, then data-model.md, then contracts/.
+- Stack: [stack]. Follow [file or convention]. New dependencies need a justification.
+- Use framework features directly. No wrapper layers.
+- Every AC maps to at least one component. Every High-impact risk has a mitigation.
+- Answer questions that running something can settle (layout, timing, library behavior)
+  with a throwaway prototype outside the feature branch, and cite the result in plan.md.
+  Do not decide them by argument.
 ```
 
 ### Plan Review Prompt
 
 ```
-Review the generated plan at specs/[feature]/plan.md against specs/[feature]/spec.md.
-
-Check:
-1. AC coverage: does every acceptance criterion have a corresponding component?
-2. Completeness: are all data-model.md entities referenced in plan.md?
-3. Contract completeness: does every component that exposes an API have a contract?
-4. Over-engineering: are there abstractions that could be replaced with direct framework usage?
-5. Risks completeness: does the Risks section exist? Is every High-impact risk mitigated?
-
-Return a gap analysis only — do not regenerate the files.
+Review specs/[feature]/plan.md, data-model.md, and contracts/ against spec.md using Gate 2
+in references/quality-gates.md. Report: ACs without a component, entities plan.md never
+references, components exposing an API without a contract, abstractions that direct
+framework use could replace, High-impact risks without mitigation.
+Gap analysis only. Do not regenerate files.
 ```
 
 ---
 
-## Phase 3 — Tasks Prompts
+## Phase 3: Tasks Prompts
 
 ### Task Breakdown Prompt
 
 ```
-Read specs/[feature]/plan.md and specs/[feature]/contracts/*.md.
-
-Generate tasks.md with:
-- Atomic tasks (one task = one PR or commit)
-- Test task before each implementation task (test-first)
-- [P] marker for tasks that can run in parallel
-- S/M/L size estimates
-- Explicit dependencies (by task ID)
-
-Rules:
-- No task should modify more than 3 files
-- Large [L] tasks must be split unless justified
-- Test tasks reference specific ACs from spec.md
-- Implementation tasks reference specific sections from plan.md and contracts/
+Read specs/[feature]/plan.md and contracts/*.md. Write tasks.md with the tasks.md template.
+- One task is one commit or PR, touching at most 3 files. Split [L] tasks unless justified.
+- A test task before each implementation task, citing the ACs it covers.
+- Implementation tasks cite their plan.md and contracts/ sections.
+- Mark parallel tasks [P], give S/M/L sizes, list dependencies by task ID.
 ```
 
 ### Task Validation Prompt
 
 ```
-Review specs/[feature]/tasks.md and identify:
-1. Tasks missing their paired test task
-2. Tasks that are too large (would touch > 3 files)
-3. Dependency cycles
-4. Implementation tasks before their test tasks
-
-Return only issues found, not a full rewrite.
+Check specs/[feature]/tasks.md against Gate 3 in references/quality-gates.md: missing test
+tasks, tasks touching more than 3 files, dependency cycles, implementation before its test.
+Issues only.
 ```
 
 ---
 
-## Phase 4 — Implementation Prompts
+## Phase 4: Implementation Prompts
 
 ### Single Task Implementation Prompt
 
-Two formats depending on your agent's file system access:
-
-**Format A — Agent with file access (Claude Code, Cursor, Windsurf)**
+Format A, for an agent that can read files:
 
 ```
-Implement TASK-[N]: [task title]
+Implement TASK-[N]: [title]
 
-Read and follow:
-- constitution.md (project-level rules — never violate)
-- Acceptance criteria: specs/[feature]/spec.md → [section heading]
-- Feature boundaries: specs/[feature]/spec.md → Boundaries (if present)
-- Technical design: specs/[feature]/plan.md → [section heading]
-- API contract: specs/[feature]/contracts/[file].md
-- Data model: specs/[feature]/data-model.md → [EntityName]
+Follow:
+- constitution.md (never violate)
+- specs/[feature]/spec.md, ACs: [section] and Boundaries, if present
+- specs/[feature]/plan.md: [section]
+- specs/[feature]/contracts/[file].md
+- specs/[feature]/data-model.md: [Entity]
 
-Do NOT:
-- Add functionality outside the acceptance criteria
-- Deviate from the API signatures in contracts/
-- Introduce abstractions not in plan.md
-- Violate any rule in constitution.md
-- Violate any rule in the spec's Boundaries section
-- Patch around the plan: if the same workaround repeats in unrelated places, types need casts
-  or `any`, or this task deviates the same way an earlier one did, stop and propose
-  /sdd-change at the plan level
+No behavior outside the ACs, no contract changes, no abstractions plan.md does not name.
+Patching around the plan is a stop signal: if the same workaround
+repeats in unrelated places, types need casts or `any`, or this task deviates the way an
+earlier one did, stop and propose /sdd-change at the plan level.
 
-After implementation, verify:
-- [ ] Each new test was run before the change and its failure output is saved for the checker
-- [ ] All referenced ACs have test coverage
-- [ ] API signatures match contracts exactly
-- [ ] No new dependencies introduced without explicit justification
+Before reporting done:
+- [ ] Each new test failed before the change; its failure output is saved
+- [ ] Every referenced AC has a test; signatures match contracts; no unjustified dependency
 ```
 
-**Format B — Stateless agent or web interface (paste content)**
-
-```
-Implement TASK-[N]: [task title]
-
-Project constitution (non-negotiable rules):
-[paste full constitution.md]
-
-Acceptance criteria (from spec.md):
-[paste only the ACs this task must satisfy]
-
-Feature boundaries (from spec.md → Boundaries, if present):
-[paste Always do / Ask first / Never do rules, or omit if section absent]
-
-Technical design (from plan.md):
-[paste only the relevant component section]
-
-API contract (from contracts/[file].md):
-[paste the relevant endpoint definition]
-
-Data model (from data-model.md):
-[paste only the relevant entities]
-
-Do NOT add functionality beyond what the ACs and contract define.
-```
-
-Use Format A when the agent can `Read` files directly.
-Use Format B for web interfaces or agents without persistent file access.
+Format B, for a stateless interface: paste the constitution and only this task's ACs,
+Boundaries, plan section, contract, and entities, with the same Do-not list.
 
 ### Context Handover Prompt (run before a context reset, not after)
 
-*Use when a task will not finish inside the current context window. Run it while the session
-still has room to think — a handover written at 95% utilization is written by a degraded agent.*
+Run while the session has room. At 95% context the agent writing it is degraded.
 
 ```
-This session is being reset. Write specs/[feature]/progress.md so a fresh session with none
-of this conversation can resume the task without repeating work.
-
-Use the progress.md template from references/artifact-templates.md.
-
-Include:
-- The goal, copied verbatim from tasks.md — not your paraphrase of it
-- Steps completed, each with the file:line or commit sha that proves it
-- The exact step in flight and how far it got
-- The current blocker, quoted as the literal failing command and its real output
-- Approaches already tried and rejected, with the reason each failed
-
-Exclude:
-- Narration of what we discussed
-- Anything already written in spec.md, plan.md, or contracts/ — the new session reads those directly
-
-Keep it under 40 lines.
+This session is being reset. Write specs/[feature]/progress.md with the progress.md
+template so a fresh session can resume without repeating work.
+Include the goal verbatim from tasks.md, done steps with the file:line or sha proving each,
+the step in flight, the blocker as the literal failing command and output, and rejected
+approaches with why. Exclude narration and anything spec, plan, or contracts already say.
+Under 40 lines.
 ```
 
 ### Session Resume Prompt (after a context reset)
 
 ```
-Resume TASK-[ID] for [feature].
-
-Read, in this order:
-1. constitution.md
-2. specs/[feature]/progress.md  ← current state, start here
-3. The AC and contract sections it references
-
-Start from "Current Step". Do not re-run completed steps. Do not retry anything listed
-under "Do Not Repeat". If progress.md contradicts what you find in the code, stop and
-report the contradiction — do not guess which one is right.
+Resume TASK-[ID] for [feature]. Read constitution.md, then specs/[feature]/progress.md,
+then the AC and contract sections it cites. Start at "Current Step". Do not rerun completed
+steps or anything under "Do Not Repeat". If progress.md contradicts the code, stop and
+report the contradiction instead of guessing which is right.
 ```
 
 ### Mid-Implementation Correction Prompt (when AI drifts)
 
 ```
-Stop. The implementation is drifting from the specification.
-
-Spec says: [paste the relevant AC or contract section]
-You implemented: [describe what was generated]
-
-Roll back this change and re-implement following the spec exactly.
-Do not use your judgment about what "makes sense" — follow the contract.
+Stop. You drifted from the spec.
+Spec: [AC or contract text]  You built: [what was generated]
+Roll back and reimplement to the contract, not your judgment.
 ```
 
 ---
 
-## Reconcile Prompt (/sdd-change — run when code changed outside the workflow)
+## Reconcile Prompt (`/sdd-change`)
 
-*The spec is behind because the code moved: a hotfix, a dependency upgrade, another team's
-refactor. This prompt proposes a direction per difference; it never edits anything.*
+Run when code changed outside the workflow, such as a hotfix or a dependency upgrade.
+It proposes a direction per difference and waits. It edits nothing.
 
 ```
-Reconcile specs/[feature]/ against the current implementation.
+Reconcile specs/[feature]/ against the current code.
+Baseline commit: [sha of last validation or last spec.md change]
+Changes since: git log --oneline [sha]..HEAD -- [feature paths]
 
-Baseline commit: [sha of the last validation, or of the last spec.md change]
-Changes since:   git log --oneline [sha]..HEAD -- [feature source paths]
+Classify each difference on its own:
+INTENTIONAL  a quoted commit, PR, ticket, or changelog entry. Update the spec.
+EXTERNAL     a named outside cause (dependency, platform, upstream API). Update the spec.
+DRIFT        no traceable evidence. Fix the code.
+AMBIGUOUS    evidence that does not clearly cover it. The human decides.
 
-For every difference between the spec artifacts and the code, classify it:
+Rules:
+- No evidence means DRIFT. Code that exists and works is not evidence of intent.
+- Quote evidence. "Commit a3f9c21: hotfix expired-token 500" is evidence; "looks
+  intentional" is not. Evidence for one change does not cover adjacent ones.
+- "Make the spec match what's deployed" is not a classification. Push back and classify
+  each difference anyway.
+- Edit no file. Produce no updated spec. Propose and wait for approval.
+- Mostly DRIFT or AMBIGUOUS means the feature was rebuilt outside the process: say it
+  needs respecifying.
 
-INTENTIONAL — a commit, PR, incident ticket, or changelog entry shows the change was
-              deliberate. Quote the evidence. Direction: update the spec.
-EXTERNAL    — the cause is outside our code (dependency upgrade, platform behavior change,
-              upstream API). Name the cause. Direction: update the spec.
-DRIFT       — no such evidence exists. Direction: fix the code.
-AMBIGUOUS   — evidence exists but does not clearly cover this difference. Direction: none;
-              the human decides.
-
-Hard rules:
-- Absence of evidence is DRIFT, not INTENTIONAL. Never infer intent from the fact that code
-  exists and works — that is the assumption this whole workflow exists to eliminate.
-- Quote evidence, do not summarize it. "Commit a3f9c21: hotfix expired-token 500" is
-  evidence; "this looks intentional" is not.
-- A commit that authorizes one change does not authorize adjacent ones. Scope the evidence
-  to the specific difference.
-- Do NOT edit any file. Do not produce an updated spec. Propose only.
-- If most differences classify as DRIFT or AMBIGUOUS, say so explicitly: the feature was
-  likely rebuilt outside the process and should be re-specified rather than patched.
-
-Present the result using the Reconcile Report format in references/output-formats.md.
+Present it in the Reconcile Report format of references/output-formats.md.
 ```
 
-**After the human approves items**, apply them through the normal chain — approved spec
-updates cascade via `/sdd-change` (spec → plan → contracts → data model), and approved code
-fixes become tasks. Record the evidence for each spec update in `decision_log.md`. See
-`workflow-phases.md → Reconcile`.
+After approval, each approved spec update cascades through the Amend Prompt chain (spec,
+plan, contracts, data model, tasks), never spec.md alone. Approved code fixes become tasks.
+Log each spec update's evidence in `decision_log.md`. Procedure: Reconcile in
+[workflow-phases.md](workflow-phases.md).
 
 ---
 
-## Amend Prompt (/sdd-change — run when requirements change)
+## Amend Prompt (`/sdd-change`)
 
-Used when new information requires updating the spec chain mid-development. Amend propagates
-the change through all affected artifacts in the correct order instead of patching files manually.
+Run when requirements change mid-development. Never skip Step 1: without an approved
+impact assessment the chain ends up inconsistent.
 
-Two-step flow: assess impact first (human approves), then update.
-
-**Step 1 — Impact Assessment Prompt:**
+Step 1, Impact Assessment Prompt:
 
 ```
-A requirement has changed: [describe what changed and why]
-
-Current phase: [Phase N — TASK-NNN complete / not yet started]
-
-Assess the impact across all spec artifacts:
-- spec.md: which ACs need to be added, modified, or removed?
-- plan.md: which components are affected?
-- contracts/: which endpoint signatures or error codes change?
-- data-model.md: which entities, fields, or migrations change?
-- tasks.md: which tasks need to be regenerated (from which task ID forward)?
-
-Do NOT make any changes yet. Return the impact assessment only.
-Present as a list: [ARTIFACT] → [what changes and why]
+A requirement changed: [what and why]. Current phase: [Phase N, last task done]
+List "[ARTIFACT]: what changes and why" for spec.md ACs, plan.md components, contracts/
+signatures and errors, data-model.md fields and migrations, and the task ID tasks.md
+regenerates from. Change nothing yet.
 ```
 
-Present the impact assessment to the human for approval before proceeding to Step 2.
-
-**Step 2 — Cascade Update Prompt** *(run after human approves the impact assessment)*:
+Step 2, Cascade Update Prompt, after approval:
 
 ```
-The following impact was approved: [paste approved impact assessment]
-
-Update the affected artifacts in this order:
-1. Create specs/[feature]/.amend-in-progress (this unlocks contracts/ for this run)
-2. spec.md — update ACs; annotate changes with <!-- AMENDED [date]: [reason] -->
-3. plan.md — update affected component descriptions
-4. contracts/ — update affected endpoint definitions and error codes
-5. data-model.md — update affected entities; add migration entry if schema changed
-6. tasks.md — regenerate from TASK-[first affected ID] forward
-7. Remove specs/[feature]/.amend-in-progress, also if you stop or abort partway
-
-Do NOT modify artifacts not listed in the approved impact assessment.
-Return a summary of what changed in each file.
-```
-
-Do not skip Step 1. Amending without an impact assessment produces partial updates
-that leave the spec chain inconsistent — the exact problem amend is designed to prevent.
-
----
-
-## Analyze Prompt (/sdd-validate — run any time)
-
-Detects internal inconsistencies within the spec itself, before Plan generation.
-Different from `/sdd-specify` (resolves ambiguities with human input) and
-`/sdd-validate` (checks implementation against spec). Most effective after Clarify
-and before Plan, but safe to run at any phase.
-
-```
-Read specs/[feature]/spec.md and run an inconsistency analysis.
-
-Check for:
-1. AC conflicts — two ACs that cannot both be satisfied simultaneously
-   Example: AC-1 says "returns 404 for unknown users", AC-3 says "auto-creates user on first access"
-2. Scope overlap — an AC that contradicts the Out of Scope section
-3. NFRs without measurable thresholds — "fast", "secure", "reliable" with no numeric target
-4. [MUST] ACs with no error scenario — every MUST happy-path AC should have a paired error AC
-5. Duplicate coverage — two ACs that describe the same behavior with different wording
-6. Untestable criteria — ACs that cannot be expressed as an automated test
-
-Return issues in this format:
-[ISSUE] [AC-N or section] [Type: Conflict/Overlap/Vague/Missing/Duplicate/Untestable] [CONFIRMED|VERIFY] [Description]
-
-If no issues are found, respond: "No inconsistencies detected."
-Do NOT rewrite the spec. Return issues only.
-
-Present the result using the Analyze Report format in references/output-formats.md:
-20 lines maximum, fixed finding types, blocking vs non-blocking stated explicitly.
+Approved impact: [paste]
+Update in this order:
+1. Create specs/[feature]/.amend-in-progress (unlocks contracts/ for this run)
+2. spec.md: update ACs, annotate <!-- AMENDED [date]: [reason] -->
+3. plan.md: affected components
+4. contracts/: affected endpoints and error codes
+5. data-model.md: affected entities, plus a migration entry if the schema changed
+6. tasks.md: regenerate from TASK-[first affected ID]
+7. Remove .amend-in-progress, also when you stop or abort partway
+Touch no artifact outside the approved impact. Return a per-file summary.
 ```
 
 ---
 
-## Status Prompt (/sdd-status — run any time)
+## Analyze Prompt (`/sdd-validate`)
 
-*Answers "where am I?" without the user opening a single file. Every line is derived from
-what exists on disk — never from conversation memory.*
+Finds internal contradictions in spec.md. Best after Clarify and before Plan, safe any time.
 
 ```
-Report the current state of the [feature] spec workflow.
+Analyze specs/[feature]/spec.md for internal inconsistency: Conflict (two ACs that cannot
+both hold), Overlap (an AC against Out of Scope), Vague (NFR without a number), Missing (a
+[MUST] happy path without an error AC), Duplicate, Untestable.
 
-Determine each phase's state by inspecting the filesystem, not by recalling our conversation:
-- Phase 0:   does constitution.md exist? any unresolved [PENDING] items?
-- Phase 0.5: does specs/[feature]/research.md exist? how many findings? any uncited claims
-             or [CONFLICT] markers left?
-- Phase 1:   does spec.md exist? what is its Status header? count ACs by MoSCoW label.
-             any [NEEDS CLARIFICATION] still open?
-- Phase 2:   do plan.md, data-model.md, and contracts/ exist? are contracts locked?
-- Phase 3:   does tasks.md exist? how many tasks total?
-- Phase 4:   how many tasks are [x] vs [ ]? what is the last commit touching this feature?
-             does progress.md exist (meaning a task is mid-flight)?
-- Phase 5:   does validation.md or walkthrough.md exist?
+[ISSUE] [AC-N or section] [Conflict|Overlap|Vague|Missing|Duplicate|Untestable] [CONFIRMED|VERIFY] <description>
 
-Then state the single next action: the next unchecked task, or the gate awaiting approval.
-
-Output using the Status Report format in references/output-formats.md — 12 lines maximum,
-fixed glyphs, one "Next:" block. If an artifact is missing, report it as not started; never
-infer progress from what we discussed.
+No issues: "No inconsistencies detected." Do not rewrite the spec. Use the Analyze Report
+format in references/output-formats.md.
 ```
 
 ---
 
-## Phase 5 — Validate Prompts
+## Status Prompt (`/sdd-status`)
+
+Answers "where am I" from disk, so the user opens no file.
+
+```
+Report the [feature] workflow state from the filesystem, never from our conversation:
+open [PENDING] in constitution.md; research.md findings, uncited claims, [CONFLICT];
+spec.md Status, ACs per MoSCoW label, open [NEEDS CLARIFICATION]; plan, data model, and
+contracts present and locked; task count, [x] vs [ ], last feature commit, progress.md;
+validation.md or walkthrough.md. A missing artifact is "not started".
+End with the single next action: the next task or the gate awaiting approval.
+Use the Status Report format in references/output-formats.md.
+```
+
+---
+
+## Phase 5: Validate Prompts
 
 ### Drift Detection Prompt
 
-**Format A — agent with file access (reads contracts to discover implementation files):**
-
 ```
-Read all contracts in specs/[feature]/contracts/ to identify which source files to check.
-For each contract endpoint, find the corresponding route/handler in src/.
-
-Compare the implementation against:
-- Acceptance criteria in specs/[feature]/spec.md
-- API contracts in specs/[feature]/contracts/
-- Data model in specs/[feature]/data-model.md
-
-Report:
-1. ACs with no test coverage
-2. Implemented API signatures that differ from contracts/
-3. Database fields not in data-model.md
-4. Functionality in code not covered by spec.md
-5. Missing error handling for error codes defined in contracts/
-6. Constitution violations — banned patterns introduced or security constraints violated
-   (read constitution.md to identify the rules to check against)
-
-Present the result using the Drift Report format in references/output-formats.md:
-verdict and count first, one line per item with BOTH locations (the code and the artifact
-it contradicts), a [CONFIRMED] or [VERIFY] marker on each, 25 lines maximum.
+Find the handlers for specs/[feature]/contracts/ in src/ and compare them with spec.md,
+contracts/, data-model.md, and constitution.md. Report ACs without tests, signatures off
+contract, fields missing from data-model.md, behavior no AC covers, unhandled contract
+error codes, and constitution violations.
+Use the Drift Report format in references/output-formats.md: each line names both the code
+location and the artifact it contradicts, with [CONFIRMED] or [VERIFY].
 ```
 
 ### Post-Implementation Validation Prompt
 
 ```
-Run a full spec compliance check on the [feature] implementation.
-
-Files to check: [list implementation files]
-Spec files: specs/[feature]/spec.md, specs/[feature]/plan.md, specs/[feature]/contracts/, constitution.md
-
-For each AC in spec.md, identify:
-- Which test covers it, cited file:line
-- Which implementation file satisfies it, cited file:line
-- Status from the fixed vocabulary: PASS / FAIL / NO TEST / NOT IMPLEMENTED / OUT OF SCOPE
-
-Write the full matrix to specs/[feature]/validation.md using the Traceability Matrix format
-in references/output-formats.md. In your response, show only the 3-line summary: verdict,
-MUST coverage ratio, and each blocking row. Do not paste the matrix into the response.
-
-Also report any implementation file that satisfies no AC — unmapped code is scope drift.
+Check [feature] for spec compliance. Code: [files]. Specs: spec.md, plan.md, contracts/,
+constitution.md.
+For each AC: the covering test (file:line), the implementing code (file:line), and a status
+of PASS / FAIL / NO TEST / NOT IMPLEMENTED / OUT OF SCOPE. Also list code that satisfies no
+AC; unmapped code is scope drift.
+Write the matrix to specs/[feature]/validation.md in the Traceability Matrix format of
+references/output-formats.md. Reply with only the 3-line summary: verdict, MUST coverage,
+blocking rows.
 ```
 
 ### Linear Walkthrough Prompt
 
-*Run before merge, for the humans. Its purpose is comprehension, not validation — it is the
-antidote to shipping code the team does not understand. Save the output as
-`specs/[feature]/walkthrough.md` or paste it into the PR description.*
+Run before merge. Save to `specs/[feature]/walkthrough.md` or the PR description.
 
 ```
-Write a linear walkthrough of the [feature] implementation for an engineer who has never
-seen this code and will have to maintain it.
-
-Files: [list implementation files]
-Spec: specs/[feature]/spec.md
-
-Rules:
-- Follow execution order, not file order. Start at the entry point the user actually hits.
-- At each step: what happens, in which file and function, and why it is done that way.
-- Cite `file:line` for every step.
-- Call out every non-obvious decision and tie it to the AC or plan section that forced it.
-- Explicitly list what this code does NOT handle, and where those cases are handled instead.
-- Flag anything you generated that you would not be able to justify from the spec — that
-  is unrequested behavior and the reviewer needs to see it first.
-
-Do not summarize the feature. Narrate the path through the code.
+Walk an engineer who will maintain [feature] through it. Files: [list]. Spec: spec.md.
+- Execution order from the entry point the user hits, not file order.
+- Each step: what happens, where (file:line, function), and why, tied to the AC or plan
+  section that forced any non-obvious decision.
+- What this code does not handle, and where those cases live.
+- Flag anything the spec cannot justify: unrequested behavior.
+Narrate the path. Do not summarize the feature.
 ```
 
 ### Adversary Prompt (Phase 5, levels M and L)
 
-*Run in an agent that did not write the code, in its own worktree or scratch copy of the
-branch, never in the implementer's checkout. Prefer a different model family from the
-author's when the harness offers one. The coordinator reruns every finding before it reaches
-the human (`output-formats.md → Critic Findings`).*
+Run by an agent that did not write the code, in its own worktree or scratch copy, never the
+implementer's checkout. Prefer a different model family from the author's.
+The coordinator reruns each finding before it reaches the human (see
+[Critic Findings](output-formats.md#critic-findings)).
 
 ```
-You did not write this code. Your job is to break it.
-Read: specs/[feature]/spec.md and constitution.md. Work in: [worktree or scratch path].
+You did not write this code. Break it.
+Read specs/[feature]/spec.md and constitution.md. Work only in [worktree or scratch path].
 
-For each [MUST] and [UNCHANGED] AC, try to make the real code violate it: wrong input,
-boundary values, repeated or concurrent calls, expired or missing state, the error paths.
-Run the code. Reading it is not enough.
+For each [MUST] and [UNCHANGED] AC, try to make the real code violate it: bad input,
+boundary values, repeated or concurrent calls, expired or missing state, error paths.
+A plausible bypass you found by reading is worth reproducing: run it.
 
-Report only what you reproduced, one finding per AC:
-[ISSUE] [AC-N] Adversary [Broken] [CONFIRMED] <one-line summary>
+One finding per AC, each with the command that confirms it and its output:
+[ISSUE] [AC-N] Adversary [Broken] [CONFIRMED] <summary>
   run:      <exact command>
   got:      <its output>
-  required: <the output the AC requires>
+  required: <output the AC requires>
 
-A finding without all three lines is not a finding: list it under "Dropped" with the reason.
-No style, naming, or refactoring findings. No fixes. If you could not break an AC, say
-"AC-N held" with the commands you tried.
+A finding without a rerun command and its output goes under "Dropped" with the reason.
+Naming and style findings are out of scope: drop them. No fixes.
+For an AC you could not break, write "AC-N held" and the commands you tried.
 ```
 
 ---
 
 ## Multi-Agent Review Pattern
 
-When using subagents for critique (recommended for complex specs):
+One critic agent per role on complex specs; merge findings before moving on. Per-phase
+critics are in [ai-agent-patterns.md](ai-agent-patterns.md).
 
 ```
 # Critic Agent Prompt
-Review specs/[feature]/spec.md from the perspective of [role]:
-- QA Engineer: find untestable or ambiguous criteria
-- Security Engineer: find missing auth, validation, or data exposure risks
-- Database Engineer: find schema issues, missing indexes, or N+1 risks
-- Frontend Engineer: find missing states, loading states, or error UX
+Review specs/[feature]/spec.md as [role]:
+QA (untestable, ambiguous), Security (auth, validation, exposure), Database (schema,
+indexes, N+1), or Frontend (loading, empty, error states).
 
-Return issues in this format:
-[ISSUE] [AC-N or Section] [Role] [Type: Untestable/Ambiguous/Missing/Risk/Schema/UX-Gap] [Description]
+[ISSUE] [AC-N or Section] [Role] [Untestable|Ambiguous|Missing|Risk|Schema|UX-Gap] [CONFIRMED|VERIFY] <description>
 
-Mark [CONFIRMED] only when you can cite the exact artifact location proving the issue.
-Otherwise mark [VERIFY]. Never invent a confidence percentage.
-
-Examples:
-[ISSUE] AC-3 QA Untestable [CONFIRMED] "responds quickly" has no numeric threshold — specify ms target
-[ISSUE] AC-1 Security Missing [CONFIRMED] No authentication requirement stated for this endpoint
-[ISSUE] data-model.md DB Schema [VERIFY] Likely missing index on user_id + created_at — query pattern not stated in plan.md
-
-If no issues found for your role, respond: "No issues found for [role]."
-Do not approve, summarize, or compliment — issues only.
+[CONFIRMED] needs the artifact location that proves it; otherwise [VERIFY]. Never a
+percentage. Nothing found: "No issues found for [role]." Issues only.
 ```
-
-Use separate critic agents for each role. Aggregate their feedback before proceeding.
 
 ---
 
 ## Constitution from Existing Codebase
 
-*Use when onboarding SDD onto a project that already exists. Derives constitution.md
-from actual code patterns rather than aspirational decisions. Run once before
-writing the first feature spec.*
+Run once when adopting SDD on an existing project.
 
 ```
-Derive a constitution.md for this codebase from what actually exists, not what
-we wish existed.
+Derive constitution.md (template) from what this codebase actually does. Read: [package manifest], [2-3 route or handler files],
+[schema or migrations], [lint and format config], [auth or security utilities].
 
-Read the following to understand the real patterns in use:
-- Package manifest: [package.json / go.mod / Cargo.toml / requirements.txt]
-- Representative route or handler files: [list 2-3 file paths]
-- Database schema or migration files: [file paths]
-- Lint and formatter config: [.eslintrc / .prettierrc / pyproject.toml / etc.]
-- Auth middleware or security utilities: [file paths]
+Document stack with versions, repeated architecture patterns, naming from real files and
+columns, security patterns present and absent, layout, conventions to keep, and patterns to
+avoid (inconsistent, or marked TODO/FIXME/HACK).
 
-Extract and document:
-
-1. Technology Stack — every language, framework, and library in active use (with versions)
-2. Architecture Principles — patterns that repeat across files (layered architecture,
-   repository pattern, how routing is organized, how errors propagate)
-3. Naming Conventions — derive from actual file names, variable names, and DB column names
-4. Security Constraints — auth patterns present, input validation approach,
-   what is consistently enforced vs. absent
-5. File Structure — actual directory layout, where different concerns live
-6. Patterns to Preserve — conventions applied consistently that new code should follow
-7. Patterns to Avoid — things done inconsistently, or marked with TODO/FIXME/HACK comments
-
-For each section where the codebase is inconsistent, write:
-[INCONSISTENT] [what varies] → [options observed] — human must decide which to standardize
-
-For anything undecided or unclear, write [PENDING].
-
-Do NOT invent rules not evidenced in the code. Describe what is, not what should be.
-Output as constitution.md following the template in references/artifact-templates.md.
+Where the code is inconsistent: [INCONSISTENT] [what varies]: [options seen]. The human
+picks the standard. Undecided items: [PENDING]. Invent no rule the code does not show.
 ```
 
-After generating, resolve every `[INCONSISTENT]` and `[PENDING]` item before using
-the constitution in any feature spec. An inconsistent constitution produces inconsistent specs.
+Resolve every `[INCONSISTENT]` and `[PENDING]` item before any feature spec uses the
+constitution.
 
 ---
 
 ## Cross-Feature Conflict Detector
 
-*Run after a new spec.md is ready (post-Clarify, pre-Phase 2). Checks the new spec
-against all existing active and archived specs for behavioral, structural, and ownership
-conflicts. Most valuable on projects with 3+ completed features.*
+Run after Clarify, before Phase 2, once the project has about 3 completed features.
 
 ```
-You are reviewing specs/[new-feature]/spec.md for conflicts with existing features.
+Check specs/[new-feature]/spec.md against every spec.md in specs/ and specs/archive/ for:
+Endpoint (same endpoint, other behavior or errors), Entity (incompatible writes to a shared
+entity), Behavior (an AC contradicting another spec), Ownership (undeclared changes to
+another feature's data), Naming (one concept, two names).
 
-Read:
-- specs/[new-feature]/spec.md (new spec being validated)
-- All spec.md files in specs/ (other active features, if any)
-- All spec.md files in specs/archive/ (completed features)
-
-Check for the following conflict types:
-
-1. Endpoint conflicts — does the new spec imply an API endpoint that already exists
-   in another spec with different behavior, response shape, or error codes?
-
-2. Entity conflicts — does the new spec reference a shared entity (User, Order, etc.)
-   that another spec also modifies? Are the write operations compatible?
-
-3. Behavioral conflicts — does an AC in the new spec contradict behavior defined in
-   an existing spec? Example: new spec says "unauthenticated users can view X",
-   existing spec says "all /api/v1/* routes require authentication".
-
-4. Ownership conflicts — does the new spec modify data or endpoints owned by another
-   feature without explicitly calling it out as a cross-feature dependency?
-
-5. Naming conflicts — same entity or concept named differently across specs,
-   suggesting they may be the same thing or may diverge unnecessarily.
-
-Return issues in this format:
-[CONFLICT] [new-spec section] vs [existing-spec file + section] [Type: Endpoint/Entity/Behavior/Ownership/Naming] [Description]
-
-If no conflicts are found, respond: "No conflicts detected against existing specs."
-Do NOT suggest spec rewrites — report conflicts only. Human resolves each conflict.
+[CONFLICT] [new-spec section] vs [existing spec file + section] [Endpoint|Entity|Behavior|Ownership|Naming] <description>
+None: "No conflicts detected against existing specs." Report only; the human resolves each.
 ```

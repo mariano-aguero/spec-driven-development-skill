@@ -1,263 +1,157 @@
-# Quick Reference — Spec-Driven Development
+# Quick Reference
 
-One-page cheat sheet. For details, see referenced files.
+One-page summary. Each section links to the file that holds the detail.
 
 ## Contents
 
-Workflow diagram · Directory layout · Phase commands · Ceremony levels · Spec modes ·
-Spec vs. code disagreements · Enforcement ladder · Hard rules · MoSCoW labels · AC format ·
-Task sizes · Drift types · Gate checklist · Context budget · Output budgets ·
-When not to use SDD
+- [Workflow](#workflow)
+- [Directory Layout](#directory-layout)
+- [Phase Commands](#phase-commands)
+- [Ceremony Levels](#ceremony-levels)
+- [Spec Modes](#spec-modes)
+- [Spec vs. Code Disagreements](#spec-vs-code-disagreements)
+- [Enforcement](#enforcement)
+- [Hard Rules](#hard-rules)
+- [Labels and AC Format](#labels-and-ac-format)
+- [Gates](#gates)
+- [Context and Output Budgets](#context-and-output-budgets)
+- [When Not to Use SDD](#when-not-to-use-sdd)
 
----
+## Workflow
 
-## Phase 0 + 5-Phase Workflow
-
-```
-[CONSTITUTION] ── (once per project)
-       ↓
-[RESEARCH] ── (conditional: unfamiliar or existing code)
- research.md
-       ↓
+```text
+[CONSTITUTION]  once per project
+      ↓
+[RESEARCH]  when the code is unfamiliar or already exists
+      ↓
 [SPECIFY] → [CLARIFY] → [PLAN] → [TASKS] → [IMPLEMENT] → [VALIDATE]
- spec.md      resolve     plan.md   tasks.md   per task     traceability
-              ambiguities data-model commit     commit       drift report
-              edge cases  contracts  after each after each   walkthrough
-              → spec.md
+ spec.md     resolve     plan.md   tasks.md   one commit    traceability
+             ambiguity   contracts            per task      drift, walkthrough
 ```
 
-Each arrow is a **compaction boundary**: the next phase reads the artifact, never the raw
-material behind it.
-
----
+Each arrow is a compaction boundary: the next phase reads the artifact, never the raw material
+behind it. Steps per phase: [workflow-phases.md](workflow-phases.md).
 
 ## Directory Layout
 
-```
-constitution.md      # Project-level: immutable principles (NEVER skip)
-
+```text
+constitution.md      # project constraints, never skipped
 specs/[feature]/
-├── research.md      # How the system works TODAY (Phase 0.5, cited file:line, L1 to L5)
-├── spec.md          # Handoff block + WHAT + WHY (no tech details, MoSCoW priorities)
-├── plan.md          # HOW (architecture, components)
-├── data-model.md    # Entities, fields, constraints, indexes
-├── contracts/       # API shapes, error codes (LOCKED after Phase 2 approval)
-├── tasks.md         # Sized tasks: Depends on, Creates, Modifies
-├── validation.md    # AC | Proof | Before | Mutant | After | Verdict | Checked by (Phase 5)
-├── progress.md      # Optional: resume note (status, last good commit, next step)
-├── walkthrough.md   # Optional: execution-ordered narration for reviewers (Phase 5)
-└── decision_log.md  # Optional: append-only ts | task | decision | why | evidence | result
-
-specs/_current/[capability].md   # Merged current state, written at archive
+├── research.md      # how the system works today, cited file:line (Phase 0.5)
+├── spec.md          # handoff, what and why, MoSCoW ACs, no tech details
+├── plan.md          # how: architecture, components
+├── data-model.md    # entities, fields, constraints, indexes
+├── contracts/       # API shapes, error codes, locked after Phase 2
+├── tasks.md         # sized tasks with Depends on, Creates, Modifies
+├── validation.md    # per-AC proof and verdict (Phase 5)
+├── progress.md      # optional resume note
+├── walkthrough.md   # optional execution-ordered narration
+└── decision_log.md  # optional append-only decisions
+specs/_current/[capability].md   # merged current state, written at archive
 ```
 
----
+Templates: [artifact-templates.md](artifact-templates.md).
 
 ## Phase Commands
 
-| Command | Phase | Reads | Creates |
-|---------|-------|-------|---------|
-| `/sdd-init` | 0 | project context | `constitution.md` |
-| `/sdd-research [description]` | 0.5 | codebase | `research.md` |
-| `/sdd-specify [description]` | 1 | user input + `research.md` (if present) | `spec.md` |
-| `/sdd-specify` | 1 (sub-step) | `spec.md` | delta (new ACs, resolved questions) |
-| `/sdd-plan` | 2 | `spec.md` + `constitution.md` + `research.md` (if present) | `plan.md`, `data-model.md`, `contracts/` |
-| `/sdd-tasks` | 3 | `plan.md`, `contracts/` | `tasks.md` |
-| `/sdd-tasks` | 4 | `tasks.md` | — (extracts single task) |
-| `/sdd-validate [domain]` | 1 | `spec.md` | `checklists/[domain].md` — tests the spec, not the code |
-| `/sdd-validate` | any | `spec.md` | inconsistency report |
-| `/sdd-status` | any | all artifacts on disk | phase state + next action (12 lines) |
-| `/sdd-change [what changed]` | any | all spec files | updated spec chain |
-| `/sdd-change [feature]` | any | spec files + git history | classified differences — **proposes only** |
-| `/sdd-validate` | 5 | all spec files + code | `validation.md`, drift report, `walkthrough.md` |
-
----
+| Command | Phase | Creates |
+|---------|-------|---------|
+| `/sdd-init` | 0 | `constitution.md` |
+| `/sdd-research [description]` | 0.5 | `research.md` |
+| `/sdd-specify [description]` | 1 | `spec.md`, then clarifies it |
+| `/sdd-plan` | 2 | `plan.md`, `data-model.md`, `contracts/` |
+| `/sdd-tasks` | 3, 4 | `tasks.md`, then one task at a time |
+| `/sdd-validate [domain]` | 1 | `checklists/[domain].md`, which tests the spec |
+| `/sdd-validate` | 5 or any | `validation.md`, drift report, walkthrough, or an inconsistency report |
+| `/sdd-status` | any | phase state and next action |
+| `/sdd-change [what changed]` | any | amended spec chain |
+| `/sdd-change [feature]` | any | reconcile proposals, edits nothing |
 
 ## Ceremony Levels
 
-| | **S — Light** | **M — Standard** | **L — Full** |
+| | S: Light | M: Standard | L: Full |
 |---|---|---|---|
-| Use when | 1 session, ≤3 files, no schema/contract/auth change, revertible | New endpoint, table, or user-visible behavior | Auth, payments, migrations, regulated, unfamiliar code |
-| Artifacts | ACs in the PR body | spec, plan, contracts, tasks | + research, decision log, walkthrough |
-| Critics | — | optional | required |
+| Use when | 1 session, 3 files or fewer, no schema, contract or auth change, revertible | New endpoint, table or user-visible behavior | Auth, payments, migrations, regulated or unfamiliar code |
+| Artifacts | ACs in the PR body | spec, plan, contracts, tasks | adds research, decision log, walkthrough |
 
-Gates per level: [quality-gates.md](quality-gates.md#which-gates-apply-at-which-ceremony-level).
-
-Start at M. Drop to S only if **all** the S conditions hold; move to L if **any** L condition
-holds. Tiebreaker is reversibility, not size. Promote mid-flight, never demote.
-
----
+Start at M. Drop to S only if all S conditions hold, and move to L if any L condition holds.
+The tiebreaker is reversibility, not size. Promote mid-flight, never demote. Gates per level:
+[quality-gates.md](quality-gates.md).
 
 ## Spec Modes
 
-| Mode | Use when | Header |
-|------|----------|--------|
-| **Full** | New capability, no existing behavior to preserve | `Mode: Full` |
-| **Delta** | Changing behavior that already ships | `Mode: Delta` + `Baseline:` |
-
-Delta ACs carry `[ADDED]` / `[MODIFIED]` / `[REMOVED]` / `[UNCHANGED]` alongside MoSCoW.
-`[UNCHANGED]` is the regression suite. Baseline must resolve to a prior spec or cited
-`research.md` findings — never "the current code". Max **two** unfolded deltas per baseline.
-
----
+Full for a new capability, Delta (`Mode: Delta` plus `Baseline:`) for shipped behavior. Delta
+ACs carry `[ADDED]`, `[MODIFIED]`, `[REMOVED]` or `[UNCHANGED]`, and `[UNCHANGED]` is the
+regression suite. The baseline is a prior spec or cited `research.md` findings, never "the
+current code". At most two unfolded deltas per baseline. See
+[workflow-phases.md](workflow-phases.md), Delta Specs.
 
 ## Spec vs. Code Disagreements
 
-| Situation | Cause | Command | What changes |
-|-----------|-------|---------|--------------|
-| Drift | Implementation diverged by mistake | `/sdd-validate` | the **code** |
-| Amendment | A requirement changed | `/sdd-change` | the **spec chain**, then code |
-| Reconciliation | Code changed outside the workflow | `/sdd-change` | per difference, **human decides** |
+| Situation | Command | What changes |
+|-----------|---------|--------------|
+| Drift: code diverged by mistake | `/sdd-validate` | the code |
+| Amendment: a requirement changed | `/sdd-change` | the spec chain, then code |
+| Reconcile: code changed outside the workflow | `/sdd-change` | per difference, a human decides |
 
-Reconcile classifications: `INTENTIONAL` / `EXTERNAL` need quoted evidence → update spec ·
-`DRIFT` (no evidence) → fix code · `AMBIGUOUS` → human, defaults to DRIFT.
-**Absence of evidence is drift.**
+Reconcile marks `INTENTIONAL` or `EXTERNAL` only with quoted evidence (update the spec), `DRIFT`
+without it (fix the code), and `AMBIGUOUS` defaults to `DRIFT`.
 
----
+## Enforcement
 
-## Enforcement Ladder
-
-| Rung | Mechanism | Use for |
-|------|-----------|---------|
-| 1 — Asked | The prompt states the rule | Judgment calls: testability, over-engineering, comprehension |
-| 2 — Checked | CI or `scripts/sdd-check.mjs` detects the violation after the fact | Status, AC proof, handoff, task graph, baseline, unresolved clarifications, citations |
-| 3 — Blocked | A hook prevents the action | `contracts/` freeze, banned patterns, tests-before-commit |
-
-Promote a rule only when it is objectively decidable **and** has been violated more than once.
-Mechanical checks verify that rules were followed — never that the rules were right.
-
-Validator: `node scripts/sdd-check.mjs [specs-dir] [--json]`, exit 1 on any error. No Node:
-report the mechanical checks as `inconclusive`. Detail: `enforcement.md#the-validator`.
-
-`constitution.md` → derive `AGENTS.md` (60–150 lines, never edited directly). Cut every line
-an agent would follow anyway; the value is entirely in the surprising rules.
-
----
+Rules are asked (the prompt states them), checked (CI or `scripts/sdd-check.mjs` after the
+fact), or blocked (a hook stops the action). Promote a rule only when it is objectively
+decidable and was violated more than once. Validator: `node scripts/sdd-check.mjs [specs-dir]
+[--json]`, exit 1 on any error; with no Node, report mechanical checks `inconclusive`.
+`AGENTS.md` is derived from `constitution.md` and never edited directly. Detail:
+[enforcement.md](enforcement.md).
 
 ## Hard Rules
 
-| Rule | Why |
-|------|-----|
-| Constitution before any spec | Without it, every feature reinvents the wheel |
-| Pick the ceremony level per change | Uniform-heavy kills adoption; uniform-light fails on auth and money |
-| A delta spec needs a resolvable baseline | "The current code" is an assumption, not a reference |
-| Absence of evidence is drift | Otherwise reconcile legitimizes whatever the code happens to do |
-| Research before specifying unfamiliar code | A spec built on a wrong model of the system drifts by construction |
-| Every research claim cites `file:line` | An uncited finding is a guess wearing a fact's clothes |
-| Every `[MUST]` AC has a `Proof:` line | An AC nobody can check is a wish |
-| Verdicts are `pass`, `fail`, `inconclusive` | A check that could not run is not a pass |
-| Research findings carry evidence L1 to L5 | The fact safety depends on must reach L4 or say `unproven` |
-| Compact at 60–80%, never at 100% | Auto-compaction discards details you chose to keep |
-| Surface assumptions before specifying | Implicit AI assumptions become wrong ACs |
-| No implementation details in spec.md | Spec describes behavior, not mechanism |
-| Clarify before Plan | Ambiguous spec = wrong architecture |
-| Lock contracts/ before Phase 4 | Changing contracts mid-implementation = drift |
-| Fresh context per task | Accumulated assumptions corrupt later tasks |
-| Commit after each task | Clean rollback if task produced drift |
-| Code must match spec (never reverse) | Updating spec to match code destroys its value |
-| Human approves intent gates (R, 1, C, merge); a non-author checker passes evidence gates (2 completeness, 3, 4, 5) | The author never passes its own gate |
-| Commit specs with code | Spec files belong in the same PR as implementation |
+- Constitution before any spec. Pick the ceremony level per change.
+- Research before specifying unfamiliar code. Every research claim cites `file:line` and
+  carries an evidence level from L1 to L5.
+- Surface assumptions, then clarify, before planning. No implementation details in `spec.md`.
+- Every `[MUST]` AC has a `Proof:` line. Verdicts are `pass`, `fail` or `inconclusive`.
+- Lock `contracts/` before Phase 4. Fresh context and one commit per task.
+- Code matches the spec, never the reverse. No evidence means drift.
+- Humans approve intent gates (R, 1, C, merge). A non-author checker passes evidence gates
+  (2 completeness, 3, 4, 5). The author never passes its own gate.
+- Commit specs in the same PR as the code.
 
----
+Failure modes and fixes: [anti-patterns.md](anti-patterns.md).
 
-## MoSCoW Priority Labels
+## Labels and AC Format
 
-| Label | Meaning | Use |
-|-------|---------|-----|
-| `[MUST]` | Required for launch | No AC = no shipping |
-| `[SHOULD]` | Important but not blocking | Ship if time allows |
-| `[COULD]` | Nice to have | Backlog if needed |
-| `[WONT]` | Explicitly out of scope | Documents decision |
+MoSCoW: `[MUST]` blocks shipping, `[SHOULD]` ships if time allows, `[COULD]` goes to backlog,
+`[WONT]` records an exclusion.
 
----
-
-## Acceptance Criteria Format
-
-```
-Given [initial state or context]
-When [user or system action]
+```text
+Given [initial state]
+When [action]
 Then [observable outcome]
 **Proof:** test: [command]    (every [MUST] AC; kinds: test | command | artifact | manual)
 ```
 
-✅ Given a logged-in user, when they submit the form, then a success message appears within 1s.
-❌ "The form submits correctly" — not testable.
-❌ "The API calls POST /users" — implementation detail.
+"Then a success message appears within 1s" is testable. "The form submits correctly" is not,
+and "The API calls POST /users" is an implementation detail.
 
----
+## Gates
 
-## Task Size Guidelines
+Gate 0 (constitution), R (research), 1 (spec), 2 (plan and contracts), 3 (tasks), 4 (per task),
+5 (final) and C (comprehension). Checklists, the level matrix and drift classification:
+[quality-gates.md](quality-gates.md). Prompts for every step: [prompt-patterns.md](prompt-patterns.md).
 
-| Size | Duration | Max Files | When to Split |
-|------|----------|-----------|---------------|
-| S | < 1 hour | 1–2 | Never |
-| M | 1–3 hours | 2–3 | When touching unrelated concerns |
-| L | 3–6 hours | 3 | Always — split into 2× M |
+## Context and Output Budgets
 
----
+Work in the 40 to 60% context band. At 60 to 80%, finish the step, write `progress.md` and
+start fresh. Past 80%, stop now. Detail: [ai-agent-patterns.md](ai-agent-patterns.md).
 
-## Drift Types (All Require Fixing)
+Write artifacts and show verdicts, verdict first. Confidence is `[CONFIRMED]` or `[VERIFY]`,
+never a percentage. Line budgets for every output the user reads:
+[output-formats.md](output-formats.md).
 
-| Drift | Example | Fix |
-|-------|---------|-----|
-| Signature | Returns `{ user }` instead of `{ data: user }` | Fix code |
-| Schema | Column `userId` instead of `user_id` | Fix code |
-| Behavior | Returns 404 instead of specified 403 | Fix code |
-| Scope creep | Extra endpoint not in spec | Remove or update spec first |
-| Spec error | Wrong error code in spec | Update spec → plan → contract → code |
+## When Not to Use SDD
 
----
-
-## Gate Checklist (Summary)
-
-**Gate 0 (constitution.md):** Stack locked? 5+ security rules? No vague banned patterns? Structure documented?
-**Gate R (research.md):** Every claim cited? Citations spot-checked? Files complete? Purely descriptive? Gaps declared?
-**Gate 1 (spec.md):** Testable ACs? No tech details? No open questions? Scope defined? No blocking constitution `[PENDING]`? Every Done-when line a check, no time box? Cold read matches intent (M, L)?
-**Gate 2 (plan.md + contracts):** Checker: AC traceability? All errors defined? Schema complete? Human: risks with mitigations? Two designs compared (L)?
-**Gate 3 (tasks.md):** Tests before implementation? Task size OK? No dependency cycles?
-**Gate 4 (per task):** Tests pass on a checker's rerun? Seen failing first, failure quoted? At M and L, a mutant per `[MUST]` AC killed and no tautologies? Signatures match? Scope adhered to?
-**Gate 5 (final):** Checker: traceability matrix complete? Zero drift? Stories exercised, artifacts attached? Adversary findings fixed (M, L)? Mutation survivors listed (L)? Human: verdict audited, walkthrough read?
-**Gate C (comprehension):** Linear walkthrough written and read? Debuggable by someone else? Every abstraction justified?
-
----
-
-## Context Budget
-
-| Utilization | State | Action |
-|-------------|-------|--------|
-| 0–40% | Loading | Continue |
-| 40–60% | Productive | Continue — live here |
-| 60–80% | Degrading | Finish step → write `progress.md` → fresh session |
-| 80%+ | Unreliable | Stop now |
-
-Review leverage: `research.md` (~200 lines) prevents thousands of wrong lines ·
-`plan.md` (~200 lines) prevents hundreds · generated code prevents one at a time.
-
----
-
-## Output Budgets
-
-What the user reads, and how long it may be. Full formats in `output-formats.md`.
-
-| Output | Budget |
-|--------|--------|
-| Gate verdict | 15 lines + 1 per failing check |
-| Critic findings | 1 line per finding, 20 max |
-| Traceability matrix | full file; **3-line** summary in the response |
-| Drift report | 1 line per item, 25 max |
-| Analyze report | 20 lines |
-| Status report | 12 lines |
-| Linear walkthrough | 60 lines / 8 steps |
-| Phase completion summary | 6 lines |
-
-Three rules: **write artifacts, show verdicts** · **verdict first, evidence second** ·
-confidence is binary — `[CONFIRMED]` or `[VERIFY]`, never a percentage.
-
----
-
-## When NOT to Use SDD
-
-- Bug fix under 30 minutes
-- Refactor with no behavior change
-- Throwaway prototype
-- Changing a single configuration value
+A bug fix under 30 minutes, a refactor with no behavior change, a throwaway prototype, or a
+single configuration value.
