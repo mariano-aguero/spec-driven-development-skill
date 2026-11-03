@@ -213,7 +213,9 @@ resolvable baseline is not reviewable.** See `references/workflow-phases.md → 
 
 A test that cannot fail is no proof: one that asserts on data it built itself, or never
 calls the code, is replaced or deleted, and its AC is recorded as unproven. "Green" is not
-evidence; the checker needs the failing-before run quoted.
+evidence. For each `[MUST]` AC the checker produces the proof command rerun, the
+failing-before output quoted, and a behavior-breaking mutant that turns it red. If the tests
+cannot run here (no shell, runner not installed), say so as the reason for `inconclusive`.
 
 At Phase 5 (M and L) an adversary that did not write the code works in its own worktree or
 scratch copy, preferably on a different model family, and tries to break each `[MUST]` and
