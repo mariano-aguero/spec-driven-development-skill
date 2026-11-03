@@ -50,7 +50,7 @@ design.
 
 **The rule that holds at every level:** the author never passes its own gate. Its own test
 run is input to the checker, never the verdict. `inconclusive` blocks the next phase exactly
-like `fail`. S has fewer gates, not self-approving ones. With no subagents available, see
+like `fail`. S has fewer gates, and none of them self-approves. With no subagents available, see
 `ai-agent-patterns.md → No-Subagent Fallback`.
 
 If you find yourself skipping gates at M, you picked the wrong level. Drop to S deliberately
@@ -191,7 +191,7 @@ code. The implementer's own green run is input, never the verdict.
 | Check | Pass Criteria |
 |-------|--------------|
 | Tests pass | All new tests pass when the checker reruns them; no existing tests regressed |
-| Failing before | Each new test was run before the change, and the evidence quotes the failure content (the diff or error showing the predicted disagreement), not only the assertion line. A test never seen red proves nothing |
+| Failing before | Each new test was run before the change, and the evidence quotes the failure content: the diff or error showing the predicted disagreement, beyond the assertion line. A test never seen red proves nothing |
 | Mutant killed | For each `[MUST]` AC with an automated proof, the checker applies at least one behavior-breaking edit to the code under test (wrong value, skipped effect, doubled effect), shows the proof go red, and reverts the edit. A proof that survives every mutant fails the gate |
 | No tautologies | No test computes its expected value with the code under test, asserts on data the test built itself, restates a constant without running the code that reads it, or asserts less than the AC promises |
 | Signature match | Implemented API signatures match contracts/ exactly |

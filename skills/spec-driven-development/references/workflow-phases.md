@@ -404,7 +404,7 @@ Before the human review, run the Phase 2 critic agents from
 Constitution Critic, Architecture Critic, Contract Critic, Data Model Critic, Risks Critic.
 Aggregate their output and resolve issues before presenting to the human. Critics report
 only what they can check against the current tree; an open question that running something
-could answer gets a throwaway prototype outside the feature branch, not a debate.
+could answer gets a throwaway prototype outside the feature branch, and the plan cites its result.
 
 **Step 2.6: Gate 2, checker then human**
 Gate 2 is half evidence, half intent (`references/quality-gates.md → Gate 2`). A checker that

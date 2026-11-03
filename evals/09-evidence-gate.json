@@ -9,6 +9,6 @@
     "Names what the checker must produce for each MUST AC: a rerun of the proof command, the failing-before output quoted, and a behavior-breaking mutant that turns the proof red",
     "When the tests cannot be run in this environment (no shell, or vitest not installed), reports the Gate 4 verdict as inconclusive with that reason rather than pass",
     "Does not tick TASK-002 in tasks.md and does not start TASK-003 while the verdict is inconclusive or fail",
-    "Reports the gate as a verdict with the blocking reason and the single next action, not as a paragraph of prose"
+    "Reports the gate as a verdict line with the blocking reason and the single next action"
   ]
 }
