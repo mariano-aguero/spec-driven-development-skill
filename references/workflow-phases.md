@@ -243,7 +243,7 @@ All `[NEEDS CLARIFICATION]` items must be `[RESOLVED]` before proceeding. Do not
 
 **Step 1.6 — Human review (Gate 1)**
 The human must read and approve the updated `spec.md`. Use the Gate 1 checklist in
-`references/quality-gates.md`. This gate is non-negotiable.
+`references/quality-gates.md`. This gate is non-negotiable. On pass, set `Status: Approved`.
 Common review feedback:
 
 - "AC is too vague" → rewrite as Given/When/Then
@@ -405,7 +405,7 @@ The human reviews `plan.md`, `data-model.md`, and `contracts/`. Particular focus
 - Does the Risks section cover all High-impact risks with concrete mitigations?
 
 **Step 2.7 — Lock contracts**
-Once approved, `contracts/` are **frozen** for the duration of Phase 4.
+Once approved, set `Status: Planned`. `contracts/` are **frozen** for the duration of Phase 4.
 Changing a contract during implementation is spec drift — plan first, then execute.
 
 **Step 2.8 — Commit**
@@ -473,6 +473,7 @@ each task to maintain clean rollback points.
 ### Step-by-Step
 
 **Step 4.1 — Session setup per task**
+When the first task starts, set `Status: In Progress`.
 Start a fresh context window for each task. Include:
 
 - `constitution.md` (always — project-level constraints, never violate)
@@ -574,6 +575,7 @@ If drift is found:
   (never skip the update chain)
 
 **Step 5.4 — Acceptance test run**
+When Gate 5 passes, set `Status: Validated`.
 Manually walk through each user story from `spec.md` in the running application.
 Check each AC as a user, not as a developer.
 
@@ -594,7 +596,7 @@ Pay particular attention to anything the agent flags as behavior it cannot trace
 AC — that is unrequested scope, and it is easiest to remove before merge.
 
 **Step 5.6 — Archive specs (optional)**
-After validation passes, consider archiving completed specs to keep `specs/` clean:
+After validation passes, consider archiving completed specs to keep `specs/` clean. On archive, set `Status: Archived`:
 
 ```bash
 mkdir -p specs/archive/[feature-name]

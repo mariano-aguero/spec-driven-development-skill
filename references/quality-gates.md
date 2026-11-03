@@ -89,7 +89,7 @@ Errors caught here cost minutes; the same errors caught in Phase 4 cost the feat
 
 ### Gate 1 — spec.md Approval
 
-Run before Phase 2. All items must pass.
+Run before Phase 2. All items must pass. On pass: `Status: Approved`.
 
 | Check | Pass Criteria |
 |-------|--------------|
@@ -125,7 +125,7 @@ Run before Phase 2. All items must pass.
 
 ### Gate 2 — plan.md + contracts/ Approval
 
-Run before Phase 3. All items must pass.
+Run before Phase 3. All items must pass. On pass: `Status: Planned`.
 
 | Check | Pass Criteria |
 |-------|--------------|
@@ -146,7 +146,7 @@ Run before Phase 3. All items must pass.
 
 ### Gate 3 — tasks.md Approval
 
-Run before Phase 4. All items must pass.
+Run before Phase 4. All items must pass. Status stays `Planned` until the first task starts, then `In Progress`.
 
 | Check | Pass Criteria |
 |-------|--------------|
@@ -182,7 +182,7 @@ Run per-task, before marking task complete and committing.
 
 ### Gate 5 — Final Validation
 
-Run after Phase 4 completes, before merging.
+Run after Phase 4 completes, before merging. On pass: `Status: Validated`.
 
 | Check | Pass Criteria |
 |-------|--------------|
