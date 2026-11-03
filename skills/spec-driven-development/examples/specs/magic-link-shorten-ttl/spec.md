@@ -16,6 +16,7 @@ links are issued, hashed, or redeemed.
 
 Goal: Magic links expire after 5 minutes and the expiry page says so, with every other behavior unchanged.
 Done when:
+
 - [ ] `pnpm vitest run tests/integration/magic-link` exits 0 (AC-1, AC-3, AC-4, AC-5, AC-6)
 - [ ] `pnpm playwright test tests/e2e/magic-link.spec.ts` exits 0 (AC-2)
 Isolation: branch `feat/magic-link-ttl-5min` off `main`, one worktree per parallel task

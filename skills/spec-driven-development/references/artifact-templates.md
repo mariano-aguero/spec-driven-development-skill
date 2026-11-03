@@ -415,9 +415,7 @@ Implements: `specs/[branch]/spec.md`
 <!-- How callers use the new or changed interface, as code or a CLI/HTTP call. Written
      before the contracts; contracts/ derive from it. Omit if no interface changes. -->
 
-```[lang]
-[the call a real caller would write, with its result]
-```
+[The call a real caller would write, with its result, indented four spaces]
 
 ## Component Breakdown
 

@@ -13,6 +13,7 @@ to their inbox — no password required.
 
 Goal: Users sign in by emailed one-time link, with single use, a 15-minute expiry and a per-email rate limit.
 Done when:
+
 - [ ] `pnpm vitest run tests/integration/magic-link` exits 0 (AC-1, AC-2, AC-3, AC-4, AC-E1, AC-E2, AC-E3)
 - [ ] `pnpm playwright test tests/e2e/magic-link.spec.ts` exits 0 (AC-1, AC-2, AC-3)
 - [ ] `src/app/auth/magic-link/verify/route.ts` creates its session through `createSession()` (AC-2)
