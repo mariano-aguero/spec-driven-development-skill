@@ -15,6 +15,8 @@ Use "Codebase Research Prompt" and "Research Consolidation Prompt" in `../spec-d
 Use the template under "research.md Template" in `../spec-driven-development/references/artifact-templates.md`.
 
 Produce: `specs/<feature>/research.md`, every finding cited `file:line`.
+Describe how the code works today. No ACs, user stories, or proposed design in `research.md`.
+Put what you could not determine under `## Open questions / not investigated`; never fill a gap with a guess.
 Gate: "Gate R" in `../spec-driven-development/references/quality-gates.md`, with "Research Verification Prompt" from the prompt file.
 Validate: `node ../spec-driven-development/scripts/sdd-check.mjs specs/<feature>`
-Next: `/sdd-specify`.
+Next: `/sdd-specify`. Report the Gate R verdict and wait for the human before Phase 1.
