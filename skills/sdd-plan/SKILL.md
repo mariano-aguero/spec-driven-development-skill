@@ -7,6 +7,8 @@ license: MIT
 
 # sdd-plan
 
+Paths below are relative to this file. Resolve them before running anything.
+
 Read `../spec-driven-development/SKILL.md`, section "5-Phase Workflow".
 Read `../spec-driven-development/references/workflow-phases.md`, section "Phase 2".
 Use "Technical Plan Generation Prompt" and "Plan Review Prompt" in `../spec-driven-development/references/prompt-patterns.md`.

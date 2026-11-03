@@ -7,6 +7,8 @@ license: MIT
 
 # sdd-init
 
+Paths below are relative to this file. Resolve them before running anything.
+
 Read `../spec-driven-development/SKILL.md`, section "Phase 0".
 Read `../spec-driven-development/references/workflow-phases.md`, section "Phase 0".
 Use the template under "constitution.md Template" in `../spec-driven-development/references/artifact-templates.md`.

@@ -7,6 +7,8 @@ license: MIT
 
 # sdd-tasks
 
+Paths below are relative to this file. Resolve them before running anything.
+
 Read `../spec-driven-development/SKILL.md`, section "5-Phase Workflow".
 Read `../spec-driven-development/references/workflow-phases.md`, sections "Phase 3" and "Phase 4".
 Use "Task Breakdown Prompt" and "Task Validation Prompt" in `../spec-driven-development/references/prompt-patterns.md`.

@@ -7,6 +7,8 @@ license: MIT
 
 # sdd-research
 
+Paths below are relative to this file. Resolve them before running anything.
+
 Read `../spec-driven-development/SKILL.md`, section "Phase 0.5".
 Read `../spec-driven-development/references/workflow-phases.md`, section "Phase 0.5".
 Use "Codebase Research Prompt" and "Research Consolidation Prompt" in `../spec-driven-development/references/prompt-patterns.md`.

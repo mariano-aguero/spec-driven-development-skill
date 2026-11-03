@@ -7,6 +7,8 @@ license: MIT
 
 # sdd-change
 
+Paths below are relative to this file. Resolve them before running anything.
+
 Ask which: amend or reconcile.
 
 Amend, a requirement genuinely changed:

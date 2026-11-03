@@ -7,6 +7,8 @@ license: MIT
 
 # sdd-specify
 
+Paths below are relative to this file. Resolve them before running anything.
+
 Read `../spec-driven-development/SKILL.md`, section "Phase 1".
 Read `../spec-driven-development/references/workflow-phases.md`, section "Phase 1" and, for a change to existing behavior, "Delta Specs".
 Use "Assumptions Surface Prompt" and "Initial Specification Prompt" in `../spec-driven-development/references/prompt-patterns.md`.

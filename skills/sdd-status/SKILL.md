@@ -7,6 +7,8 @@ license: MIT
 
 # sdd-status
 
+Paths below are relative to this file. Resolve them before running anything.
+
 Read "Status Prompt" in `../spec-driven-development/references/prompt-patterns.md`.
 Read "Status Report" in `../spec-driven-development/references/output-formats.md` for the format. Budget: 12 lines.
 

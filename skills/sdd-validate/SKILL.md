@@ -7,6 +7,8 @@ license: MIT
 
 # sdd-validate
 
+Paths below are relative to this file. Resolve them before running anything.
+
 Ask which: validate the implementation, generate a checklist, or analyze the spec.
 
 Validate:
