@@ -605,6 +605,14 @@ cp -r specs/[feature-name]/* specs/archive/[feature-name]/
 rm -rf specs/[feature-name]
 ```
 
+**Merge into the current-state spec.** Archiving a validated spec also updates
+`specs/_current/[capability].md` (template in `artifact-templates.md`). A full spec creates the
+file from its ACs. A delta spec merges by label: `[ADDED]` ACs are appended with the next free
+id, `[MODIFIED]` ACs replace the AC named in `Baseline:` with their **Now** text, `[REMOVED]`
+ACs are deleted, `[UNCHANGED]` ACs are kept as they are. Each merged AC records its `Source:`
+and the file's `Merged from:` line gains the archived spec and commit. A later delta spec may
+use the file as its `Baseline:`.
+
 Keep `specs/archive/` in version control — specs are invaluable for regression analysis
 when bugs appear in features implemented months earlier. Skip this step if your team
 prefers to keep all specs in `specs/` indefinitely.
