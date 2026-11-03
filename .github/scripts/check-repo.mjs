@@ -6,7 +6,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-const skipAnywhere = new Set(['.git', 'node_modules'])
+const skipAnywhere = new Set(['.git', '.claude', 'node_modules'])
 const skill = 'skills/spec-driven-development'
 const skillMd = `${skill}/SKILL.md`
 const matrixHome = `${skill}/references/quality-gates.md`
@@ -155,6 +155,23 @@ function checkCommands() {
   }
 }
 
+// Em and en dashes in prose. Code spans, fences and empty table cells are exempt,
+// and so are released CHANGELOG entries and the v2 research notes.
+const dashExempt = new Set(['specs/v2-agent-native/research.md'])
+function checkDashes() {
+  for (const f of files.filter((f) => !dashExempt.has(f))) {
+    let lines = proseLines(f)
+    if (f === 'CHANGELOG.md') {
+      const end = lines.findIndex(({ line }) => /^## \[/.test(line) && !line.includes('[Unreleased]'))
+      if (end !== -1) lines = lines.slice(0, end)
+    }
+    for (const { n, line } of lines) {
+      const bare = line.replace(/`[^`]*`/g, '').replace(/\|\s*[—–]\s*(?=\|)/g, '|')
+      if (/[—–]/.test(bare)) fail(f, n, 'dash', 'em or en dash in prose, rewrite the sentence')
+    }
+  }
+}
+
 function checkReadmeVersion() {
   const current = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version
   linesOf('README.md').forEach((line, i) => {
@@ -171,6 +188,7 @@ checkLinks()
 checkGateMatrix()
 checkCommands()
 checkReadmeVersion()
+checkDashes()
 
 if (problems.length) {
   console.error(problems.join('\n'))
