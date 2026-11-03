@@ -38,7 +38,7 @@ Step-by-step detail: `references/workflow-phases.md`.
 
 **Auth, permissions, or billing in the request** means the spec must carry explicit ACs for
 who may do what (each role, each denied action) and for every error case. Say so in the
-first reply, before proposing anything else.
+first reply, next to the phase sequence and the artifact each phase writes.
 
 ## Choosing the Ceremony Level
 
@@ -179,8 +179,10 @@ right. See `references/enforcement.md`.
 ### Phase 1: Specify
 
 Run the Assumptions Surface Prompt before generating `spec.md`, so assumptions about roles,
-permissions, error behavior, and scope get corrected before they harden into ACs. If
-`research.md` exists, the spec must not contradict it.
+permissions, error behavior, and scope get corrected before they harden into ACs. Invoked as
+`/sdd-specify`, write the draft `spec.md` in the same turn: each unconfirmed assumption becomes
+a `[NEEDS CLARIFICATION]` marker, which blocks Gate 1 and not the draft. If `research.md`
+exists, the spec must not contradict it.
 
 `spec.md` carries: overview, user stories, Boundaries (Always do / Ask first / Never do),
 acceptance criteria in Given/When/Then with `[MUST]` `[SHOULD]` `[COULD]` `[WONT]`,

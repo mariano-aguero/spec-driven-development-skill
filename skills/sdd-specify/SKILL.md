@@ -16,6 +16,7 @@ If `spec.md` has open questions, run "Clarify Phase Prompt" and "Post-Clarify Sp
 Use the template under "spec.md Template" in `../spec-driven-development/references/artifact-templates.md`.
 
 Produce: `specs/<feature>/spec.md`, MoSCoW-prioritized ACs, each `[MUST]` with a proof line.
+Write the draft `spec.md` in this turn. Do not wait for answers first: each assumption you cannot confirm from the repo goes into the spec as a `[NEEDS CLARIFICATION]` marker, and the reply counts them.
 If the request touches auth, permissions or billing, write explicit ACs for each role's allowed and denied actions and for every error case.
 Open `[NEEDS CLARIFICATION]` items block Gate 1: name each one and how its answer changes the design, and offer to clarify. If the user insists, proceed: replace each marker with an explicit `Assumption:` line in the spec and report it. Never choose silently, never refuse indefinitely.
 Cold read (levels M and L): run "Cold Read Prompt" in a fresh agent or session given only `spec.md`, `constitution.md` and the `Baseline:` files of a delta spec, then compare its restatement with the user's intent. List every AC phrase with more than one reading (for example "records belonging to M": created by M, or assigned to M); each is a failing Gate 1 check fixed in the spec. No fresh context available means the cold read is `inconclusive`. Do not mark the spec Approved; the human does.
