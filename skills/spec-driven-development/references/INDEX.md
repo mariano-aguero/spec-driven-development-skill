@@ -100,6 +100,7 @@ By phase · File list
 
 - The enforcement ladder (ask / check / block) → `enforcement.md#the-enforcement-ladder`
 - What can be mechanized, and what must not → `enforcement.md#what-can-be-mechanized-and-what-must-not`
+- The validator (`sdd-check.mjs`, rules, pre-commit, CI, no Node) → `enforcement.md#the-validator`
 - Locking `contracts/` with a pre-write hook → `enforcement.md#locking-contracts-for-real`
 - Hooks per phase → `enforcement.md#hooks-per-phase`
 - Git worktrees for parallel tasks → `enforcement.md#git-worktrees-for-parallel-tasks`

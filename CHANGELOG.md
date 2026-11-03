@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `specs/_current/<capability>.md` template and the archive merge rule.
 - Eval runner `.github/scripts/run-evals.mjs`. It runs each scenario with and without the skill over several trials, grades with a judge, and reports pass rate, spread and delta.
 - Fixtures for every scenario that needs a project, under `evals/fixtures/`.
+- Validator `scripts/sdd-check.mjs`: eleven rules over status, ACs, handoff, delta baseline and task graph, `file:line` output, `--json`, exit 1 on error. Documented in `enforcement.md`.
+- Validator tests `.github/scripts/sdd-check.test.mjs` with one failing fixture per rule, run in CI.
 
 ### Changed
 

@@ -120,11 +120,14 @@ Reconcile classifications: `INTENTIONAL` / `EXTERNAL` need quoted evidence → u
 | Rung | Mechanism | Use for |
 |------|-----------|---------|
 | 1 — Asked | The prompt states the rule | Judgment calls: testability, over-engineering, comprehension |
-| 2 — Checked | CI detects the violation after the fact | AC coverage, citations, unresolved clarifications |
+| 2 — Checked | CI or `scripts/sdd-check.mjs` detects the violation after the fact | Status, AC proof, handoff, task graph, baseline, unresolved clarifications, citations |
 | 3 — Blocked | A hook prevents the action | `contracts/` freeze, banned patterns, tests-before-commit |
 
 Promote a rule only when it is objectively decidable **and** has been violated more than once.
 Mechanical checks verify that rules were followed — never that the rules were right.
+
+Validator: `node scripts/sdd-check.mjs [specs-dir] [--json]`, exit 1 on any error. No Node:
+report the mechanical checks as `inconclusive`. Detail: `enforcement.md#the-validator`.
 
 `constitution.md` → derive `AGENTS.md` (60–150 lines, never edited directly). Cut every line
 an agent would follow anyway; the value is entirely in the surprising rules.

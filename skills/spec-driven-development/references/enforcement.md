@@ -7,6 +7,7 @@ hooks and locks, and across tools, through `AGENTS.md`.
 
 - The enforcement ladder — prompt, check, block
 - What can be mechanized, and what must not be
+- The validator: `sdd-check.mjs`, rung 2 for the mechanical gate checks
 - Locking `contracts/` for real
 - Hooks per phase — feedback loops that run without being asked
 - Git worktrees for parallel tasks
@@ -40,7 +41,12 @@ a hook written for a hypothetical failure is configuration nobody understands si
 | Rule | Rung available | Mechanism |
 |------|---------------|-----------|
 | `contracts/` frozen after Gate 2 | **3 — Block** | PreToolUse hook rejecting writes to `contracts/` when the spec is `Planned` or later |
-| No `[NEEDS CLARIFICATION]` past Gate 1 | **2 — Check** | CI grep (already in `quality-gates.md`) |
+| No `[NEEDS CLARIFICATION]` past Gate 1 | **2: Check** | Validator rule `no-open-questions` |
+| Status is a lifecycle value, AC ids unique | **2: Check** | Validator rules `status-valid`, `ac-unique` |
+| Every `[MUST]` AC has a `Proof:` line | **2: Check** | Validator rule `ac-has-proof` |
+| Handoff block complete, Done-when not a time box | **2: Check** | Validator rules `handoff-complete`, `done-when-checkable` |
+| Delta spec has a resolvable baseline | **2: Check** | Validator rule `delta-baseline` |
+| Tasks cite ACs, graph is acyclic, `[P]` tasks share no file | **2: Check** | Validator rules `task-refs-ac`, `task-graph`, `parallel-no-shared-files` |
 | Every AC has test coverage | **2 — Check** | CI AC-ID grep (already in `quality-gates.md`) |
 | Research citations resolve | **2 — Check** | CI citation check (already in `quality-gates.md`) |
 | Tests pass before commit | **3 — Block** | PostToolUse hook running the suite; failures re-injected into context |
@@ -56,6 +62,54 @@ The bottom four are the reason human gates exist. A workflow that mechanizes eve
 mechanizable and then treats the remainder as optional has kept the cheap half of the
 verification and discarded the expensive half — which is the half that catches the errors
 that matter.
+
+---
+
+## The Validator
+
+`scripts/sdd-check.mjs` ships with the skill. Node 20+, no dependencies, one file. It parses
+each feature under `specs/` and prints `file:line: rule-id: message` per finding. It exits 1
+on any error and 0 otherwise.
+
+| Rule | Fails when |
+|------|-----------|
+| `status-valid` | `Status:` is missing or not a lifecycle value |
+| `ac-unique` | An AC id appears twice in one spec |
+| `ac-has-proof` | A `[MUST]` AC has no `**Proof:**` line (`[REMOVED]` ACs are skipped) |
+| `no-open-questions` | `[NEEDS CLARIFICATION]` remains once Status is `Approved` or later |
+| `handoff-complete` | `spec.md` lacks Goal, at least one Done-when item, Isolation or Stop if |
+| `done-when-checkable` | A Done-when item is only a duration, such as "work on this for 4 hours" |
+| `delta-baseline` | `Mode: Delta` has no `Baseline:` that resolves to an existing file |
+| `task-refs-ac` | A task cites an AC missing from `spec.md`, or none (own or through its dependencies) |
+| `task-graph` | `Depends on:` names a missing task or forms a cycle |
+| `parallel-no-shared-files` | Two `[P]` tasks with no dependency path between them write the same file |
+| `no-sentinel` | `.amend-in-progress` exists. Warning only, the exit code is unaffected |
+
+Setup and Cleanup groups in `tasks.md` are exempt from `task-refs-ac`. Everything the validator
+cannot decide, such as whether an AC is testable, stays at rung 1.
+
+```bash
+node skills/spec-driven-development/scripts/sdd-check.mjs            # every feature in ./specs
+node skills/spec-driven-development/scripts/sdd-check.mjs specs/login # one feature
+node skills/spec-driven-development/scripts/sdd-check.mjs --json      # findings as JSON for agents
+```
+
+**Pre-commit.** Add the same command to `.git/hooks/pre-commit` or your hook manager. It reads
+a few markdown files, so it stays well under a second.
+
+**CI.** Six lines in a GitHub Actions workflow:
+
+```yaml
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+  with:
+    node-version: 20
+- run: node skills/spec-driven-development/scripts/sdd-check.mjs
+```
+
+**No Node available.** The agent runs the same checks by hand from the gate checklist in
+`quality-gates.md` and reports `inconclusive` for each mechanical one, never `pass`. The next
+phase does not start until a person or a Node-equipped environment runs the script.
 
 ---
 

@@ -161,6 +161,8 @@ for Gates 0, R, 1–5 and C live in `references/quality-gates.md`, along with
 `/sdd:checklist [domain]` — generated per-feature checklists that test the *spec* rather than
 the software.
 
+Run the mechanical checks with `node scripts/sdd-check.mjs [specs-dir]`. Without Node, report them as `inconclusive`: `references/enforcement.md → The Validator`.
+
 Rules that are objectively decidable should stop being requests: a pre-write hook can make
 the `contracts/` freeze real, and `constitution.md` can be derived into an `AGENTS.md` that
 tools read automatically. See `references/enforcement.md` — including what must *not* be
