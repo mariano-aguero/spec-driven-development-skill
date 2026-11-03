@@ -10,12 +10,17 @@ Copy-paste templates for each SDD artifact. Remove placeholder comments before c
 - Writing concrete acceptance criteria — vague-to-measurable conversions, optional EARS syntax
 - `spec.md` — requirements, MoSCoW ACs, Boundaries (Phase 1)
 - `spec.md` delta mode — brownfield changes: baseline, ADDED/MODIFIED/REMOVED/UNCHANGED, blast radius
-- `plan.md` — architecture, AC coverage map, risks (Phase 2)
+- `plan.md`: architecture, caller usage, AC coverage map, risks, optional invariants (Phase 2)
 - `data-model.md` — entities, indexes, migrations (Phase 2)
 - `contracts/[endpoint].md` — request/response shapes, error codes (Phase 2)
 - `tasks.md` — atomic, test-first, dependency-mapped tasks (Phase 3)
-- `progress.md` — handover state across context resets (Phase 4, optional)
-- `decision_log.md` — rationale for key decisions (any phase, optional)
+- `progress.md`: resume note across context resets (Phase 4, optional)
+- `decision_log.md`: append-only decision table (any phase, optional)
+- `specs/_current/<capability>.md`: merged current-state spec (Phase 5.6)
+
+Cross-cutting formats: Handoff block rules (after the `spec.md` template), Proof lines
+(under Writing Concrete Acceptance Criteria), the evidence ladder (under `research.md`).
+`validation.md` is defined in `output-formats.md → Traceability Matrix`.
 
 For the formats of everything the *user* reads — gate verdicts, traceability matrix, drift
 report, walkthrough — see `output-formats.md`.
@@ -135,6 +140,18 @@ Two words that almost always signal an unfinished AC: **"properly"** and **"appr
 Both mean the writer deferred the decision to whoever implements it — which, in this
 workflow, is an agent that will decide silently.
 
+### Proof line on every `[MUST]` AC
+
+Every `[MUST]` AC ends with one `**Proof:**` line naming how it is checked:
+
+- `**Proof:** test: <command>`
+- `**Proof:** command: <command and expected output>`
+- `**Proof:** artifact: <what to inspect>`
+- `**Proof:** manual: <why it cannot be automated>`
+
+An AC with no proof line cannot be passed by an agent that did not write it. Used by Gate 1
+and by the `validation.md` Proof column.
+
 ### Optional: EARS for the requirement statement
 
 Given/When/Then is a good *verification* format and a mediocre *statement* format — it says
@@ -188,6 +205,15 @@ Last updated: [YYYY-MM-DD]
 ## Overview
 <!-- 1-2 sentences describing the feature for a non-technical stakeholder -->
 
+## Handoff
+Goal: [one sentence]
+Done when:
+- [ ] `[command]` exits 0 (AC-1, AC-2)
+- [ ] [observable artifact or state] (AC-3)
+Isolation: branch `[name]` off `[base]`, one worktree per parallel task
+Permissions: Boundaries section below
+Stop if: [condition]. Then stop and write why in decision_log.md
+
 ## User Stories
 
 ### Primary
@@ -223,11 +249,13 @@ As a [role], I want [goal] so that [benefit].
 Given [initial context]
 When [action is taken]
 Then [expected outcome]
+**Proof:** test: [command]
 
 ### AC-2: [Short Title] [MUST]
 Given [initial context]
 When [action is taken]
 Then [expected outcome]
+**Proof:** command: [command and expected output]
 
 ### AC-3: [Short Title] [SHOULD]
 Given [initial context]
@@ -245,6 +273,7 @@ This feature will NOT include [capability]. Reason: [why it's excluded from this
 Given [invalid or edge condition]
 When [action is taken]
 Then [expected error response or behavior]
+**Proof:** test: [command]
 
 ## Out of Scope
 <!-- Explicitly list what this feature does NOT include -->
@@ -263,6 +292,15 @@ Then [expected error response or behavior]
 - Security: [e.g., "requires authenticated session — see constitution.md"]
 - Accessibility: [e.g., "WCAG 2.1 AA for all interactive elements"]
 ```
+
+---
+
+**Handoff rules** (spec.md and delta mode; used by Gate 1):
+
+- Every Done-when item can pass or fail: a command that exits 0, or an observable artifact or
+  state. Each cites the ACs it covers.
+- A duration ("for 4 hours") is not a finish condition (AC-E1).
+- At level S there is no spec file: the same block goes in the issue or PR body.
 
 ---
 
@@ -288,6 +326,16 @@ Last updated: [YYYY-MM-DD]
 ## Change Summary
 <!-- 1-2 sentences: what behavior changes and for whom. Not why the feature exists. -->
 
+## Handoff
+<!-- Same block and rules as the full spec.md template -->
+Goal: [one sentence]
+Done when:
+- [ ] `[command]` exits 0 (AC-1, AC-3)
+- [ ] [observable artifact or state] (AC-2)
+Isolation: branch `[name]` off `[base]`, one worktree per parallel task
+Permissions: Boundaries section, or constitution.md if the delta has none
+Stop if: [condition]. Then stop and write why in decision_log.md
+
 ## Baseline Assertion
 <!-- What the system does TODAY that this change depends on. Every line cites the baseline —
      a prior spec's AC, or a research.md finding with its file:line. If a line here turns out
@@ -304,11 +352,13 @@ Last updated: [YYYY-MM-DD]
 Given [context]
 When [action]
 Then [outcome]
+**Proof:** test: [command]
 
 ### AC-2: [Short Title] [MODIFIED] [MUST]
 **Was:** [previous behavior, quoted from the baseline — not paraphrased]
 **Now:** Given [context] When [action] Then [outcome]
 **Migration:** [what happens to data, sessions, or clients created under the old behavior]
+**Proof:** test: [command]
 
 ### AC-3: [Short Title] [REMOVED]
 **Was:** [behavior being removed, quoted from the baseline]
@@ -320,6 +370,7 @@ Then [outcome]
      behavior that shares code paths with what you are changing — this section is the
      cheapest insurance in a brownfield change. -->
 [Behavior, quoted from the baseline] — must still hold after this change.
+**Proof:** test: [command]
 
 ## Blast Radius
 <!-- Everything that touches what you are modifying. Derived from research.md, not guessed. -->
@@ -360,6 +411,14 @@ Implements: `specs/[branch]/spec.md`
 ## Architecture Overview
 <!-- High-level description of the approach. 3-5 sentences max. -->
 
+## Caller Usage
+<!-- How callers use the new or changed interface, as code or a CLI/HTTP call. Written
+     before the contracts; contracts/ derive from it. Omit if no interface changes. -->
+
+```[lang]
+[the call a real caller would write, with its result]
+```
+
 ## Component Breakdown
 
 ### [Component 1 Name]
@@ -385,6 +444,11 @@ Implements: `specs/[branch]/spec.md`
 ## Integration Points
 <!-- External services, APIs, or other features this touches -->
 - [System]: [How it's used]
+
+## Invariants
+<!-- Optional, level L stateful features only (states, retries, locks, offline). Rules a
+     model checker or property-based tests verify; replay each counterexample on real code. -->
+- [e.g., "a token is redeemed at most once, under any interleaving of two verify calls"]
 
 ## AC Coverage Map
 <!-- Every [MUST] AC from spec.md must appear here. Required for Gate 2. -->
@@ -535,14 +599,18 @@ Implements: `specs/[branch]/plan.md`
 
 - [ ] **TASK-002** [M] [P] Write tests for [component]
   - Tests: AC-1, AC-2 from `specs/[branch]/spec.md`
+  - Creates: `[test file path]`
   - Depends on: TASK-001
 
 - [ ] **TASK-003** [M] Implement [component]
   - Contract: `specs/[branch]/contracts/[file].md`
+  - Creates: `[file path]`
+  - Modifies: `[existing file path]`
   - Depends on: TASK-002
 
 - [ ] **TASK-004** [S] [P] Write tests for [other component]
   - Tests: AC-3 from `specs/[branch]/spec.md`
+  - Creates: `[other test file path]`
   - Depends on: TASK-001
 
 - [ ] **TASK-005** [M] Implement [other component]
@@ -565,6 +633,12 @@ Implements: `specs/[branch]/plan.md`
 - `[M]` Medium — 1–3 hours
 - `[L]` Large — 3–6 hours (consider splitting)
 - `[P]` Parallelizable — can run concurrently with other `[P]` tasks at same level
+
+**Graph rules** (used by Gate 3):
+
+- Waves are computed from `Depends on:`: a task runs when every task it depends on is done.
+- The files a task writes are its `Creates:` and `Modifies:` lines. Parallel `[P]` tasks in
+  the same wave must not share any file.
 ```
 
 ---
@@ -573,7 +647,19 @@ Implements: `specs/[branch]/plan.md`
 
 *Phase 0.5 artifact. Produced before `spec.md` whenever the feature touches code that is
 unfamiliar, large, or ambiguous. Describes how the system works **today** — never how it
-should work. Target length: ~200 lines. Every claim carries a `file:line` citation.*
+should work. Target length: ~200 lines. Every claim carries a `file:line` citation and an evidence level.*
+
+**Evidence ladder** (defined here once; the reconcile report uses it too):
+
+| Level | Meaning |
+|-------|---------|
+| L1 | Stated: someone said it, nothing checked |
+| L2 | Cited: the line was read |
+| L3 | Showed the bad case cannot happen (grep, type, or code path) |
+| L4 | Ran it and observed the result |
+| L5 | Reproduced in the running app |
+
+The finding a change's safety depends on must reach L4, or say `unproven`.
 
 ```markdown
 # Research: [Feature Name]
@@ -608,10 +694,12 @@ Date: [YYYY-MM-DD]
 
 ### F-1: [Short factual title]
 [What is true about the codebase, stated as fact.] — `src/[path].ts:60-74`
+**Evidence:** L2
 **Consequence for this feature:** [what this constrains or enables]
 
 ### F-2: [Short factual title]
 [Fact.] — `src/[path].ts:210`
+**Evidence:** L4 [what was run] or `unproven`
 **Consequence for this feature:** [...]
 
 ## Existing Constraints Discovered
@@ -671,67 +759,65 @@ Date: [YYYY-MM-DD]
 ## progress.md Template
 
 *Optional Phase 4 artifact. Create only when a task outlives a single context window.
-It is the handover note a fresh session reads to resume without re-deriving state.
-Keep it under 40 lines — it is a checkpoint, not a log.*
+It is the resume note a fresh session continues from without the original chat.
+Keep it under 40 lines. It is a checkpoint, not a log.*
 
 ```markdown
-# Progress: [TASK-ID] [Task Title]
+# Progress: [Feature Name]
 
 Updated: [YYYY-MM-DD HH:MM]
 
-## Goal
-<!-- One sentence: what "done" means for this task, copied from tasks.md -->
+## Status
+[One line: phase, task in flight, how far it got]
 
-## Completed
-- [x] [Step already finished] → `src/[path].ts:[line]`
-- [x] [Step already finished] → commit `[sha]`
+## Last good commit
+`[sha]`  <!-- last commit where the tests named in Done when passed -->
 
-## Current Step
-→ [The one thing in flight right now, and how far it got]
+## Next step
+[The one action a fresh session takes first]
 
-## Remaining
-- [ ] [Next step]
-- [ ] [Step after that]
-
-## Current Blocker
-<!-- Omit if none. Be specific: the failing command and its actual output. -->
+## Blockers
+<!-- Omit if none. The failing command and its actual output. -->
 [e.g., "`pnpm test auth.test.ts` fails on AC-3: expected 403, received 401"]
 
-## Do Not Repeat
-<!-- Approaches already tried and rejected in this task. Prevents a fresh session
-     from rediscovering the same dead end. -->
-- [Approach tried] — failed because [reason]
+## Read first
+1. `specs/[feature]/spec.md` (Handoff block)
+2. `specs/[feature]/tasks.md`
+3. `specs/[feature]/decision_log.md`
 ```
 
 ---
 
 ## decision_log.md Template
 
-*Optional artifact for recording key decisions made during any phase. Especially useful
-when AI suggests an alternative approach or when requirements change mid-implementation.*
+*Optional artifact for autonomous or overnight runs, and any phase where a decision should
+survive the session. Append-only: add rows, never edit or delete one. A reversal is a new row.*
 
 ```markdown
 # Decision Log: [Feature Name]
 
----
-
-## [YYYY-MM-DD] [Short Decision Title]
-
-**Context:** [What situation triggered this decision]
-**Options:**
-- Option A: [brief description]
-- Option B: [brief description]
-**Decision:** [What was decided]
-**Rationale:** [Why]
-**Impact:** [Which files or specs are affected]
-**Decided by:** [human / team]
+| ts | task | decision | why | evidence | result |
+|----|------|----------|-----|----------|--------|
+| [YYYY-MM-DD HH:MM] | [TASK-003] | [what was decided] | [reason] | [commit, test run, or file:line] | [pass / fail / open] |
+```
 
 ---
 
-## [YYYY-MM-DD] [Short Decision Title]
+## specs/_current/[capability].md Template
 
-**Context:** [...]
-**Decision:** [...]
-**Rationale:** [...]
-**Impact:** [...]
+*Written at archive (Phase 5.6): the merged current state of one capability. A later delta
+spec may name it as its `Baseline:`. The merge rule is in `workflow-phases.md` Step 5.6.*
+
+```markdown
+# [Capability] (current state)
+
+Updated: [YYYY-MM-DD]
+Merged from: [specs/archive/feature-a/ @ sha], [specs/archive/feature-b/ @ sha]
+
+### AC-1: [Short Title] [MUST]
+Given [context]
+When [action]
+Then [outcome]
+**Proof:** test: [command]
+**Source:** feature-a AC-1
 ```
