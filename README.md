@@ -267,6 +267,13 @@ attached for the human to audit.
 | Windsurf | ✅ Supported | Skill activates on SDD keyword triggers |
 | Any LLM (ChatGPT, Gemini, etc.) | ✅ Manual | Copy reference files into context; use Format B prompts |
 
+## Prior Art
+
+- [pstack](https://github.com/cursor/plugins/tree/main/pstack) by Lauren Tan: proofs that must be seen failing, review findings that count only when a rerun reproduces them, the overnight handoff contract, and the evidence ladder for facts.
+- [OpenSpec](https://github.com/Fission-AI/OpenSpec): merging validated change specs into a current-state spec per capability.
+- [Kiro](https://kiro.dev): EARS requirement statements and property-based tests derived from requirements.
+- [Spec Kit](https://github.com/github/spec-kit): parallel task markers and checklists that gate a spec before planning.
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for a full history of changes per version.
