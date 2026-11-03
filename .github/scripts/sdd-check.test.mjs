@@ -60,3 +60,8 @@ test('no-open-questions ignores the marker inside inline code', () => {
   writeFileSync(path, approved + '\nThe validator rejects `[NEEDS CLARIFICATION]` past Gate 1.\n')
   assert.deepEqual(run(dir).findings, [])
 })
+
+test('several paths are all checked', () => {
+  const r = spawnSync('node', [script, join(repo, 'skills/spec-driven-development/examples/specs'), join(fixtures, 'clean'), '--json'], { encoding: 'utf8' })
+  assert.equal(JSON.parse(r.stdout).features, 3)
+})

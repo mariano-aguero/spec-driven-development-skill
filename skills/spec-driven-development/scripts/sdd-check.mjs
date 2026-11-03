@@ -10,8 +10,6 @@ const STATUSES = ['Draft', 'Approved', 'Planned', 'In Progress', 'Validated', 'A
 const PAST_GATE_1 = STATUSES.slice(1)
 const DURATION = /\b\d+(\.\d+)?\s*(minutes?|mins?|hours?|hrs?|days?|weeks?)\b/i
 
-// ---------- parsing: files into one typed model per feature ----------
-
 // Lines outside code fences and HTML comments, comments stripped, original line
 // numbers kept, so the guidance text inside templates never counts as content.
 function liveLines(text) {
@@ -181,8 +179,6 @@ export function findFeatures(path) {
     .filter((d) => existsSync(join(d, 'spec.md')))
 }
 
-// ---------- rules: pure functions over the model ----------
-
 const find = (file, line, message) => ({ file, line, message })
 
 // Every task reachable through Depends on, transitively. A task in a cycle
@@ -323,10 +319,8 @@ export const rules = [
   },
 ]
 
-// ---------- runner ----------
-
-export function check(path) {
-  const features = findFeatures(path).map(loadFeature)
+export function check(...paths) {
+  const features = paths.flatMap(findFeatures).map(loadFeature)
   const findings = features.flatMap((f) =>
     rules.flatMap((rule) => rule.run(f).map((x) => ({ ...x, rule: rule.id, severity: rule.severity ?? 'error' }))),
   )
@@ -335,12 +329,14 @@ export function check(path) {
 
 function main(argv) {
   const json = argv.includes('--json')
-  const path = resolve(argv.find((a) => !a.startsWith('--')) ?? 'specs')
-  if (!existsSync(path)) {
-    console.error(`sdd-check: ${path} does not exist`)
+  const args = argv.filter((a) => !a.startsWith('--'))
+  const paths = (args.length ? args : ['specs']).map((a) => resolve(a))
+  const missing = paths.find((p) => !existsSync(p))
+  if (missing) {
+    console.error(`sdd-check: ${missing} does not exist`)
     return 1
   }
-  const { features, findings } = check(path)
+  const { features, findings } = check(...paths)
   const shown = findings.map((x) => ({ ...x, file: relative(process.cwd(), x.file) }))
   const errors = shown.filter((x) => x.severity === 'error').length
   const warnings = shown.length - errors
