@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cold read before Gate 1, Phase 5 adversary prompt, no-subagent fallback, and the coordinator rule for parallel waves.
 - Gate 4 requires the failing-before run quoted, one killed mutant per `[MUST]` AC, and no tautologies. Gate 5 at L runs a mutation tool on changed files.
 - Anti-patterns 24 to 28 and eval scenarios 09 to 12.
+- Commands as sub-skills under `skills/`: `sdd-init`, `sdd-research`, `sdd-specify`, `sdd-plan`, `sdd-tasks`, `sdd-validate`, `sdd-change` and `sdd-status`. Each is manual only and points at sections of the main skill.
+- `.claude-plugin/marketplace.json`, so a plugin install and `npx skills add` read the same folders.
 
 ### Changed
 
@@ -30,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Code findings are `[CONFIRMED]` only with a command, its output, and the required output, rerun by the coordinator.
 - `validation.md` columns are `AC | Proof | Before | Mutant | After | Verdict | Checked by`.
 - `decision_log.md` is an append-only table and `progress.md` is a resume note.
+- Commands are typed `/sdd-<command>` instead of `/sdd:<command>`. Removed commands moved: `/sdd:clarify` to `/sdd-specify`, `/sdd:next-task` to `/sdd-tasks`, `/sdd:checklist` and `/sdd:analyze` to `/sdd-validate`, `/sdd:amend` and `/sdd:reconcile` to `/sdd-change`.
 - Skill moved to `skills/spec-driven-development/`. Dev files (evals, CI, planning specs) no longer ship to users.
 
 ## [1.8.0] - 2026-11-02

@@ -113,6 +113,21 @@ after a hotfix or an upstream change moved the code without touching the spec.
 npx skills add mariano-aguero/spec-driven-development-skill
 ```
 
+This installs the skill and its commands as sub-skills: `/sdd-init`, `/sdd-research`,
+`/sdd-specify`, `/sdd-plan`, `/sdd-tasks`, `/sdd-validate`, `/sdd-change` and `/sdd-status`.
+Each one points at the matching sections of the main skill, so they stay in sync with it.
+The commands are manual only (`disable-model-invocation`), so they add nothing to the
+context until you type one. Harnesses without slash commands can ask for the same prompts by
+name from `SKILL.md`.
+
+In Claude Code you can install from the plugin marketplace instead. Both routes read the same
+`skills/` folders:
+
+```text
+/plugin marketplace add mariano-aguero/spec-driven-development-skill
+/plugin install spec-driven-development@spec-driven-development
+```
+
 The skill activates automatically when you reference spec-driven development, spec authoring,
 SDD, requirements planning, or AI implementation guidance.
 
@@ -128,7 +143,7 @@ SDD, requirements planning, or AI implementation guidance.
 /sdd:specify "add user authentication"
   → creates specs/user-auth/spec.md       (MoSCoW ACs + Boundaries + open questions)
 
-/sdd:clarify
+/sdd-specify                              # run again to clarify
   → resolves [NEEDS CLARIFICATION] before Plan
 
 /sdd:plan
@@ -147,8 +162,9 @@ SDD, requirements planning, or AI implementation guidance.
   → linear walkthrough for the humans who will maintain it
 ```
 
-Other commands: `/sdd:status` (where am I?), `/sdd:analyze` (cross-feature conflict check),
-`/sdd:amend` (cascade spec updates), `/sdd:reconcile` (code changed outside the workflow).
+Other commands: `/sdd-status` (where am I?), `/sdd-validate` (also generates checklists and
+checks a spec for contradictions), `/sdd-change` (amend a requirement, or reconcile code that
+changed outside the workflow).
 
 ## What It Costs
 
@@ -183,6 +199,8 @@ proportionally less. If you only want the cheat sheet, `skills/spec-driven-devel
 | `skills/spec-driven-development/references/anti-patterns.md` | 23 common failure modes with wrong/correct examples and fixes |
 | `skills/spec-driven-development/references/quick-reference.md` | One-page cheat sheet |
 | `skills/spec-driven-development/references/INDEX.md` | Topic navigation across all references |
+| `skills/sdd-*/SKILL.md` | One sub-skill per command. Each names the sections of the main skill to read, what to produce and which gate follows |
+| `.claude-plugin/marketplace.json` | Plugin marketplace listing of the skill and its sub-skills |
 | `evals/` | Behavioral scenarios for verifying the skill actually changes agent behavior |
 
 ## Complete Example
