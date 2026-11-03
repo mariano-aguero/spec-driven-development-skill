@@ -7,8 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `## Handoff` block (goal, done-when checks, isolation, permissions, stop condition) in the spec and delta templates.
+- `**Proof:**` line on every `[MUST]` AC: test, command, artifact or manual.
+- Verdicts `pass | fail | inconclusive`, defined once in `output-formats.md`.
+- Evidence ladder L1 to L5 on research findings and reconcile differences.
+- `Creates:` / `Modifies:` task lines, with waves computed from `Depends on:`.
+- `## Caller Usage` and optional `## Invariants` sections in the plan template.
+- `specs/_current/<capability>.md` template and the archive merge rule.
+
 ### Changed
 
+- `validation.md` columns are `AC | Proof | Before | Mutant | After | Verdict | Checked by`.
+- `decision_log.md` is an append-only table and `progress.md` is a resume note.
 - Skill moved to `skills/spec-driven-development/`. Dev files (evals, CI, planning specs) no longer ship to users.
 
 ## [1.8.0] - 2026-11-02
