@@ -26,10 +26,10 @@ is a decision to accept less verification; skipping a gate at M is not.
 |------|------|-----------|--------------|----------|
 | Gate 0 (constitution) | intent | inherited | inherited | required |
 | Gate R (research) | intent | none | if research was run | required |
-| Gate 1 (spec) | intent | ACs reviewed in the PR body | required, with cold read | required, with cold read |
+| Gate 1 (spec) | intent | ACs and Done when reviewed in the issue or PR body | required, with cold read | required, with cold read |
 | Gate 2 (plan + contracts) | evidence + intent | none | required | required, with two designs |
 | Gate 3 (tasks) | evidence | none | required | required |
-| Gate 4 (per task) | evidence | failing before, passing after, rerun by a checker | required | required |
+| Gate 4 (per task) | evidence | failing before quoted, passing after, both rerun by a checker | required, with mutant and tautology rows | required, with mutant and tautology rows |
 | Gate 5 (validation) | evidence | checker reruns the suite, human reviews the diff | required, with adversary | required, with adversary and mutation tool |
 | Gate C (comprehension) | intent | none | if the diff exceeds one sitting | required |
 | Merge | intent | required | required | required |
@@ -52,6 +52,11 @@ design.
 run is input to the checker, never the verdict. `inconclusive` blocks the next phase exactly
 like `fail`. S has fewer gates, and none of them self-approves. With no subagents available, see
 `ai-agent-patterns.md → No-Subagent Fallback`.
+
+**What S costs.** One section over no process: ACs and a Done-when list in the issue or PR
+body. The checker at S is a fresh session that reruns the new test against the parent commit
+(it fails, and the failure is quoted) and against the change (it passes). Mutants and the
+tautology checklist start at M.
 
 If you find yourself skipping gates at M, you picked the wrong level. Drop to S deliberately
 and record why, rather than running M with holes in it — the second is indistinguishable from
@@ -186,14 +191,15 @@ All items must pass. Status stays `Planned` until the first task starts, then `I
 ### Gate 4 — Implementation Validation
 
 Run per task, before marking it complete and committing, by a checker that did not write the
-code. The implementer's own green run is input, never the verdict.
+code. The implementer's own green run is input, never the verdict. At level S only the first
+two rows apply; the rest start at M.
 
 | Check | Pass Criteria |
 |-------|--------------|
 | Tests pass | All new tests pass when the checker reruns them; no existing tests regressed |
 | Failing before | Each new test was run before the change, and the evidence quotes the failure content: the diff or error showing the predicted disagreement, beyond the assertion line. A test never seen red proves nothing |
-| Mutant killed | For each `[MUST]` AC with an automated proof, the checker applies at least one behavior-breaking edit to the code under test (wrong value, skipped effect, doubled effect), shows the proof go red, and reverts the edit. A proof that survives every mutant fails the gate |
-| No tautologies | No test computes its expected value with the code under test, asserts on data the test built itself, restates a constant without running the code that reads it, or asserts less than the AC promises |
+| Mutant killed (M, L) | For each `[MUST]` AC with an automated proof, the checker applies at least one behavior-breaking edit to the code under test (wrong value, skipped effect, doubled effect), shows the proof go red, and reverts the edit. A proof that survives every mutant fails the gate |
+| No tautologies (M, L) | No test computes its expected value with the code under test, asserts on data the test built itself, restates a constant without running the code that reads it, or asserts less than the AC promises |
 | Signature match | Implemented API signatures match contracts/ exactly |
 | Schema match | Database schema matches data-model.md |
 | Scope adherence | No files modified outside the task's stated scope |

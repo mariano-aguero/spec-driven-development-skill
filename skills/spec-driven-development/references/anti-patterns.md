@@ -748,9 +748,10 @@ paper and verify nothing.
 
 **Example (correct):**
 
-> "Copy fix — level S: ACs in the PR body, tests pass, merged.
-> New export endpoint — level M: spec, plan, contract, tasks.
-> Payment provider migration — level L: research first, all critics, walkthrough before merge."
+> "Copy fix, level S: ACs and Done when in the PR body, a fresh session saw the test fail
+> before and pass after, merged.
+> New export endpoint, level M: spec, plan, contract, tasks.
+> Payment provider migration, level L: research first, all critics, walkthrough before merge."
 
 **Fix:**
 

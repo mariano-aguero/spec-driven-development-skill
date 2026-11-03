@@ -53,7 +53,8 @@ Not every change deserves the same process. Pick the lightest level that covers 
 | | **S — Light** | **M — Standard** | **L — Full** |
 |---|---|---|---|
 | Use when | Fits one session, ≤3 files, no schema/contract/auth change | New endpoint, table, or user-visible behavior; spans sessions | Auth, payments, migrations, regulated domains, unfamiliar code |
-| Artifacts | ACs in the issue or PR body | `spec.md`, `plan.md`, `contracts/`, `tasks.md` | + `research.md`, `decision_log.md`, `walkthrough.md` |
+| Artifacts | ACs and `Done when` in the issue or PR body | `spec.md`, `plan.md`, `contracts/`, `tasks.md` | + `research.md`, `decision_log.md`, `walkthrough.md` |
+| Checker | a fresh session reruns the tests: red before, green after | per evidence gate, plus mutants and an adversary | + two designs, mutation tool |
 | Critics | none | optional | required |
 
 Which gates run at each level: `references/quality-gates.md → Which Gates Apply at Which Ceremony Level`.

@@ -152,7 +152,7 @@ Date: [YYYY-MM-DD] · Commit: [sha]
 
 Columns: **Proof** is the kind and command from the AC's `Proof:` line. **Before** is the run
 before the change, quoting the failure content, not only the assertion line. **Mutant** is one
-behavior-breaking edit and the color it produced. **After** is the run with the change.
+behavior-breaking edit and the color it produced, `n/a` at level S. **After** is the run with the change.
 **Verdict** is `pass | fail | inconclusive` as defined under Gate Verdict. **Checked by** names
 the agent that is not the author. Rows exist for `[MUST]` and `[SHOULD]` ACs. Used by Gate 5.
 

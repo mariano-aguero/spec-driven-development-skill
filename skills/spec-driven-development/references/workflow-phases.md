@@ -506,8 +506,10 @@ See `references/prompt-patterns.md → Phase 4 → Single Task Implementation Pr
 **Step 4.3: Gate 4 (evidence) before committing**
 The implementer runs the tests and hands its run to a checker that did not write the code.
 The checker reruns them and works through the Gate 4 checklist in
-`references/quality-gates.md`, including the failing-before run and the mutant. The task is
-not complete on the implementer's own green run, and not on an `inconclusive` verdict.
+`references/quality-gates.md`. At S that is the failing-before run, quoted, and the passing
+run after; a fresh session counts as the checker. At M and L it adds the mutant and the
+tautology rows. The task is not complete on the implementer's own green run, and not on an
+`inconclusive` verdict.
 
 **Step 4.4 — Commit after each task**
 
