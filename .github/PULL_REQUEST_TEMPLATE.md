@@ -4,7 +4,7 @@ Thanks for contributing! Please fill out the relevant sections below. Delete wha
 
 ## Summary
 
-<!-- 1–3 sentences: what this PR changes and why. -->
+<!-- 1 to 3 sentences: what this PR changes and why. -->
 
 ## Type of change
 

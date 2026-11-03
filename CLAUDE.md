@@ -1,4 +1,4 @@
-# Spec-Driven Development Skill — Architecture
+# Spec-Driven Development Skill: Architecture
 
 Documentation-only Agent Skill. No runtime dependencies, no build step.
 Install: `npx skills add mariano-aguero/spec-driven-development-skill`
@@ -37,8 +37,8 @@ spec-driven-development-skill/
 | `SKILL.md` | Workflow overview, phase summaries, artifact structure, context model, comprehension debt | Core workflow changes |
 | `artifact-templates.md` | research.md, spec.md, plan.md, data-model.md, contracts/, tasks.md, progress.md templates | Template format evolves |
 | `prompt-patterns.md` | Prompts for each phase + research, handover, walkthrough, multi-agent review | Better prompts discovered |
-| `workflow-phases.md` | Detailed step-by-step for each phase (0, 0.5, 1–5) | Phase details change |
-| `quality-gates.md` | Review checklists (Gate 0, R, 1–5, C), CI/CD scripts, drift classification | New quality checks needed |
+| `workflow-phases.md` | Detailed step-by-step for each phase (0, 0.5, 1 to 5) | Phase details change |
+| `quality-gates.md` | Review checklists (Gate 0, R, 1 to 5, C), CI/CD scripts, drift classification | New quality checks needed |
 | `output-formats.md` | Formats and line budgets for everything the user reads | A command gains user-facing output |
 | `enforcement.md` | Hooks, contract locks, worktrees, `AGENTS.md` bridge | A rule becomes mechanically enforceable |
 | `ai-agent-patterns.md` | Context engineering, subagent patterns, parallel tasks | New AI agent patterns emerge |
@@ -74,9 +74,9 @@ spec-driven-development-skill/
 
 ### Changing the workflow structure
 
-1. Update `SKILL.md` — the canonical workflow description
-2. Update `references/workflow-phases.md` — step-by-step details
-3. Update `references/quick-reference.md` — the summary tables
+1. Update `SKILL.md`, the canonical workflow description
+2. Update the step-by-step details in `references/workflow-phases.md`
+3. Update the summary tables in `references/quick-reference.md`
 4. Update `references/INDEX.md` if section names change
 5. Bump version in `package.json`
 
@@ -104,13 +104,13 @@ for f in skills/spec-driven-development/references/*.md; do head -20 "$f" | grep
 ```
 
 Reference files may cross-link for convenience, but no piece of information may *require*
-following a chain — anything a phase needs is reachable directly from `SKILL.md`.
+following a chain. Anything a phase needs is reachable directly from `SKILL.md`.
 
 ## Design Decisions
 
 **Why separate files instead of one large SKILL.md?**
 The references are loaded on demand. Keeping them separate avoids loading reference material
-into every conversation — only the relevant section is loaded when needed. The entry point
+into every conversation. Only the relevant section is loaded when needed. The entry point
 has its own budget (above) precisely because this optimization is easy to undo by letting
 `SKILL.md` grow.
 

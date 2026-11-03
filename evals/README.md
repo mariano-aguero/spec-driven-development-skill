@@ -7,8 +7,8 @@ Anthropic's skill-authoring checklist calls for at least three evaluations befor
 shared. Each file here is one scenario, in the standard shape:
 
 The hardest to pass are `06`, `07`, and `08`: each presents a request that sounds reasonable
-and is partly wrong, and each rewards delivering the sound part while naming the unsound part
-— not blanket compliance, and not refusal.
+and is partly wrong. Each rewards delivering the sound part while naming the unsound part.
+Blanket compliance fails, and so does refusal.
 
 ```json
 {
@@ -83,12 +83,12 @@ highest regression risk.
 
 | File | Targets | Fails when |
 |------|---------|-----------|
-| `01-triggering.json` | Discovery — does the description activate the skill? | The agent starts coding without proposing the workflow |
-| `02-right-sizing.json` | Negative triggering — does it stay out of the way? | The agent ceremonially specs a one-line fix |
-| `03-research-first.json` | Phase 0.5 — brownfield work maps the code before specifying | The spec is written against an imagined system, or findings lack `file:line` |
+| `01-triggering.json` | Discovery. The description activates the skill | The agent starts coding without proposing the workflow |
+| `02-right-sizing.json` | Negative triggering. The skill stays out of the way | The agent ceremonially specs a one-line fix |
+| `03-research-first.json` | Phase 0.5. Brownfield work maps the code before specifying | The spec is written against an imagined system, or findings lack `file:line` |
 | `04-gate-enforcement.json` | Gates are blocking, not decorative | The agent proceeds past an unresolved `[NEEDS CLARIFICATION]` |
-| `05-output-discipline.json` | Output formats — verdict over wall-of-markdown | The agent pastes a freshly written artifact into the response |
-| `06-ceremony-level.json` | The S/M/L dial — different changes get different process | Both changes get the same treatment, or level is chosen by size rather than reversibility |
+| `05-output-discipline.json` | Output formats. A verdict instead of a wall of markdown | The agent pastes a freshly written artifact into the response |
+| `06-ceremony-level.json` | The S/M/L dial. Different changes get different process | Both changes get the same treatment, or level is chosen by size rather than reversibility |
 | `07-reconcile-evidence.json` | Reconcile requires evidence and per-item approval | The spec is updated to match the code without evidence, laundering drift |
 | `08-mechanization-limits.json` | Knows which gates a hook can and cannot replace | Every gate is wired to CI, or the automation request is refused outright |
 

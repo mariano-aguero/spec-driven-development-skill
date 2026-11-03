@@ -15,7 +15,7 @@
 
 > **Stop vibe-coding. Specify, then implement.**
 > An **Agent Skill** that turns informal prompts into structured, traceable, drift-resistant
-> specifications — so AI coding agents build what you actually asked for.
+> specifications, so AI coding agents build what you actually asked for.
 
 Compatible with Claude Code, Cursor, GitHub Copilot, JetBrains Junie, Windsurf, and similar tools.
 
@@ -24,19 +24,19 @@ Compatible with Claude Code, Cursor, GitHub Copilot, JetBrains Junie, Windsurf, 
 ## Why Spec-Driven Development?
 
 Without a spec, AI agents make thousands of micro-decisions silently. Each one is a
-potential divergence from intent — and they compound.
+potential divergence from intent, and the divergences compound.
 
 | Without SDD | With SDD |
 |---|---|
 | "Add user auth" → AI picks a stack, invents schema, guesses error behavior | Constitution + spec + contracts define every decision upfront |
-| Same prompt, three sessions, three different implementations | Specs are the source of truth — regeneration is deterministic |
+| Same prompt, three sessions, three different implementations | Specs are the source of truth, so regeneration is deterministic |
 | Drift discovered in code review (or production) | Drift detected in Phase 5 against the locked contracts |
 | Pivots = manual rewrites | Pivots = systematic re-specification |
 | Implicit assumptions baked into acceptance criteria | Assumptions surfaced and corrected *before* the spec is written |
 | Specs written against an imagined codebase | Phase 0.5 research maps the real one first, with `file:line` citations |
 | Code ships faster than anyone can read it | Comprehension gate: the team reviews ~400 dense lines instead of a 2000-line diff |
 | Changing one rule means respecifying a subsystem | Delta specs declare a baseline and list only what moves |
-| Hotfixes quietly turn the spec into fiction | `/sdd-change` classifies each difference with evidence — a human decides each one |
+| Hotfixes quietly turn the spec into fiction | `/sdd-change` classifies each difference with evidence, and a human decides each one |
 | "Locked" contracts are locked by politeness | A pre-write hook makes the freeze real; the agent gets told why and what to run instead |
 | Your rules live in a file no tool reads | `AGENTS.md` derived from `constitution.md`, read natively by most agents |
 
@@ -44,13 +44,13 @@ potential divergence from intent — and they compound.
 
 SDD makes **specifications the source of truth**. The workflow:
 
-0. **Constitution** — project-level immutable constraints (one-time per project)
-0.5. **Research** *(conditional)* — how the existing system actually works, cited `file:line`
-1. **Specify** — requirements, MoSCoW acceptance criteria, boundaries
-2. **Plan** — architecture, data model, locked API contracts
-3. **Tasks** — atomic, dependency-mapped, test-first
-4. **Implement** — AI runs with fresh context per task, constrained by all artifacts above
-5. **Validate** — drift detection + traceability matrix + linear walkthrough
+0. **Constitution.** Project-level immutable constraints, written once per project.
+0.5. **Research** *(conditional)*. How the existing system actually works, cited `file:line`.
+1. **Specify.** Requirements, MoSCoW acceptance criteria, boundaries.
+2. **Plan.** Architecture, data model, locked API contracts.
+3. **Tasks.** Atomic, dependency-mapped, test-first.
+4. **Implement.** AI runs with fresh context per task, constrained by all artifacts above.
+5. **Validate.** Drift detection, a traceability matrix, and a linear walkthrough.
 
 ```mermaid
 flowchart LR
@@ -79,7 +79,7 @@ of drowning in their own search results.
 The most common reason spec-driven development gets abandoned is running one intensity for
 everything. Choose per change:
 
-| | **S — Light** | **M — Standard** | **L — Full** |
+| | **S: Light** | **M: Standard** | **L: Full** |
 |---|---|---|---|
 | Use when | 1 session, ≤3 files, no schema/contract/auth change, revertible | New endpoint, table, or user-visible behavior | Auth, payments, migrations, regulated domains, unfamiliar code |
 | Artifacts | ACs in the PR body | `spec.md`, `plan.md`, `contracts/`, `tasks.md` | + `research.md`, `decision_log.md`, `walkthrough.md` |
@@ -87,13 +87,13 @@ everything. Choose per change:
 Gates per level: [quality-gates.md](skills/spec-driven-development/references/quality-gates.md#which-gates-apply-at-which-ceremony-level).
 
 Start at M. Drop to S only if every S condition holds; move to L if any L condition holds.
-The tiebreaker is **reversibility, not size** — a one-line change to a permission check
-outranks a large change to a report layout.
+The tiebreaker is reversibility. A one-line change to a permission check outranks a large
+change to a report layout.
 
 And for brownfield work, a **delta spec** respecifies nothing: it declares a baseline and
 lists only what moves, with ACs labelled `[ADDED]` / `[MODIFIED]` / `[REMOVED]` /
-`[UNCHANGED]`. A delta spec's length tracks the size of the *change*, not the size of the
-subsystem — so the savings grow with how much behavior already exists.
+`[UNCHANGED]`. A delta spec's length tracks the size of the change, so the savings grow
+with how much behavior already exists.
 
 ## How Long a Spec Stays Alive
 
@@ -104,7 +104,7 @@ subsystem — so the savings grow with how much behavior already exists.
 | **Spec-as-source** | Spec is primary; code is generated, never hand-edited | Experimental, high-compliance |
 
 Start with spec-first; move to spec-anchored once the feature stabilizes. Spec-anchored is
-where `/sdd-change` earns its place — it is the sanctioned path back to a trustworthy spec
+where `/sdd-change` earns its place. It is the sanctioned path back to a trustworthy spec
 after a hotfix or an upstream change moved the code without touching the spec.
 
 ## Installation
@@ -177,8 +177,9 @@ Being explicit, since nobody else is:
 | A full feature, all reference files loaded | ~23,000 tokens of skill |
 
 That last figure excludes your code and the artifacts the workflow generates. Industry
-reports put spec-driven workflows at roughly 20–40% higher token spend than unstructured
-prompting — offset by fewer discarded implementation cycles, not by being cheaper per turn.
+reports put spec-driven workflows at roughly 20 to 40% higher token spend than unstructured
+prompting. Fewer discarded implementation cycles make up the difference; each turn costs
+more.
 
 Reference files load on demand, so a feature that skips research or stops at Phase 3 costs
 proportionally less. If you only want the cheat sheet, `skills/spec-driven-development/references/quick-reference.md` is
@@ -191,12 +192,12 @@ proportionally less. If you only want the cheat sheet, `skills/spec-driven-devel
 | `skills/spec-driven-development/SKILL.md` | Entry point: full workflow, spec levels, context model, comprehension debt, reference index |
 | `skills/spec-driven-development/references/artifact-templates.md` | Templates for `constitution.md`, `research.md`, `spec.md`, `plan.md`, `data-model.md`, `contracts/`, `tasks.md`, `progress.md`, `decision_log.md` |
 | `skills/spec-driven-development/references/prompt-patterns.md` | Prompts for every phase + Codebase Research, Assumptions Surface, Clarify, Critics, Context Handover, Linear Walkthrough, `/sdd-validate`, `/sdd-change` |
-| `skills/spec-driven-development/references/workflow-phases.md` | Step-by-step instructions for Phases 0, 0.5, and 1–5 |
-| `skills/spec-driven-development/references/quality-gates.md` | Gate 0, R, 1–5 and C checklists + CI/CD integration (AC coverage, drift detection) |
+| `skills/spec-driven-development/references/workflow-phases.md` | Step-by-step instructions for Phases 0, 0.5, and 1 to 5 |
+| `skills/spec-driven-development/references/quality-gates.md` | Gate 0, R, 1 to 5 and C checklists + CI/CD integration (AC coverage, drift detection) |
 | `skills/spec-driven-development/references/output-formats.md` | Formats and line budgets for everything the user reads: gate verdicts, checklists, traceability matrix, drift report, status, walkthrough |
 | `skills/spec-driven-development/references/enforcement.md` | Making rules bind: the ask/check/block ladder, a pre-write hook that really locks `contracts/`, worktrees for parallel tasks, and deriving `AGENTS.md` from `constitution.md` |
 | `skills/spec-driven-development/references/ai-agent-patterns.md` | Context engineering (compaction, budget, progressive disclosure), multi-agent orchestration, critic subagents, capability profiles |
-| `skills/spec-driven-development/references/anti-patterns.md` | 23 common failure modes with wrong/correct examples and fixes |
+| `skills/spec-driven-development/references/anti-patterns.md` | 28 common failure modes with wrong/correct examples and fixes |
 | `skills/spec-driven-development/references/quick-reference.md` | One-page cheat sheet |
 | `skills/spec-driven-development/references/INDEX.md` | Topic navigation across all references |
 | `skills/sdd-*/SKILL.md` | One sub-skill per command. Each names the sections of the main skill to read, what to produce and which gate follows |
@@ -229,10 +230,10 @@ starter you can clone into a new project.
 ## Key Principles
 
 **Specifications are not suggestions.** API contracts define the exact shape. Code that
-deviates from the contract is drift — fix the code, not the spec.
+deviates from the contract is drift. Fix the code and leave the spec alone.
 
 **Research before you specify.** A spec written against an imagined codebase drifts by
-construction. Map the real one first — every claim cited `file:line` — then write
+construction. Map the real one first, with every claim cited `file:line`, then write
 requirements that fit the system you actually have.
 
 **Front-load the review.** Reviewing ~200 lines of research prevents thousands of wrong
@@ -244,22 +245,22 @@ about roles, permissions, error behavior, and scope *before* writing the spec. C
 a wrong assumption takes seconds; correcting a wrong AC takes a full `/sdd-change` cycle.
 
 **Reframe vague requirements.** "Make it faster" is not a spec. "LCP < 2.5s on a 4G
-connection" is. Every AC must be independently testable — if you cannot write a failing
+connection" is. Every AC must be independently testable. If you cannot write a failing
 test for it, it is not concrete enough.
 
 **Fresh context per task.** Each task gets its own AI session. Accumulated context from
 prior sessions introduces wrong assumptions.
 
 **Compact on purpose, not on overflow.** Every artifact is a compaction checkpoint. Work in
-the 40–60% context band and hand over via `progress.md` before quality degrades — never let
-automatic compaction be the thing that decides which details survive.
+the 40 to 60% context band and hand over via `progress.md` before quality degrades. Never let
+automatic compaction decide which details survive.
 
 **Ship only what someone understands.** Green tests prove correctness, not maintainability.
 Run a linear walkthrough before merge and delete any structure that traces to no decision
 in `plan.md`.
 
 **Write artifacts, show verdicts.** The workflow generates a lot of markdown, and most of it
-is for the next phase — not for you. Artifacts go to files; the response gets the decision
+is for the next phase to read. Artifacts go to files; the response gets the decision
 you have to make and the evidence for it. Every user-facing output has a line budget, and
 confidence is binary: `[CONFIRMED]` or `[VERIFY]`, never a percentage.
 
