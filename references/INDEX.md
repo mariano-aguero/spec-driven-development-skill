@@ -27,6 +27,7 @@ By phase · File list
 
 ### Templates (copy-paste ready)
 
+- Status lifecycle (`Draft` to `Archived`, which gate sets each) → `artifact-templates.md#status-lifecycle`
 - constitution.md template → `artifact-templates.md#constitutionmd-template`
 - research.md template (Phase 0.5, cited findings) → `artifact-templates.md#researchmd-template`
 - progress.md template (context handover) → `artifact-templates.md#progressmd-template`
