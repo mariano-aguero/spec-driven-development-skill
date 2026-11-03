@@ -8,6 +8,7 @@ determines the quality of AI output — vague input = vague output.
 - Phase 0 — Constitution: initial generation, security constraints
 - Phase 0.5 — Research: codebase research (Format A/B), consolidation, verification
 - Phase 1 — Specify: assumptions surface, initial spec, delta spec (brownfield), clarify, checklist generation, completeness check
+- Gate 1 cold read: a fresh agent restates the spec
 - Phase 2 — Plan: technical plan generation, plan review
 - Phase 3 — Tasks: task breakdown, task validation
 - Phase 4 — Implementation: single task (Format A/B), context handover, session resume, mid-implementation correction
@@ -398,6 +399,27 @@ Check:
 - Is the "out of scope" section complete?
 
 Return only gaps and missing items, not a full rewrite.
+```
+
+### Cold Read Prompt (before Gate 1)
+
+*Run in a fresh agent with no conversation history (a subagent, or a new session per
+`ai-agent-patterns.md → No-Subagent Fallback`). Give it the two files and nothing else. The
+human compares the restatement with what they meant; a mismatch is a Gate 1 failure in the
+spec, never in the reader.*
+
+```
+You have never seen this project or any conversation about it.
+Read only: specs/[feature]/spec.md and constitution.md. Do not open any other file.
+
+In your own words, without quoting the spec:
+1. The goal, in one sentence.
+2. Each Done-when check: what you would run or inspect, and what result means done.
+3. For each [MUST] AC: what you would build, and what you would NOT build.
+4. Every place where you had to choose between two readings. Name both readings and the
+   one you would pick.
+
+Do not suggest improvements. Do not fill gaps silently: a gap you had to guess goes in item 4.
 ```
 
 ---

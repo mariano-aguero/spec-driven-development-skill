@@ -242,7 +242,10 @@ to apply the approved resolutions to spec.md.
 All `[NEEDS CLARIFICATION]` items must be `[RESOLVED]` before proceeding. Do not assume. Do not defer.
 
 **Step 1.6 — Human review (Gate 1)**
-The human must read and approve the updated `spec.md`. Use the Gate 1 checklist in
+First run the Cold Read Prompt (`references/prompt-patterns.md → Cold Read Prompt`) in a
+fresh agent that sees only `spec.md` and `constitution.md`. Approve only if its restatement of
+the goal and the Done-when checks matches your intent; every reading it had to choose is a
+spec fix. Then the human must read and approve the updated `spec.md`. Use the Gate 1 checklist in
 `references/quality-gates.md`. This gate is non-negotiable. On pass, set `Status: Approved`.
 Common review feedback:
 
