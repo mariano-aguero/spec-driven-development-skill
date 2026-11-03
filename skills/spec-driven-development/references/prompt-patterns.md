@@ -405,13 +405,15 @@ Return only gaps and missing items, not a full rewrite.
 ### Cold Read Prompt (before Gate 1)
 
 *Run in a fresh agent with no conversation history (a subagent, or a new session per
-`ai-agent-patterns.md → No-Subagent Fallback`). Give it the two files and nothing else. The
+`ai-agent-patterns.md → No-Subagent Fallback`). Give it the spec, the constitution and, for a
+delta spec, the files its `Baseline:` line names; nothing else. The
 human compares the restatement with what they meant; a mismatch is a Gate 1 failure in the
 spec, never in the reader.*
 
 ```
 You have never seen this project or any conversation about it.
-Read only: specs/[feature]/spec.md and constitution.md. Do not open any other file.
+Read only: specs/[feature]/spec.md, constitution.md, and any file the spec's Baseline: line
+names. Do not open any other file.
 
 In your own words, without quoting the spec:
 1. The goal, in one sentence.
