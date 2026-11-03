@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Creates:` / `Modifies:` task lines, with waves computed from `Depends on:`.
 - `## Caller Usage` and optional `## Invariants` sections in the plan template.
 - `specs/_current/<capability>.md` template and the archive merge rule.
+- Eval runner `.github/scripts/run-evals.mjs`. It runs each scenario with and without the skill over several trials, grades with a judge, and reports pass rate, spread and delta.
+- Fixtures for every scenario that needs a project, under `evals/fixtures/`.
 
 ### Changed
 
