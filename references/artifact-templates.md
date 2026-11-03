@@ -4,6 +4,7 @@ Copy-paste templates for each SDD artifact. Remove placeholder comments before c
 
 ## Contents
 
+- Status Lifecycle — the one state machine on `spec.md`'s `Status:` header
 - `constitution.md` — project-level immutable constraints (Phase 0)
 - `research.md` — how the system works today, cited `file:line` (Phase 0.5)
 - Writing concrete acceptance criteria — vague-to-measurable conversions, optional EARS syntax
@@ -18,6 +19,24 @@ Copy-paste templates for each SDD artifact. Remove placeholder comments before c
 
 For the formats of everything the *user* reads — gate verdicts, traceability matrix, drift
 report, walkthrough — see `output-formats.md`.
+
+---
+
+## Status Lifecycle
+
+One lifecycle per feature, kept in the `Status:` header of `spec.md`. This table is its only
+definition. Delta specs use it too. Each gate sets the next status when it passes.
+
+| Status | Set when | What it allows |
+|--------|----------|----------------|
+| `Draft` | `spec.md` is created | Editing spec and `contracts/` freely |
+| `Approved` | Gate 1 passes | Planning starts. `contracts/` still editable while Phase 2 writes them |
+| `Planned` | Gate 2 passes | Tasks start. `contracts/` locked, changes go through `/sdd:amend` |
+| `In Progress` | The first task starts | Implementation. Lock stays on |
+| `Validated` | Gate 5 passes | Merge. Lock stays on |
+| `Archived` | The spec moves to `specs/archive/` | Read-only history |
+
+`research.md` keeps its own `Draft` / `Approved` (Gate R) and is not part of this lifecycle.
 
 ---
 
@@ -162,7 +181,7 @@ feature — mixed styles across a spec are worse than either style consistently.
 ```markdown
 # [Feature Name]
 
-Status: Draft
+Status: Draft  <!-- lifecycle: see Status Lifecycle -->
 Version: 1.0
 Last updated: [YYYY-MM-DD]
 
@@ -260,7 +279,7 @@ own sake.*
 ```markdown
 # [Change Name]
 
-Status: Draft
+Status: Draft  <!-- lifecycle: see Status Lifecycle -->
 Version: 1.0
 Mode: Delta
 Baseline: [specs/archive/user-auth/spec.md @ v2.1]  ← or: [specs/[feature]/research.md F-1..F-8]
