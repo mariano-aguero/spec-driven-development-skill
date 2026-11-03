@@ -14,6 +14,7 @@ spec-driven-development-skill/
 ├── package.json                       # npm metadata for skills.sh discovery
 ├── evals/                             # Behavioral scenarios (≥3 required before release)
 ├── examples/                          # Worked end-to-end example (magic-link login)
+├── .github/scripts/                   # check-repo.mjs and contract-lock tests, run by CI
 └── references/
     ├── INDEX.md                       # Topic navigation map
     ├── quick-reference.md             # One-page cheat sheet
@@ -21,6 +22,8 @@ spec-driven-development-skill/
     ├── prompt-patterns.md             # Prompts for every phase and scenario
     ├── workflow-phases.md             # Step-by-step phase instructions
     ├── quality-gates.md               # Per-phase checklists, CI/CD integration
+    ├── output-formats.md              # Formats and line budgets for what the user reads
+    ├── enforcement.md                 # Hooks, contract locks, worktrees, AGENTS.md bridge
     ├── ai-agent-patterns.md           # Multi-agent patterns, context management
     └── anti-patterns.md               # Failure modes and fixes
 ```
