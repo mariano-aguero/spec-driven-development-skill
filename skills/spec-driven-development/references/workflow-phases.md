@@ -369,6 +369,11 @@ context — `/sdd:plan` reads it automatically if present. The plan must include
 Risks section — identify implementation risks and a mitigation for every High-impact
 risk before Phase 3 begins (see template in `references/artifact-templates.md`).
 
+At level L, sketch at least two structurally distinct designs before committing to one
+(different module boundaries or data flow; renaming one shape does not count). Compare them
+on interface size: what callers must learn. Record the rejected design and why in
+`decision_log.md`.
+
 **Step 2.2 — Generate data-model.md**
 If the feature touches the database:
 
@@ -521,6 +526,17 @@ This enables precise rollback if a task introduced drift.
 ```
 
 Commit the updated `tasks.md` with the implementation commit.
+
+### When to Stop and Amend the Plan
+
+Stop patching and propose `/sdd:amend` at the plan level when any of these appear:
+
+- The same workaround shows up in unrelated places
+- Types need casts or `any` to compile
+- Two task deviations share a shape
+
+Each one means the plan's design is wrong, and fixing it task by task spreads the error.
+Write the trigger and the evidence (files, commits) to `decision_log.md`, then stop.
 
 ### Context Reset Between Tasks
 

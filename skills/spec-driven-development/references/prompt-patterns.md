@@ -533,6 +533,9 @@ Do NOT:
 - Introduce abstractions not in plan.md
 - Violate any rule in constitution.md
 - Violate any rule in the spec's Boundaries section
+- Patch around the plan: if the same workaround repeats in unrelated places, types need casts
+  or `any`, or this task deviates the same way an earlier one did, stop and propose
+  /sdd:amend at the plan level
 
 After implementation, verify:
 - [ ] Each new test was run before the change and its failure output is saved for the checker

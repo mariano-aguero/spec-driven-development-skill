@@ -157,6 +157,7 @@ rest: those are design calls.
 | Risks identified | Risks table present; every High-impact risk has a mitigation |
 | No over-engineering | No abstractions that could be replaced with direct framework usage |
 | Technology fit | Technology choices use existing stack unless new dependency is justified |
+| Two designs (L) | At least two structurally distinct designs were sketched and compared on interface size (public types, functions, endpoints callers must learn); the rejected one and the reason are a row in `decision_log.md` |
 
 **Fail action:** Return to Phase 2 for the failing check. Do not proceed to Phase 3.
 
