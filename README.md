@@ -83,7 +83,7 @@ everything. Choose per change:
 |---|---|---|---|
 | Use when | 1 session, ≤3 files, no schema/contract/auth change, revertible | New endpoint, table, or user-visible behavior | Auth, payments, migrations, regulated domains, unfamiliar code |
 | Artifacts | ACs in the PR body | `spec.md`, `plan.md`, `contracts/`, `tasks.md` | + `research.md`, `decision_log.md`, `walkthrough.md` |
-| Gates | Self-check before merge | 1, 2, 3, 5 | 0, R, 1–5, C |
+| Gates | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) |
 
 Start at M. Drop to S only if every S condition holds; move to L if any L condition holds.
 The tiebreaker is **reversibility, not size** — a one-line change to a permission check
@@ -182,7 +182,7 @@ proportionally less. If you only want the cheat sheet, `references/quick-referen
 | `references/anti-patterns.md` | 23 common failure modes with wrong/correct examples and fixes |
 | `references/quick-reference.md` | One-page cheat sheet |
 | `references/INDEX.md` | Topic navigation across all references |
-| `evals/` | Five behavioral scenarios for verifying the skill actually changes agent behavior |
+| `evals/` | Behavioral scenarios for verifying the skill actually changes agent behavior |
 
 ## Complete Example
 
@@ -268,8 +268,7 @@ approval before the next phase begins. AI cannot approve its own output.
 
 See [CHANGELOG.md](CHANGELOG.md) for a full history of changes per version.
 
-Latest: **v1.4.0** — AP-15, AP-16, Constitution from Existing Codebase, Cross-Feature Conflict Detector.
-See the [latest release](https://github.com/mariano-aguero/spec-driven-development-skill/releases/latest) for full notes.
+The latest version and its notes are in [CHANGELOG.md](CHANGELOG.md).
 
 ## Contributing
 
