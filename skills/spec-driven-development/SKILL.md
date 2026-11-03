@@ -222,6 +222,11 @@ reproducing. A finding is `[CONFIRMED]` only with a command, its output, and the
 spec requires. Unreproduced findings go to a **Dropped** list with a reason each, and naming
 or style findings are dropped as out of scope.
 
+Asked to carry review findings forward or close Phase 5, reply `Gate 5: fail` or
+`inconclusive` first. Never rate a finding real or likely from reading: give each the command
+and output that would confirm it, or put it under **Dropped** with its reason. The next action
+is the adversary run, not a fix.
+
 ---
 
 ## Spec Drift
