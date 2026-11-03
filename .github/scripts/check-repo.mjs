@@ -30,11 +30,13 @@ const linesOf = (f) => text.get(f).split('\n')
 
 // Lines outside fenced code blocks, with 1-based numbers.
 function proseLines(f) {
-  let inFence = false
+  let fence = null
   const out = []
   linesOf(f).forEach((line, i) => {
-    if (/^\s*(```|~~~)/.test(line)) inFence = !inFence
-    else if (!inFence) out.push({ n: i + 1, line })
+    const marker = line.match(/^\s*(`{3,}|~{3,})/)?.[1]
+    if (!fence && marker) fence = marker
+    else if (fence && marker?.[0] === fence[0] && marker.length >= fence.length) fence = null
+    else if (!fence) out.push({ n: i + 1, line })
   })
   return out
 }
@@ -93,7 +95,7 @@ function checkLinks() {
   const linkRe = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g
   for (const f of files) {
     for (const { n, line } of proseLines(f)) {
-      const bare = line.replace(/`[^`]*`/g, '')
+      const bare = line.replace(/(`+).*?\1/g, '')
       for (const [, target] of bare.matchAll(linkRe)) {
         if (/^([a-z][a-z0-9+.-]*:|\/)/i.test(target)) continue
         const [rawPath, rawAnchor] = target.split('#')
@@ -166,7 +168,7 @@ function checkDashes() {
       if (end !== -1) lines = lines.slice(0, end)
     }
     for (const { n, line } of lines) {
-      const bare = line.replace(/`[^`]*`/g, '').replace(/\|\s*[—–]\s*(?=\|)/g, '|')
+      const bare = line.replace(/(`+).*?\1/g, '').replace(/\|\s*[—–]\s*(?=\|)/g, '|')
       if (/[—–]/.test(bare)) fail(f, n, 'dash', 'em or en dash in prose, rewrite the sentence')
     }
   }

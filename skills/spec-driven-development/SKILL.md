@@ -143,7 +143,7 @@ wait before Phase 1. Details: `references/workflow-phases.md → Phase 0.5`.
 | **4: Implement** | `/sdd-tasks` per task | one task + its ACs and contract | code, tests, commits | Gate 4 (per task) |
 | **5: Validate** | `/sdd-validate` | all artifacts + code | traceability matrix, drift report, walkthrough | Gate 5 + Gate C |
 
-**Intent gates and evidence gates.** Gates R, 1, C and merge decide what to build and
+**Intent gates and evidence gates.** Gates 0, R, 1, C and merge decide what to build and
 whether anyone understands it, and a human approves them. Gates 3, 4, 5 and the
 contract-completeness half of Gate 2 check facts: an agent that did not produce the artifact
 runs the checks and attaches the evidence, and the human audits the verdict. **The author
@@ -187,8 +187,8 @@ acceptance criteria in Given/When/Then with `[MUST]` `[SHOULD]` `[COULD]` `[WONT
 out-of-scope items, and open questions. Error and edge-case ACs are required; the happy path
 alone never passes Gate 1.
 
-At M and L, Gate 1 includes a cold read: a fresh agent given only `spec.md` and `constitution.md`
-restates the goal and the Done-when checks. Any AC phrase with more than one reading ("records
+At M and L, Gate 1 includes a cold read: a fresh agent given only `spec.md`, `constitution.md` and any
+`Baseline:` file restates the goal and the Done-when checks. Any AC phrase with more than one reading ("records
 belonging to M": created by M, or assigned to M) is a failing check to fix in the spec. Never
 pick a reading silently.
 

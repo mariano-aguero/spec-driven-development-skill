@@ -37,13 +37,13 @@ body:
     attributes:
       label: Affected SDD phase
       options:
-        - Phase 0 — Constitution
-        - Phase 1 — Specify
+        - Phase 0 (Constitution)
+        - Phase 1 (Specify)
         - Clarify step
-        - Phase 2 — Plan
-        - Phase 3 — Tasks
-        - Phase 4 — Implement
-        - Phase 5 — Validate
+        - Phase 2 (Plan)
+        - Phase 3 (Tasks)
+        - Phase 4 (Implement)
+        - Phase 5 (Validate)
         - Reference file (templates / prompts / anti-patterns / etc.)
         - Not phase-specific
     validations:
