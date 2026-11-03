@@ -1,0 +1,26 @@
+{
+  "name": "spec-driven-development",
+  "description": "Spec-first workflow for AI coding agents: research, specify, plan, tasks, validate.",
+  "owner": {
+    "name": "Mariano Aguero"
+  },
+  "plugins": [
+    {
+      "name": "spec-driven-development",
+      "source": "./",
+      "description": "The spec-driven-development skill and its /sdd-<command> sub-skills.",
+      "license": "MIT",
+      "skills": [
+        "./skills/spec-driven-development",
+        "./skills/sdd-init",
+        "./skills/sdd-research",
+        "./skills/sdd-specify",
+        "./skills/sdd-plan",
+        "./skills/sdd-tasks",
+        "./skills/sdd-validate",
+        "./skills/sdd-change",
+        "./skills/sdd-status"
+      ]
+    }
+  ]
+}
