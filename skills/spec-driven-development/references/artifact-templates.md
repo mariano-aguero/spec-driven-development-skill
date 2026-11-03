@@ -38,7 +38,7 @@ definition. Delta specs use it too. Each gate sets the next status when it passe
 | `Approved` | Gate 1 passes | Planning starts. `contracts/` still editable while Phase 2 writes them |
 | `Planned` | Gate 2 passes | Tasks start. `contracts/` locked, changes go through `/sdd:amend` |
 | `In Progress` | The first task starts | Implementation. Lock stays on |
-| `Validated` | Gate 5 passes | Merge. Lock stays on |
+| `Validated` | Gate 5 passes and the human has audited it and read the walkthrough | Merge. Lock stays on |
 | `Archived` | The spec moves to `specs/archive/` | Read-only history |
 
 `research.md` keeps its own `Draft` / `Approved` (Gate R) and is not part of this lifecycle.

@@ -219,8 +219,10 @@ than keep it.
 
 ### Gate 5 — Final Validation
 
-Run after Phase 4 completes, before merging, by a checker that did not write the code. On
-pass: `Status: Validated`. Merge itself stays an intent gate: a human approves it.
+Run after Phase 4 completes, before merging, by a checker that did not write the code.
+Drift goes back to the implementer, and a fresh checker reruns the gate on the fix. Set
+`Status: Validated` after the human audits the verdict and reads the walkthrough. Merge
+itself stays an intent gate: a human approves it.
 
 | Check | Pass Criteria |
 |-------|--------------|

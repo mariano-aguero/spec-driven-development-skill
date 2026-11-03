@@ -583,8 +583,9 @@ Verify the implementation satisfies every acceptance criterion and no spec drift
 
 ### Step-by-Step
 
-Gate 5 is an evidence gate: every step below up to 5.4 runs in an agent that did not write
-the code. The human audits `validation.md` and the attached evidence, then approves the merge.
+Gate 5 is an evidence gate. Steps 5.1, 5.2 and 5.4 run in a checker that did not write the
+code; fixes in 5.3 go back to the implementer. The human audits `validation.md`, the attached
+evidence and the walkthrough, then approves the merge.
 
 **Step 5.1 — Generate traceability matrix**
 Use the Post-Implementation Validation Prompt from `references/prompt-patterns.md`.
@@ -599,17 +600,22 @@ Prompt`) in its own worktree. The coordinator reruns each finding; only reproduc
 and each is drift to fix in Step 5.3.
 
 **Step 5.3 — Fix drift immediately**
-If drift is found:
+If drift is found, the checker hands the drift report to the implementer and stops. The
+checker never fixes code: a checker that edits the code has become its author.
 
 - Do not "adjust the spec to match the code"
-- Fix the implementation to match the spec
+- The implementer fixes the implementation to match the spec
 - If the spec is genuinely wrong, update spec.md, then plan.md, then implementation
   (never skip the update chain)
 
-**Step 5.4 — Acceptance test run**
-When Gate 5 passes, set `Status: Validated`.
-Manually walk through each user story from `spec.md` in the running application.
-Check each AC as a user, not as a developer.
+After the fix, a fresh checker reruns Steps 5.1 and 5.2 against the new commit. The earlier
+verdict does not carry over.
+
+**Step 5.4: Acceptance walkthrough with evidence**
+The checker exercises each user story from `spec.md` in the running application, as a user
+and not as a developer, and attaches the artifact for each one (log, screenshot, recording)
+to `validation.md`. The human audits those artifacts instead of repeating the run. A story
+with no artifact is `inconclusive`.
 
 **Step 5.5 — Linear walkthrough (comprehension check)**
 Run the Linear Walkthrough Prompt from `references/prompt-patterns.md → Phase 5`.
@@ -626,6 +632,9 @@ component the plan never justified. Fix it now, while the context is fresh.
 Attach the walkthrough to the PR description, or save it as `specs/[feature]/walkthrough.md`.
 Pay particular attention to anything the agent flags as behavior it cannot trace back to an
 AC — that is unrequested scope, and it is easiest to remove before merge.
+
+Once the human has audited the Gate 5 verdict and its evidence and read the walkthrough, set
+`Status: Validated`. Then the human approves the merge.
 
 **Step 5.6 — Archive specs (optional)**
 After validation passes, consider archiving completed specs to keep `specs/` clean. On archive, set `Status: Archived`:
