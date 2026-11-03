@@ -30,14 +30,20 @@ By phase · File list
 - Status lifecycle (`Draft` to `Archived`, which gate sets each) → `artifact-templates.md#status-lifecycle`
 - constitution.md template → `artifact-templates.md#constitutionmd-template`
 - research.md template (Phase 0.5, cited findings) → `artifact-templates.md#researchmd-template`
-- progress.md template (context handover) → `artifact-templates.md#progressmd-template`
+- progress.md template (resume note) → `artifact-templates.md#progressmd-template`
+- decision_log.md template (append-only table) → `artifact-templates.md#decision_logmd-template`
+- Evidence ladder L1 to L5 (research findings, reconcile) → `artifact-templates.md#researchmd-template`
+- Proof line on every `[MUST]` AC → `artifact-templates.md#proof-line-on-every-must-ac`
+- Handoff block rules (spec.md, delta, level S) → `artifact-templates.md#specmd-template`
+- specs/_current/[capability].md template → `artifact-templates.md#specscurrentcapabilitymd-template`
+- Current-state merge rule at archive → `workflow-phases.md#phase-5--validate`
 - Writing concrete acceptance criteria (incl. optional EARS) → `artifact-templates.md#writing-concrete-acceptance-criteria`
 - spec.md template (incl. Boundaries section) → `artifact-templates.md#specmd-template`
 - spec.md delta mode (brownfield changes) → `artifact-templates.md#specmd-template--delta-mode`
-- plan.md template (incl. Risks section) → `artifact-templates.md#planmd-template`
+- plan.md template (incl. Caller Usage, Risks, optional Invariants) → `artifact-templates.md#planmd-template`
 - data-model.md template → `artifact-templates.md#data-modelmd-template`
 - contracts/[endpoint].md template → `artifact-templates.md#contractsendpointmd-template`
-- tasks.md template → `artifact-templates.md#tasksmd-template`
+- tasks.md template (Creates/Modifies, waves from Depends on) → `artifact-templates.md#tasksmd-template`
 
 ### Prompts (copy-paste ready)
 
@@ -81,7 +87,8 @@ By phase · File list
 - Gate verdict → `output-formats.md#gate-verdict`
 - Critic findings (binary confidence) → `output-formats.md#critic-findings`
 - Checklist (`/sdd:checklist [domain]`) → `output-formats.md#checklist`
-- Traceability matrix → `output-formats.md#traceability-matrix`
+- Traceability matrix (validation.md columns) → `output-formats.md#traceability-matrix`
+- Verdicts `pass | fail | inconclusive` → `output-formats.md#gate-verdict`
 - Drift report → `output-formats.md#drift-report`
 - Reconcile report (`/sdd:reconcile`) → `output-formats.md#reconcile-report`
 - Analyze report → `output-formats.md#analyze-report`

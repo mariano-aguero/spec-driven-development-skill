@@ -37,16 +37,18 @@ material behind it.
 constitution.md      # Project-level: immutable principles (NEVER skip)
 
 specs/[feature]/
-├── research.md      # How the system works TODAY (Phase 0.5, cited file:line)
-├── spec.md          # WHAT + WHY (no tech details, MoSCoW priorities)
+├── research.md      # How the system works TODAY (Phase 0.5, cited file:line, L1 to L5)
+├── spec.md          # Handoff block + WHAT + WHY (no tech details, MoSCoW priorities)
 ├── plan.md          # HOW (architecture, components)
 ├── data-model.md    # Entities, fields, constraints, indexes
 ├── contracts/       # API shapes, error codes (LOCKED after Phase 2 approval)
-├── tasks.md         # Ordered, sized, dependency-mapped tasks
-├── validation.md    # Traceability matrix (Phase 5)
-├── progress.md      # Optional: resume state across context resets (Phase 4)
+├── tasks.md         # Sized tasks: Depends on, Creates, Modifies
+├── validation.md    # AC | Proof | Before | Mutant | After | Verdict | Checked by (Phase 5)
+├── progress.md      # Optional: resume note (status, last good commit, next step)
 ├── walkthrough.md   # Optional: execution-ordered narration for reviewers (Phase 5)
-└── decision_log.md  # Optional: key decisions and rationale
+└── decision_log.md  # Optional: append-only ts | task | decision | why | evidence | result
+
+specs/_current/[capability].md   # Merged current state, written at archive
 ```
 
 ---
@@ -139,6 +141,9 @@ an agent would follow anyway; the value is entirely in the surprising rules.
 | Absence of evidence is drift | Otherwise reconcile legitimizes whatever the code happens to do |
 | Research before specifying unfamiliar code | A spec built on a wrong model of the system drifts by construction |
 | Every research claim cites `file:line` | An uncited finding is a guess wearing a fact's clothes |
+| Every `[MUST]` AC has a `Proof:` line | An AC nobody can check is a wish |
+| Verdicts are `pass`, `fail`, `inconclusive` | A check that could not run is not a pass |
+| Research findings carry evidence L1 to L5 | The fact safety depends on must reach L4 or say `unproven` |
 | Compact at 60–80%, never at 100% | Auto-compaction discards details you chose to keep |
 | Surface assumptions before specifying | Implicit AI assumptions become wrong ACs |
 | No implementation details in spec.md | Spec describes behavior, not mechanism |
@@ -169,6 +174,7 @@ an agent would follow anyway; the value is entirely in the surprising rules.
 Given [initial state or context]
 When [user or system action]
 Then [observable outcome]
+**Proof:** test: [command]    (every [MUST] AC; kinds: test | command | artifact | manual)
 ```
 
 ✅ Given a logged-in user, when they submit the form, then a success message appears within 1s.
