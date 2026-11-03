@@ -9,6 +9,17 @@ Last updated: 2026-05-10
 Allow users to sign in by entering their email address and clicking a one-time link sent
 to their inbox — no password required.
 
+## Handoff
+
+Goal: Users sign in by emailed one-time link, with single use, a 15-minute expiry and a per-email rate limit.
+Done when:
+- [ ] `pnpm vitest run tests/integration/magic-link` exits 0 (AC-1, AC-2, AC-3, AC-4, AC-E1, AC-E2, AC-E3)
+- [ ] `pnpm playwright test tests/e2e/magic-link.spec.ts` exits 0 (AC-1, AC-2, AC-3)
+- [ ] `src/app/auth/magic-link/verify/route.ts` creates its session through `createSession()` (AC-2)
+Isolation: branch `feat/magic-link-login` off `main`, one worktree per parallel task
+Permissions: Boundaries section below
+Stop if: a task needs a table, column or email template outside `data-model.md`. Then stop and write why in decision_log.md
+
 ## User Stories
 
 ### Primary
@@ -56,24 +67,28 @@ Given an unauthenticated visitor on `/sign-in`
 When they submit a valid email address
 Then the system creates a magic-link record, sends an email with a one-time URL,
    and returns `202 Accepted` with no information about whether the email is registered.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-request.test.ts`
 
 ### AC-2: Successful verification creates a session [MUST]
 
 Given a user clicks a valid, unexpired, unredeemed magic link
 When the verification endpoint validates the token
 Then the system marks the token redeemed, creates a session cookie, and redirects to `/dashboard`.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-verify.test.ts -t "AC-2"`
 
 ### AC-3: First-time login creates a user [MUST]
 
 Given the email in a redeemed magic link is not associated with any existing user
 When verification succeeds
 Then the system creates a new `users` row with that email and creates the session.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-verify.test.ts -t "AC-3"`
 
 ### AC-4: Tokens expire [MUST]
 
 Given a magic link was issued more than 15 minutes ago
 When the user clicks it
 Then verification fails with `410 Gone` and the user is redirected to `/sign-in?error=expired`.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-verify.test.ts -t "AC-4"`
 
 ### AC-5: Pre-fill email on resend [SHOULD]
 
@@ -99,12 +114,14 @@ Given the request body's `email` field fails Zod validation
 When the request reaches the route handler
 Then the response is `400 Bad Request` with error code `VALIDATION_ERROR` and the system
    does not write to the database or send an email.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-request.test.ts -t "AC-E1"`
 
 ### AC-E2: Token already redeemed [MUST]
 
 Given a magic link that was already successfully verified once
 When the same link is clicked again
 Then verification fails with `410 Gone` and the user is redirected to `/sign-in?error=used`.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-verify.test.ts -t "AC-E2"`
 
 ### AC-E3: Rate limit exceeded [MUST]
 
@@ -112,6 +129,7 @@ Given an email address has been used to request 3 magic links in the last 15 min
 When a 4th request arrives for that email
 Then the system responds with `429 Too Many Requests`, sets `Retry-After`, and does NOT
    send another email or write a new magic-link record.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-request.test.ts -t "AC-E3"`
 
 ## Out of Scope
 

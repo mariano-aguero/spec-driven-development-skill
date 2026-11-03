@@ -45,6 +45,8 @@ then verify). Step 5 is reused unchanged.
 the payload, sets `HttpOnly`, `Secure`, and `SameSite=Lax`, and applies the 24-hour TTL from
 config. — `src/auth/sessions.ts:34-58`
 
+**Evidence:** L4. `rg "cookies\(\)\.set|Set-Cookie" src lib` returns only `src/auth/sessions.ts:50`.
+
 **Consequence for this feature:** verification must call `createSession()` rather than
 constructing a cookie. A second cookie path would silently bypass the expiry enforced in
 `withSession()`.
@@ -53,6 +55,8 @@ constructing a cookie. A second cookie path would silently bypass the expiry enf
 
 Every request passes through `withSession()`, which rejects sessions older than the
 configured TTL. No route implements its own expiry check. — `src/auth/middleware.ts:40`
+
+**Evidence:** L2
 
 **Consequence for this feature:** magic-link *token* expiry is a separate concern from
 *session* expiry. Specifying session lifetime inside this feature would create a second,
@@ -63,6 +67,8 @@ conflicting mechanism.
 `checkLimit(key, window, max)` accepts an arbitrary key. The password route happens to use
 IP, but the limiter itself is agnostic. — `lib/rate-limit.ts:22-37`
 
+**Evidence:** L2
+
 **Consequence for this feature:** a per-email limit is available without new
 infrastructure — only a key convention is needed.
 
@@ -72,6 +78,8 @@ infrastructure — only a key convention is needed.
 job and returns immediately; a separate worker process performs delivery.
 — `lib/jobs/queue.ts:15`, `src/lib/mailers/index.ts:41`
 
+**Evidence:** L2
+
 **Consequence for this feature:** the request endpoint can respond in well under 300ms, and
 email failures cannot block or fail the HTTP response.
 
@@ -79,6 +87,8 @@ email failures cannot block or fail the HTTP response.
 
 The schema contains `users` and `sessions` only. No password-reset, invite, or verification
 token table exists to extend. — `src/db/schema/`
+
+**Evidence:** L3. A listing of `src/db/schema/` shows `users.ts` and `sessions.ts` only.
 
 **Consequence for this feature:** a new table is required. It is genuinely new surface, not
 a reuse opportunity.

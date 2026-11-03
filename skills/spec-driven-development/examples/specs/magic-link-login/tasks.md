@@ -14,7 +14,7 @@ Implements: `specs/magic-link-login/plan.md`
   - Depends on: none
 
 - [ ] **TASK-002** [S] Add Drizzle schema for `magic_link_tokens`
-  - Creates: entry in `src/db/schema.ts`
+  - Modifies: `src/db/schema.ts`
   - Depends on: TASK-001
 
 ### Repository layer
@@ -22,6 +22,7 @@ Implements: `specs/magic-link-login/plan.md`
 - [ ] **TASK-003** [M] [P] Write tests for `MagicLinkTokenRepository`
   - Tests: every method (`create`, `findByTokenHash`, `markRedeemed`, `countRecentByEmail`) against the test database
   - Tests: AC-1, AC-2, AC-4, AC-E2, AC-E3 (repository contracts)
+  - Creates: `tests/integration/magic-link-token-repository.test.ts`
   - Depends on: TASK-002
 
 - [ ] **TASK-004** [M] Implement `MagicLinkTokenRepository`
@@ -33,6 +34,7 @@ Implements: `specs/magic-link-login/plan.md`
 
 - [ ] **TASK-005** [S] [P] Write test for `MagicLinkMailer.enqueue()`
   - Tests: AC-1 (job is enqueued; email/token never appear in log fields)
+  - Creates: `tests/unit/magic-link-mailer.test.ts`
   - Depends on: TASK-002
 
 - [ ] **TASK-006** [S] Implement `MagicLinkMailer.enqueue()`
@@ -44,6 +46,7 @@ Implements: `specs/magic-link-login/plan.md`
 
 - [ ] **TASK-007** [M] [P] Write integration tests for `POST /auth/magic-link`
   - Tests: AC-1 (happy path), AC-E1 (validation), AC-E3 (rate limit)
+  - Creates: `tests/integration/magic-link-request.test.ts`
   - Contract: `specs/magic-link-login/contracts/auth-api.md` → `POST /auth/magic-link`
   - Depends on: TASK-004, TASK-006
 
@@ -56,6 +59,7 @@ Implements: `specs/magic-link-login/plan.md`
 
 - [ ] **TASK-009** [M] [P] Write integration tests for `GET /auth/magic-link/verify`
   - Tests: AC-2 (success + session), AC-3 (first-time user creation), AC-4 (expired), AC-E2 (already used)
+  - Creates: `tests/integration/magic-link-verify.test.ts`
   - Contract: `specs/magic-link-login/contracts/auth-api.md` → `GET /auth/magic-link/verify`
   - Depends on: TASK-004
 
@@ -68,6 +72,7 @@ Implements: `specs/magic-link-login/plan.md`
 
 - [ ] **TASK-011** [L] Playwright E2E: request → click email link → land on dashboard
   - Tests: AC-1 + AC-2 + AC-3 stitched together against a real email-capture testing inbox
+  - Creates: `tests/e2e/magic-link.spec.ts`
   - Depends on: TASK-008, TASK-010
 
 ## Legend
@@ -76,3 +81,6 @@ Implements: `specs/magic-link-login/plan.md`
 - `[M]` Medium — 1–3 hours
 - `[L]` Large — 3–6 hours (consider splitting)
 - `[P]` Parallelizable — can run concurrently with other `[P]` tasks at the same dependency level
+
+Waves are computed from `Depends on:`. Parallel `[P]` tasks in a wave share no `Creates:` or
+`Modifies:` file: TASK-003 and TASK-005 each write their own test file.

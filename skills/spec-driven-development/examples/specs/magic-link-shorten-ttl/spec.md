@@ -12,6 +12,16 @@ A security review flagged the 15-minute magic-link window as too wide for admin 
 Shorten the window to 5 minutes and make the expiry message actionable, without changing how
 links are issued, hashed, or redeemed.
 
+## Handoff
+
+Goal: Magic links expire after 5 minutes and the expiry page says so, with every other behavior unchanged.
+Done when:
+- [ ] `pnpm vitest run tests/integration/magic-link` exits 0 (AC-1, AC-3, AC-4, AC-5, AC-6)
+- [ ] `pnpm playwright test tests/e2e/magic-link.spec.ts` exits 0 (AC-2)
+Isolation: branch `feat/magic-link-ttl-5min` off `main`, one worktree per parallel task
+Permissions: constitution.md, no feature Boundaries
+Stop if: a baseline assertion above turns out false. Then stop and write why in decision_log.md
+
 ## Baseline Assertion
 
 <!-- What this change depends on being true today. If a line here is false, this spec is
@@ -40,6 +50,7 @@ Then verification fails with `410 Gone` and the user is redirected to `/sign-in?
 **Migration:** Links issued before deploy keep their original 15-minute window — expiry is
 computed from a stored `expires_at`, not from a constant applied at read time. No backfill,
 no invalidation of links already in inboxes.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-verify.test.ts -t "AC-4"`
 
 ### AC-2: Expiry message states the new window [MODIFIED] [SHOULD]
 
@@ -70,21 +81,25 @@ previously the same number and are now different — leaving it implicit invites
 change to "align" them.
 
 **Migration:** None. Behavior is unchanged; only its independence from the TTL is now explicit.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-request.test.ts -t "AC-E3"`
 
 ### AC-4: Single-use enforcement [UNCHANGED] [MUST]
 
 Redeemed tokens remain unusable — a second click returns `410 Gone` and redirects to
 `/sign-in?error=used`. — baseline AC-E2. Must still hold.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-verify.test.ts -t "AC-E2"`
 
 ### AC-5: Token hashing and comparison [UNCHANGED] [MUST]
 
 Tokens remain 32 bytes of cryptographic randomness, stored only as SHA-256 hashes and
 compared in constant time. — baseline Non-Functional Requirements. Must still hold.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-token-repository.test.ts`
 
 ### AC-6: First-time login still creates a user [UNCHANGED] [MUST]
 
 Verification of a link for an unregistered email still creates the user and the session.
 — baseline AC-3. Must still hold.
+**Proof:** test: `pnpm vitest run tests/integration/magic-link-verify.test.ts -t "AC-3"`
 
 ## Blast Radius
 

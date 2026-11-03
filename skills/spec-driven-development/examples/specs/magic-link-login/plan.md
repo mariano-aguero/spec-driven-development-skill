@@ -13,6 +13,18 @@ performs a constant-time lookup, marks the row redeemed, and issues a session vi
 `auth/` module. Rate limiting runs in middleware against the email's domain bucket before any
 DB write.
 
+## Caller Usage
+
+The sign-in page posts the email, and the link in the email lands on the verify endpoint.
+
+```text
+POST /auth/magic-link        { "email": "ana@example.com" }  ->  202 Accepted
+GET  /auth/magic-link/verify?token=<base64url>               ->  302 /dashboard  (session cookie set)
+GET  /auth/magic-link/verify?token=<expired or reused>       ->  302 /sign-in?error=expired | used
+```
+
+The contracts in `contracts/auth-api.md` derive from these calls.
+
 ## Component Breakdown
 
 ### MagicLinkRequestHandler
