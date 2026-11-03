@@ -53,7 +53,7 @@ Not every change deserves the same process. Pick the lightest level that covers 
 |---|---|---|---|
 | Use when | Fits one session, ≤3 files, no schema/contract/auth change | New endpoint, table, or user-visible behavior; spans sessions | Auth, payments, migrations, regulated domains, unfamiliar code |
 | Artifacts | ACs in the issue or PR body | `spec.md`, `plan.md`, `contracts/`, `tasks.md` | + `research.md`, `decision_log.md`, `walkthrough.md` |
-| Gates | Self-check before merge | 1, 2, 3, 5 | 0, R, 1–5, C |
+| Gates | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) | [matrix](references/quality-gates.md#which-gates-apply-at-which-ceremony-level) |
 | Critics | none | optional | required |
 
 **Decision rule:** start at M. Drop to S only if *all* of these hold — one session, ≤3 files,
@@ -274,8 +274,9 @@ human. Confusing the two is how SDD earns its reputation for ceremony.
 
 - **When decisions change:** run `/sdd:amend` — never patch files manually
 - **When code changed outside the workflow:** run `/sdd:reconcile`
+- **Where things stand:** `/sdd:status` prints the phase and the next action; `/sdd:analyze` finds contradictions inside `spec.md` before planning
 - **Commit specs with code:** spec files belong in the same PR as the implementation
-- **Version your specs:** each `spec.md` carries a `Status` and `Version` header
+- **Version your specs:** each `spec.md` carries a `Status` (see the Status Lifecycle in `references/artifact-templates.md`) and `Version` header
 - **Archive when done:** move completed specs to `specs/archive/` after the feature ships
 
 ### Three ways a spec and its code disagree
