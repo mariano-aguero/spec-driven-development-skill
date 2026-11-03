@@ -676,9 +676,9 @@ Redeemed tokens remain unusable — baseline AC-E2. Must still hold.
 
 **Symptoms:**
 
-- `/sdd:reconcile` output is approved wholesale rather than item by item
+- `/sdd-change` output is approved wholesale rather than item by item
 - Spec updates classified `INTENTIONAL` cite no commit, PR, or ticket
-- `/sdd:validate` is always clean, yet nobody remembers approving the current behavior
+- `/sdd-validate` is always clean, yet nobody remembers approving the current behavior
 - The spec drifts steadily toward whatever the code does
 - "We reconciled it" is the answer to why the spec says something surprising
 
@@ -690,7 +690,7 @@ entirely in whether each item had **evidence** and a **human decision**.
 
 **Example (wrong):**
 
-> "Ran `/sdd:reconcile` on the auth feature — 9 differences, all look intentional from the
+> "Ran `/sdd-change` on the auth feature — 9 differences, all look intentional from the
 > commit history. Applied them. Spec is current again, validate is clean."
 
 Nine differences, one glance, no per-item evidence. Any genuine drift in that batch is now
@@ -698,12 +698,12 @@ permanently specified as intended behavior, and the audit trail says it was appr
 
 **Example (correct):**
 
-> "Ran `/sdd:reconcile` — 6 differences. Two INTENTIONAL with commits cited (7d21e0f,
+> "Ran `/sdd-change` — 6 differences. Two INTENTIONAL with commits cited (7d21e0f,
 > PR #218), one EXTERNAL (framework 4.2 changed the SameSite default). Two DRIFT with no
 > evidence in 14 commits — the rate-limit key is per-IP but AC-E3 says per-email; that's a
 > real bug, filed as TASK-014. One AMBIGUOUS: 'copy tweaks' doesn't authorize dropping the
 > expiry notice, so defaulting to DRIFT. Approved the three spec updates through
-> `/sdd:amend`, logged the evidence in `decision_log.md`."
+> `/sdd-change`, logged the evidence in `decision_log.md`."
 
 **Fix:**
 

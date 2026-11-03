@@ -1,6 +1,6 @@
 # API Contract: Magic-Link Authentication
 
-**Status: LOCKED** (Gate 2 approved 2026-05-10 — modifications require `/sdd:amend`).
+**Status: LOCKED** (Gate 2 approved 2026-05-10 — modifications require `/sdd-change`).
 
 ---
 

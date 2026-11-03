@@ -40,7 +40,7 @@ test('Planned blocks and the message names the status', () => {
   const r = runHook({ status: 'Planned (Gate 2 passed)' })
   assert.equal(r.status, 2)
   assert.match(r.stderr, /Status: Planned/)
-  assert.match(r.stderr, /\/sdd:amend/)
+  assert.match(r.stderr, /\/sdd-change/)
 })
 
 test('In Progress blocks', () => {

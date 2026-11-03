@@ -36,7 +36,7 @@ definition. Delta specs use it too. Each gate sets the next status when it passe
 |--------|----------|----------------|
 | `Draft` | `spec.md` is created | Editing spec and `contracts/` freely |
 | `Approved` | Gate 1 passes | Planning starts. `contracts/` still editable while Phase 2 writes them |
-| `Planned` | Gate 2 passes | Tasks start. `contracts/` locked, changes go through `/sdd:amend` |
+| `Planned` | Gate 2 passes | Tasks start. `contracts/` locked, changes go through `/sdd-change` |
 | `In Progress` | The first task starts | Implementation. Lock stays on |
 | `Validated` | Gate 5 passes and the human has audited it and read the walkthrough | Merge. Lock stays on |
 | `Archived` | The spec moves to `specs/archive/` | Read-only history |

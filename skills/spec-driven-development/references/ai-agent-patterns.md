@@ -13,7 +13,7 @@ Multi-agent orchestration, context management, and AI interaction patterns for S
 - Parallel task execution
 - AI tool selection per phase (capability profiles)
 - Handling AI resistance
-- Spec regeneration pattern (`/sdd:amend`)
+- Spec regeneration pattern (`/sdd-change`)
 - Research phase with parallel subagents — the leverage model and dispatch shape
 - Spec as recovery point
 
@@ -352,7 +352,7 @@ extract-task() {
 Or via Claude Code custom command:
 
 ```
-/sdd:next-task specs/[feature]/tasks.md
+/sdd-tasks specs/[feature]/tasks.md
 ```
 
 Returns the next uncompleted task (by checking `- [ ]` vs `- [x]`).
@@ -453,7 +453,7 @@ If the AI suggestion is genuinely valuable:
 
 ## Spec Regeneration Pattern
 
-When requirements change mid-development (common in fast-moving projects), use `/sdd:amend`:
+When requirements change mid-development (common in fast-moving projects), use `/sdd-change`:
 
 ```
 CHANGE REQUEST: [description of what changed]
@@ -462,7 +462,7 @@ Current phase: Phase 4, TASK-006 complete
 
 Action required:
 1. Stop Phase 4 at current task
-2. Run /sdd:amend to update spec.md: [specific ACs that change]
+2. Run /sdd-change to update spec.md: [specific ACs that change]
 3. Assess plan.md impact: [which components are affected]
 4. Update contracts/ if signatures change
 5. Regenerate tasks.md from the affected task forward

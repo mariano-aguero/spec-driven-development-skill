@@ -62,10 +62,10 @@ By phase · File list
 - Phase 5 — Validate prompts → `prompt-patterns.md#phase-5--validate-prompts`
 - Phase 5 — Linear walkthrough (comprehension) → `prompt-patterns.md#linear-walkthrough-prompt`
 - Phase 5, Adversary (non-author agent tries to break each AC, M and L) → `prompt-patterns.md#adversary-prompt-phase-5-levels-m-and-l`
-- Status (`/sdd:status`) → `prompt-patterns.md#status-prompt-sddstatus--run-any-time`
+- Status (`/sdd-status`) → `prompt-patterns.md#status-prompt-sddstatus--run-any-time`
 - Multi-agent review (standardized output) → `prompt-patterns.md#multi-agent-review-pattern`
 - Delta specification (brownfield) → `prompt-patterns.md#delta-specification-prompt-brownfield-changes`
-- Checklist generation (`/sdd:checklist`) → `prompt-patterns.md#checklist-generation-prompt-sddchecklist-domain`
+- Checklist generation (`/sdd-validate`) → `prompt-patterns.md#checklist-generation-prompt-sddchecklist-domain`
 - Amend (requirements change cascade) → `prompt-patterns.md#amend-prompt-sddamend--run-when-requirements-change`
 - Reconcile (code changed outside the workflow) → `prompt-patterns.md#reconcile-prompt-sddreconcile--run-when-code-changed-outside-the-workflow`
 - Constitution from existing codebase → `prompt-patterns.md#constitution-from-existing-codebase`
@@ -89,13 +89,13 @@ By phase · File list
 - Principles: write artifacts, show verdicts → `output-formats.md#principles`
 - Gate verdict → `output-formats.md#gate-verdict`
 - Critic findings (binary confidence) → `output-formats.md#critic-findings`
-- Checklist (`/sdd:checklist [domain]`) → `output-formats.md#checklist`
+- Checklist (`/sdd-validate [domain]`) → `output-formats.md#checklist`
 - Traceability matrix (validation.md columns) → `output-formats.md#traceability-matrix`
 - Verdicts `pass | fail | inconclusive` → `output-formats.md#gate-verdict`
 - Drift report → `output-formats.md#drift-report`
-- Reconcile report (`/sdd:reconcile`) → `output-formats.md#reconcile-report`
+- Reconcile report (`/sdd-change`) → `output-formats.md#reconcile-report`
 - Analyze report → `output-formats.md#analyze-report`
-- Status report (`/sdd:status`) → `output-formats.md#status-report`
+- Status report (`/sdd-status`) → `output-formats.md#status-report`
 - Linear walkthrough → `output-formats.md#linear-walkthrough`
 - What never to print → `output-formats.md#what-never-to-print`
 

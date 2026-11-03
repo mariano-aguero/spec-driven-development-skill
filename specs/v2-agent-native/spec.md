@@ -76,7 +76,7 @@ If any line above is false at implementation time, this spec is invalid, not inc
 → Archived`, defined once in `artifact-templates.md`. Given `Status: Draft` or `Approved`, When
 an agent writes `contracts/x.md`, Then the write is allowed. Given `Planned` or any later status,
 When an agent writes `contracts/x.md` without an amend in progress, Then the write is blocked
-with a message naming `/sdd:amend`.
+with a message naming `/sdd-change`.
 **Proof:** `test/contract-lock.test.mjs` extracts the hook from `enforcement.md` (so the
 documented script is the tested one) and runs it against Draft, Approved, Planned, and Planned
 with the sentinel: allow, allow, block, allow.
@@ -240,7 +240,7 @@ compared on interface size, and the rejected one is recorded in `decision_log.md
 
 Given Phase 4, When the same workaround appears in unrelated places, types need casts or `any`
 to compile, or two task deviations share a shape, Then the agent stops and proposes
-`/sdd:amend` at the plan level instead of patching.
+`/sdd-change` at the plan level instead of patching.
 **Proof:** anti-pattern entry with the triggers; eval covers one trigger.
 
 #### AC-21: Evidence levels [MODIFIED] [SHOULD]
@@ -330,7 +330,7 @@ every scenario or the gap is explained.
 
 #### AC-31: Reconcile never edits on its own [UNCHANGED]
 
-"`/sdd:reconcile` never edits anything on its own" (`SKILL.md:292`) must still hold.
+"`/sdd-change` never edits anything on its own" (`SKILL.md:292`) must still hold.
 
 #### AC-32: Research before spec, cited [UNCHANGED]
 

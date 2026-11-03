@@ -8,12 +8,12 @@ files; this file defines what to show the person running the workflow.
 - Principles — write vs. show, verdict first, line budgets, binary confidence
 - Gate verdict: the format for every gate (0, R, 1 to 5, C), and the three verdicts
 - Critic findings — issue lines with confidence markers
-- Checklist — `/sdd:checklist [domain]`
-- Traceability matrix — `/sdd:validate`
-- Drift report — `/sdd:validate`
-- Reconcile report — `/sdd:reconcile`
-- Analyze report — `/sdd:analyze`
-- Status report — `/sdd:status`
+- Checklist — `/sdd-validate [domain]`
+- Traceability matrix — `/sdd-validate`
+- Drift report — `/sdd-validate`
+- Reconcile report — `/sdd-change`
+- Analyze report — `/sdd-validate`
+- Status report — `/sdd-status`
 - Linear walkthrough — `walkthrough.md`
 - Phase completion summary
 - What never to print
@@ -83,7 +83,7 @@ Rules:
 - One line per **failed** check with the specific reason — never "see the plan"
 - Passed checks collapse onto shared lines; they are context, not content
 - End with the single next action, and say explicitly what is blocked
-- On a full pass, the body collapses to one line: `Gate 2 — PASS (8/8). Next: /sdd:tasks`
+- On a full pass, the body collapses to one line: `Gate 2 — PASS (8/8). Next: /sdd-tasks`
 - Never report a gate as passed when a check was skipped. Report it as `inconclusive` with
   the reason (see Verdicts below)
 
@@ -253,7 +253,7 @@ Rules:
 ## Reconcile Report
 
 **Budget: one line per difference plus its evidence line, 30 lines maximum.** Output of
-`/sdd:reconcile`. This report proposes; it never applies.
+`/sdd-change`. This report proposes; it never applies.
 
 ```text
 Reconcile — magic-link-login vs HEAD (baseline a3f9c21, 14 commits since)
@@ -279,7 +279,7 @@ AMBIGUOUS    Email template omits the expiry notice from AC-5
              → human decides (defaults to DRIFT)                    [VERIFY]
 
 Nothing has been changed. Approve items individually.
-Apply approved spec updates via /sdd:amend; approved code fixes become tasks.
+Apply approved spec updates via /sdd-change; approved code fixes become tasks.
 ```
 
 Rules:
@@ -299,7 +299,7 @@ Rules:
 
 ## Analyze Report
 
-**Budget: 20 lines.** Output of `/sdd:analyze` — cross-artifact and cross-feature consistency.
+**Budget: 20 lines.** Output of `/sdd-validate` — cross-artifact and cross-feature consistency.
 
 ```text
 Analyze — 4 findings across 3 features
@@ -321,7 +321,7 @@ Finding types are fixed: `CONFLICT`, `DUPLICATE`, `ORPHAN`, `STALE`, `GAP`.
 
 ## Status Report
 
-**Budget: 12 lines.** Output of `/sdd:status`. Answers "where am I?" without opening a file.
+**Budget: 12 lines.** Output of `/sdd-status`. Answers "where am I?" without opening a file.
 
 ```text
 Feature: magic-link-login          Branch: feature/magic-link-login

@@ -167,7 +167,7 @@ git commit -m "research: [feature name] codebase analysis"
 
 ### Handoff to Phase 1
 
-`research.md` becomes the primary context for `/sdd:specify`. Two sections carry directly:
+`research.md` becomes the primary context for `/sdd-specify`. Two sections carry directly:
 
 - **Existing Constraints Discovered** → non-functional requirements and `Boundaries` in spec.md
 - **Open Questions for the Spec** → seed the `[NEEDS CLARIFICATION]` list
@@ -365,7 +365,7 @@ inventing solutions. Every design decision must be explicit.
 Use the Technical Plan Generation Prompt from `references/prompt-patterns.md`.
 Include your stack constraints and existing conventions. If `specs/[feature]/research.md`
 exists (pre-generated via parallel subagents before Phase 1), include it as additional
-context — `/sdd:plan` reads it automatically if present. The plan must include a
+context — `/sdd-plan` reads it automatically if present. The plan must include a
 Risks section — identify implementation risks and a mitigation for every High-impact
 risk before Phase 3 begins (see template in `references/artifact-templates.md`).
 
@@ -531,7 +531,7 @@ Commit the updated `tasks.md` with the implementation commit.
 
 ### When to Stop and Amend the Plan
 
-Stop patching and propose `/sdd:amend` at the plan level when any of these appear:
+Stop patching and propose `/sdd-change` at the plan level when any of these appear:
 
 - The same workaround shows up in unrelated places
 - Types need casts or `any` to compile
@@ -663,11 +663,11 @@ prefers to keep all specs in `specs/` indefinitely.
 
 ## Reconcile — When Code Changed Outside the Workflow
 
-**Invoke:** `/sdd:reconcile [feature]`
+**Invoke:** `/sdd-change [feature]`
 
 Real codebases move outside the process. A 3am hotfix ships, a dependency upgrade changes
 behavior, another team refactors a shared module, someone merges a PR that never saw a spec.
-The spec is now stale documentation, and every future `/sdd:validate` run reports the same
+The spec is now stale documentation, and every future `/sdd-validate` run reports the same
 noise until someone resolves it.
 
 Reconcile is the only sanctioned path from "the code is right and the spec is behind" back to
@@ -728,7 +728,7 @@ An item can be reclassified in either direction during review. That is the point
 Reconcile does not get to shortcut the workflow it is repairing:
 
 - Items resolved as **fix the code** become tasks in `tasks.md` and run through Phase 4
-- Items resolved as **update the spec** cascade through `/sdd:amend`: spec → plan → contracts
+- Items resolved as **update the spec** cascade through `/sdd-change`: spec → plan → contracts
   → data model. Never edit `spec.md` alone and call it reconciled.
 
 **Step R.5 — Record why**
@@ -743,11 +743,11 @@ that is not "someone reconciled it once".
 git add specs/[feature]/ && git commit -m "reconcile: [feature] spec to shipped behavior"
 ```
 
-Then run `/sdd:validate` — a clean run is what proves the reconciliation is complete.
+Then run `/sdd-validate` — a clean run is what proves the reconciliation is complete.
 
 ### When not to reconcile
 
-- **The requirement changed** → `/sdd:amend`. Reconcile is for code that moved, not intent.
+- **The requirement changed** → `/sdd-change`. Reconcile is for code that moved, not intent.
 - **You are mid-Phase 4** → that is drift; fix it now rather than legitimizing it later.
 - **You cannot find evidence for most differences** → the feature was rebuilt outside the
   process. Re-specify it rather than patching a spec that no longer describes anything.

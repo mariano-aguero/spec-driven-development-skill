@@ -57,19 +57,19 @@ specs/_current/[capability].md   # Merged current state, written at archive
 
 | Command | Phase | Reads | Creates |
 |---------|-------|-------|---------|
-| `/sdd:init` | 0 | project context | `constitution.md` |
-| `/sdd:research [description]` | 0.5 | codebase | `research.md` |
-| `/sdd:specify [description]` | 1 | user input + `research.md` (if present) | `spec.md` |
-| `/sdd:clarify` | 1 (sub-step) | `spec.md` | delta (new ACs, resolved questions) |
-| `/sdd:plan` | 2 | `spec.md` + `constitution.md` + `research.md` (if present) | `plan.md`, `data-model.md`, `contracts/` |
-| `/sdd:tasks` | 3 | `plan.md`, `contracts/` | `tasks.md` |
-| `/sdd:next-task` | 4 | `tasks.md` | — (extracts single task) |
-| `/sdd:checklist [domain]` | 1 | `spec.md` | `checklists/[domain].md` — tests the spec, not the code |
-| `/sdd:analyze` | any | `spec.md` | inconsistency report |
-| `/sdd:status` | any | all artifacts on disk | phase state + next action (12 lines) |
-| `/sdd:amend [what changed]` | any | all spec files | updated spec chain |
-| `/sdd:reconcile [feature]` | any | spec files + git history | classified differences — **proposes only** |
-| `/sdd:validate` | 5 | all spec files + code | `validation.md`, drift report, `walkthrough.md` |
+| `/sdd-init` | 0 | project context | `constitution.md` |
+| `/sdd-research [description]` | 0.5 | codebase | `research.md` |
+| `/sdd-specify [description]` | 1 | user input + `research.md` (if present) | `spec.md` |
+| `/sdd-specify` | 1 (sub-step) | `spec.md` | delta (new ACs, resolved questions) |
+| `/sdd-plan` | 2 | `spec.md` + `constitution.md` + `research.md` (if present) | `plan.md`, `data-model.md`, `contracts/` |
+| `/sdd-tasks` | 3 | `plan.md`, `contracts/` | `tasks.md` |
+| `/sdd-tasks` | 4 | `tasks.md` | — (extracts single task) |
+| `/sdd-validate [domain]` | 1 | `spec.md` | `checklists/[domain].md` — tests the spec, not the code |
+| `/sdd-validate` | any | `spec.md` | inconsistency report |
+| `/sdd-status` | any | all artifacts on disk | phase state + next action (12 lines) |
+| `/sdd-change [what changed]` | any | all spec files | updated spec chain |
+| `/sdd-change [feature]` | any | spec files + git history | classified differences — **proposes only** |
+| `/sdd-validate` | 5 | all spec files + code | `validation.md`, drift report, `walkthrough.md` |
 
 ---
 
@@ -105,9 +105,9 @@ Delta ACs carry `[ADDED]` / `[MODIFIED]` / `[REMOVED]` / `[UNCHANGED]` alongside
 
 | Situation | Cause | Command | What changes |
 |-----------|-------|---------|--------------|
-| Drift | Implementation diverged by mistake | `/sdd:validate` | the **code** |
-| Amendment | A requirement changed | `/sdd:amend` | the **spec chain**, then code |
-| Reconciliation | Code changed outside the workflow | `/sdd:reconcile` | per difference, **human decides** |
+| Drift | Implementation diverged by mistake | `/sdd-validate` | the **code** |
+| Amendment | A requirement changed | `/sdd-change` | the **spec chain**, then code |
+| Reconciliation | Code changed outside the workflow | `/sdd-change` | per difference, **human decides** |
 
 Reconcile classifications: `INTENTIONAL` / `EXTERNAL` need quoted evidence → update spec ·
 `DRIFT` (no evidence) → fix code · `AMBIGUOUS` → human, defaults to DRIFT.

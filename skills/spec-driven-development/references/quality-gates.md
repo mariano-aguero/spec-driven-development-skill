@@ -7,7 +7,7 @@ Review checklists, confidence thresholds, and CI/CD integration patterns for SDD
 - Which gates apply at which ceremony level, and who passes each (intent vs. evidence gates)
 - Gate 0 — `constitution.md` approval
 - Per-phase checklists: Gate R (research), Gates 1–5 (incl. delta-mode checks), Gate C
-- Generated checklists (`/sdd:checklist [domain]`) — unit tests for the spec
+- Generated checklists (`/sdd-validate [domain]`) — unit tests for the spec
 - Confidence-based review thresholds
 - CI/CD integration: research citation check, AC coverage, drift detection, spec completeness
 - Spec drift classification
@@ -290,7 +290,7 @@ timezone arithmetic, or handles money, or is the first thing a new user sees.
 A **checklist** is generated per feature and per domain to cover exactly that: the risk
 surface this feature has and the last one didn't.
 
-**Invoke:** `/sdd:checklist [domain]` → `specs/[feature]/checklists/[domain].md`
+**Invoke:** `/sdd-validate [domain]` → `specs/[feature]/checklists/[domain].md`
 
 | | Gates | Checklists |
 |---|-------|-----------|

@@ -121,7 +121,7 @@ shape — and Anti-Pattern 2 exists because that is exactly what happens.
 
 **Rule:** once `spec.md` reads `Status: Planned` or later (Gate 2 passed, see the Status
 Lifecycle in `artifact-templates.md`), writes to `specs/*/contracts/**` are rejected unless the
-change is part of an explicit `/sdd:amend` run. At `Draft` and `Approved` the lock is off,
+change is part of an explicit `/sdd-change` run. At `Draft` and `Approved` the lock is off,
 because Phase 2 writes the contracts.
 
 Claude Code implementation, in `.claude/settings.json`:
@@ -164,7 +164,7 @@ status=$(grep -m1 -E '^Status:' "$spec" || true)
 if grep -qE '^Status:[[:space:]]*(Planned|In Progress|Validated|Archived)' "$spec"; then
   echo "BLOCKED: $path is a locked contract (spec ${status})." >&2
   echo "Changing a contract during implementation is spec drift." >&2
-  echo "To change it deliberately: run /sdd:amend, which updates spec -> plan -> contract" >&2
+  echo "To change it deliberately: run /sdd-change, which updates spec -> plan -> contract" >&2
   echo "-> data model together and records the decision." >&2
   exit 2   # non-zero blocks the tool call and returns stderr to the agent
 fi

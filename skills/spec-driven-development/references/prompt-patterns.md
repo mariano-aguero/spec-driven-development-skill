@@ -12,7 +12,7 @@ determines the quality of AI output — vague input = vague output.
 - Phase 2 — Plan: technical plan generation, plan review
 - Phase 3 — Tasks: task breakdown, task validation
 - Phase 4 — Implementation: single task (Format A/B), context handover, session resume, mid-implementation correction
-- Reconcile (`/sdd:reconcile`) · Amend (`/sdd:amend`) · Analyze (`/sdd:analyze`) · Status (`/sdd:status`)
+- Reconcile (`/sdd-change`) · Amend (`/sdd-change`) · Analyze (`/sdd-validate`) · Status (`/sdd-status`)
 - Phase 5 — Validate: drift detection, post-implementation validation, linear walkthrough
 - Phase 5 adversary: a non-author agent tries to break each MUST and UNCHANGED AC
 - Multi-agent review pattern · Constitution from existing codebase · Cross-feature conflict detector
@@ -70,7 +70,7 @@ For each constraint, write it as an explicit rule an AI agent can check:
 Run these before Phase 1 whenever the feature touches unfamiliar or large existing code.
 The output is a map of the system as it is — not a design, not a requirement list.
 
-### Codebase Research Prompt (`/sdd:research`)
+### Codebase Research Prompt (`/sdd-research`)
 
 *Format A — agent with filesystem access and subagent dispatch.*
 
@@ -324,7 +324,7 @@ Return the full updated spec.md.
 
 ---
 
-### Checklist Generation Prompt (`/sdd:checklist [domain]`)
+### Checklist Generation Prompt (`/sdd-validate [domain]`)
 
 *Generates a feature-specific, domain-specific checklist that tests the **spec**, not the
 software. Run before Gate 1 — for every relevant domain at level L, for the highest-risk one
@@ -537,7 +537,7 @@ Do NOT:
 - Violate any rule in the spec's Boundaries section
 - Patch around the plan: if the same workaround repeats in unrelated places, types need casts
   or `any`, or this task deviates the same way an earlier one did, stop and propose
-  /sdd:amend at the plan level
+  /sdd-change at the plan level
 
 After implementation, verify:
 - [ ] Each new test was run before the change and its failure output is saved for the checker
@@ -629,7 +629,7 @@ Do not use your judgment about what "makes sense" — follow the contract.
 
 ---
 
-## Reconcile Prompt (/sdd:reconcile — run when code changed outside the workflow)
+## Reconcile Prompt (/sdd-change — run when code changed outside the workflow)
 
 *The spec is behind because the code moved: a hotfix, a dependency upgrade, another team's
 refactor. This prompt proposes a direction per difference; it never edits anything.*
@@ -665,13 +665,13 @@ Present the result using the Reconcile Report format in references/output-format
 ```
 
 **After the human approves items**, apply them through the normal chain — approved spec
-updates cascade via `/sdd:amend` (spec → plan → contracts → data model), and approved code
+updates cascade via `/sdd-change` (spec → plan → contracts → data model), and approved code
 fixes become tasks. Record the evidence for each spec update in `decision_log.md`. See
 `workflow-phases.md → Reconcile`.
 
 ---
 
-## Amend Prompt (/sdd:amend — run when requirements change)
+## Amend Prompt (/sdd-change — run when requirements change)
 
 Used when new information requires updating the spec chain mid-development. Amend propagates
 the change through all affected artifacts in the correct order instead of patching files manually.
@@ -721,11 +721,11 @@ that leave the spec chain inconsistent — the exact problem amend is designed t
 
 ---
 
-## Analyze Prompt (/sdd:analyze — run any time)
+## Analyze Prompt (/sdd-validate — run any time)
 
 Detects internal inconsistencies within the spec itself, before Plan generation.
-Different from `/sdd:clarify` (resolves ambiguities with human input) and
-`/sdd:validate` (checks implementation against spec). Most effective after Clarify
+Different from `/sdd-specify` (resolves ambiguities with human input) and
+`/sdd-validate` (checks implementation against spec). Most effective after Clarify
 and before Plan, but safe to run at any phase.
 
 ```
@@ -752,7 +752,7 @@ Present the result using the Analyze Report format in references/output-formats.
 
 ---
 
-## Status Prompt (/sdd:status — run any time)
+## Status Prompt (/sdd-status — run any time)
 
 *Answers "where am I?" without the user opening a single file. Every line is derived from
 what exists on disk — never from conversation memory.*

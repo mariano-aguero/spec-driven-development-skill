@@ -71,7 +71,7 @@ body:
       label: Steps to reproduce
       description: Minimal prompt or workflow that triggers the issue.
       placeholder: |
-        1. Run `/sdd:specify "add 2FA"`
+        1. Run `/sdd-specify "add 2FA"`
         2. ...
     validations:
       required: true

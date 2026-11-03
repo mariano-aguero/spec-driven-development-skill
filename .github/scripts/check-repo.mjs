@@ -132,15 +132,18 @@ function checkGateMatrix() {
 }
 
 function checkCommands() {
-  const cmdRe = /(?<![\w/])\/sdd:([a-z][a-z-]*)/g
+  const cmdRe = /(?<![\w/])\/sdd-([a-z][a-z-]*)/g
   const mustList = [skillMd, `${skill}/references/quick-reference.md`]
-  const scope = files.filter(
-    (f) => f === 'README.md' || f.startsWith(`${skill}/`),
-  )
+  const scope = files.filter((f) => f === 'README.md' || f.startsWith('skills/'))
   const reported = new Set()
   for (const f of scope) {
     linesOf(f).forEach((line, i) => {
       for (const [cmd] of line.matchAll(cmdRe)) {
+        const subSkill = `skills/${cmd.slice(1)}/SKILL.md`
+        if (!files.includes(subSkill) && !reported.has(subSkill)) {
+          reported.add(subSkill)
+          fail(f, i + 1, 'command-listed', `${cmd} has no ${subSkill}`)
+        }
         for (const home of mustList.filter((h) => !text.get(h).includes(cmd))) {
           const key = `${home}${cmd}`
           if (reported.has(key)) continue

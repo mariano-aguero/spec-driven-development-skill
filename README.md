@@ -36,7 +36,7 @@ potential divergence from intent — and they compound.
 | Specs written against an imagined codebase | Phase 0.5 research maps the real one first, with `file:line` citations |
 | Code ships faster than anyone can read it | Comprehension gate: the team reviews ~400 dense lines instead of a 2000-line diff |
 | Changing one rule means respecifying a subsystem | Delta specs declare a baseline and list only what moves |
-| Hotfixes quietly turn the spec into fiction | `/sdd:reconcile` classifies each difference with evidence — a human decides each one |
+| Hotfixes quietly turn the spec into fiction | `/sdd-change` classifies each difference with evidence — a human decides each one |
 | "Locked" contracts are locked by politeness | A pre-write hook makes the freeze real; the agent gets told why and what to run instead |
 | Your rules live in a file no tool reads | `AGENTS.md` derived from `constitution.md`, read natively by most agents |
 
@@ -54,17 +54,17 @@ SDD makes **specifications the source of truth**. The workflow:
 
 ```mermaid
 flowchart LR
-    P0["Phase 0<br/><b>/sdd:init</b><br/>constitution.md"]:::once --> PR
-    PR["Phase 0.5<br/><b>/sdd:research</b><br/>research.md"]:::cond --> GR{Gate R}
+    P0["Phase 0<br/><b>/sdd-init</b><br/>constitution.md"]:::once --> PR
+    PR["Phase 0.5<br/><b>/sdd-research</b><br/>research.md"]:::cond --> GR{Gate R}
     GR -->|citations verified| P1
-    P1["Phase 1<br/><b>/sdd:specify</b><br/>spec.md"] --> CL["Clarify<br/>resolve [NEEDS CLARIFICATION]"]
+    P1["Phase 1<br/><b>/sdd-specify</b><br/>spec.md"] --> CL["Clarify<br/>resolve [NEEDS CLARIFICATION]"]
     CL --> G1{Gate 1}
-    G1 -->|approved| P2["Phase 2<br/><b>/sdd:plan</b><br/>plan + data-model + contracts"]
+    G1 -->|approved| P2["Phase 2<br/><b>/sdd-plan</b><br/>plan + data-model + contracts"]
     P2 --> G2{Gate 2}
-    G2 -->|approved & contracts LOCKED| P3["Phase 3<br/><b>/sdd:tasks</b><br/>tasks.md"]
+    G2 -->|approved & contracts LOCKED| P3["Phase 3<br/><b>/sdd-tasks</b><br/>tasks.md"]
     P3 --> G3{Gate 3}
     G3 -->|approved| P4["Phase 4<br/>Implement<br/>fresh context per task"]
-    P4 --> P5["Phase 5<br/><b>/sdd:validate</b><br/>drift + walkthrough"]
+    P4 --> P5["Phase 5<br/><b>/sdd-validate</b><br/>drift + walkthrough"]
 
     classDef once fill:#f0e6ff,stroke:#7c3aed,stroke-width:2px
     classDef cond fill:#e6f4ff,stroke:#0369a1,stroke-width:2px,stroke-dasharray: 4 3
@@ -104,7 +104,7 @@ subsystem — so the savings grow with how much behavior already exists.
 | **Spec-as-source** | Spec is primary; code is generated, never hand-edited | Experimental, high-compliance |
 
 Start with spec-first; move to spec-anchored once the feature stabilizes. Spec-anchored is
-where `/sdd:reconcile` earns its place — it is the sanctioned path back to a trustworthy spec
+where `/sdd-change` earns its place — it is the sanctioned path back to a trustworthy spec
 after a hotfix or an upstream change moved the code without touching the spec.
 
 ## Installation
@@ -134,30 +134,30 @@ SDD, requirements planning, or AI implementation guidance.
 ## Workflow at a Glance
 
 ```text
-/sdd:init                                 # once per project
+/sdd-init                                 # once per project
   → creates constitution.md
 
-/sdd:research "add user authentication"   # skip on greenfield
+/sdd-research "add user authentication"   # skip on greenfield
   → specs/user-auth/research.md           (how the code works today, file:line cited)
 
-/sdd:specify "add user authentication"
+/sdd-specify "add user authentication"
   → creates specs/user-auth/spec.md       (MoSCoW ACs + Boundaries + open questions)
 
 /sdd-specify                              # run again to clarify
   → resolves [NEEDS CLARIFICATION] before Plan
 
-/sdd:plan
+/sdd-plan
   → specs/user-auth/plan.md               (architecture, risks)
   → specs/user-auth/data-model.md         (entities + migrations)
   → specs/user-auth/contracts/auth-api.md (LOCKED after Gate 2 approval)
 
-/sdd:tasks
+/sdd-tasks
   → specs/user-auth/tasks.md              (ordered, test-first, [P] for parallel)
 
 # implement each task with fresh AI context; commit after each
 # if a task outgrows its context window → progress.md → fresh session
 
-/sdd:validate
+/sdd-validate
   → traceability matrix + drift report
   → linear walkthrough for the humans who will maintain it
 ```
@@ -190,7 +190,7 @@ proportionally less. If you only want the cheat sheet, `skills/spec-driven-devel
 |------|---------|
 | `skills/spec-driven-development/SKILL.md` | Entry point: full workflow, spec levels, context model, comprehension debt, reference index |
 | `skills/spec-driven-development/references/artifact-templates.md` | Templates for `constitution.md`, `research.md`, `spec.md`, `plan.md`, `data-model.md`, `contracts/`, `tasks.md`, `progress.md`, `decision_log.md` |
-| `skills/spec-driven-development/references/prompt-patterns.md` | Prompts for every phase + Codebase Research, Assumptions Surface, Clarify, Critics, Context Handover, Linear Walkthrough, `/sdd:analyze`, `/sdd:amend` |
+| `skills/spec-driven-development/references/prompt-patterns.md` | Prompts for every phase + Codebase Research, Assumptions Surface, Clarify, Critics, Context Handover, Linear Walkthrough, `/sdd-validate`, `/sdd-change` |
 | `skills/spec-driven-development/references/workflow-phases.md` | Step-by-step instructions for Phases 0, 0.5, and 1–5 |
 | `skills/spec-driven-development/references/quality-gates.md` | Gate 0, R, 1–5 and C checklists + CI/CD integration (AC coverage, drift detection) |
 | `skills/spec-driven-development/references/output-formats.md` | Formats and line budgets for everything the user reads: gate verdicts, checklists, traceability matrix, drift report, status, walkthrough |
@@ -241,7 +241,7 @@ is worth the most at the front of the workflow, not the end.
 
 **Surface assumptions before specifying.** Ask the AI to list its implicit assumptions
 about roles, permissions, error behavior, and scope *before* writing the spec. Correcting
-a wrong assumption takes seconds; correcting a wrong AC takes a full `/sdd:amend` cycle.
+a wrong assumption takes seconds; correcting a wrong AC takes a full `/sdd-change` cycle.
 
 **Reframe vague requirements.** "Make it faster" is not a spec. "LCP < 2.5s on a 4G
 connection" is. Every AC must be independently testable — if you cannot write a failing

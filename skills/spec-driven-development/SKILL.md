@@ -25,10 +25,10 @@ systematic regeneration rather than a manual rewrite.
 
 ## Quick Start
 
-1. `/sdd:init` — create `constitution.md` (once per project, before any feature spec)
-2. `/sdd:research [description]` — map how the existing code works, cited `file:line` (skip on greenfield)
+1. `/sdd-init` — create `constitution.md` (once per project, before any feature spec)
+2. `/sdd-research [description]` — map how the existing code works, cited `file:line` (skip on greenfield)
 3. Surface and correct the AI's implicit assumptions *before* any AC is written
-4. `/sdd:specify [description]` — generate `spec.md` with MoSCoW-prioritized ACs
+4. `/sdd-specify [description]` — generate `spec.md` with MoSCoW-prioritized ACs
 5. Follow the gates: Clarify → Plan → Tasks → Implement → Validate. A human approves intent gates; a separate checker passes evidence gates
 
 Step-by-step detail: `references/workflow-phases.md`.
@@ -108,7 +108,7 @@ into the only text the next phase needs to see.
 
 ## Phase 0 — Constitution *(one-time per project)*
 
-**Invoke:** `/sdd:init` → `constitution.md` at the project root.
+**Invoke:** `/sdd-init` → `constitution.md` at the project root.
 
 A versioned document of immutable constraints applying to every feature: architecture
 principles, technology stack, security constraints, naming conventions, and explicitly
@@ -121,7 +121,7 @@ Update only when a fundamental project decision changes — never per-feature.
 
 ## Phase 0.5 — Research *(conditional, per feature)*
 
-**Invoke:** `/sdd:research [feature description]` → `specs/[feature]/research.md`
+**Invoke:** `/sdd-research [feature description]` → `specs/[feature]/research.md`
 
 A compacted map of how the relevant part of the system works **today**, written before any
 requirement is drafted.
@@ -150,12 +150,12 @@ Details: `references/workflow-phases.md → Phase 0.5`.
 
 | Phase | Invoke | Reads | Produces | Gate |
 |-------|--------|-------|----------|------|
-| **1 — Specify** | `/sdd:specify [description]` | `research.md`, user intent | `spec.md` | Gate 1 |
-| **1b — Clarify** | `/sdd:clarify` | `spec.md` | resolved `[NEEDS CLARIFICATION]`, new edge-case ACs | (part of Gate 1) |
-| **2 — Plan** | `/sdd:plan` | `spec.md`, `constitution.md`, `research.md` | `plan.md`, `data-model.md`, `contracts/` | Gate 2 |
-| **3 — Tasks** | `/sdd:tasks` | `plan.md`, `contracts/` | `tasks.md` | Gate 3 |
-| **4 — Implement** | `/sdd:next-task` per task | one task + its ACs and contract | code, tests, commits | Gate 4 (per task) |
-| **5 — Validate** | `/sdd:validate` | all artifacts + code | traceability matrix, drift report, walkthrough | Gate 5 + Gate C |
+| **1 — Specify** | `/sdd-specify [description]` | `research.md`, user intent | `spec.md` | Gate 1 |
+| **1b — Clarify** | `/sdd-specify` | `spec.md` | resolved `[NEEDS CLARIFICATION]`, new edge-case ACs | (part of Gate 1) |
+| **2 — Plan** | `/sdd-plan` | `spec.md`, `constitution.md`, `research.md` | `plan.md`, `data-model.md`, `contracts/` | Gate 2 |
+| **3 — Tasks** | `/sdd-tasks` | `plan.md`, `contracts/` | `tasks.md` | Gate 3 |
+| **4 — Implement** | `/sdd-tasks` per task | one task + its ACs and contract | code, tests, commits | Gate 4 (per task) |
+| **5 — Validate** | `/sdd-validate` | all artifacts + code | traceability matrix, drift report, walkthrough | Gate 5 + Gate C |
 
 **Intent gates and evidence gates.** Gates R, 1, C and merge decide what to build and
 whether anyone understands it: a human approves them. Gates 3, 4, 5 and the
@@ -164,7 +164,7 @@ runs the checks and attaches the evidence, and the human audits the verdict inst
 redoing the check. **The author never passes its own gate.** An `inconclusive` verdict blocks
 the next phase. Full checklists
 for Gates 0, R, 1–5 and C live in `references/quality-gates.md`, along with
-`/sdd:checklist [domain]` — generated per-feature checklists that test the *spec* rather than
+`/sdd-validate [domain]` — generated per-feature checklists that test the *spec* rather than
 the software.
 
 Run the mechanical checks with `node scripts/sdd-check.mjs [specs-dir]`. Without Node, report them as `inconclusive`: `references/enforcement.md → The Validator`.
@@ -282,9 +282,9 @@ human. Confusing the two is how SDD earns its reputation for ceremony.
 
 ## Living Document
 
-- **When decisions change:** run `/sdd:amend` — never patch files manually
-- **When code changed outside the workflow:** run `/sdd:reconcile`
-- **Where things stand:** `/sdd:status` prints the phase and the next action; `/sdd:analyze` finds contradictions inside `spec.md` before planning
+- **When decisions change:** run `/sdd-change` — never patch files manually
+- **When code changed outside the workflow:** run `/sdd-change`
+- **Where things stand:** `/sdd-status` prints the phase and the next action; `/sdd-validate` finds contradictions inside `spec.md` before planning
 - **Commit specs with code:** spec files belong in the same PR as the implementation
 - **Version your specs:** each `spec.md` carries a `Status` (see the Status Lifecycle in `references/artifact-templates.md`) and `Version` header
 - **Archive when done:** move completed specs to `specs/archive/` after the feature ships
@@ -296,11 +296,11 @@ side gets edited:
 
 | Situation | Cause | Command | What changes |
 |-----------|-------|---------|--------------|
-| **Drift** | Implementation diverged from an approved spec by mistake | `/sdd:validate` | The **code** |
-| **Amendment** | A requirement genuinely changed | `/sdd:amend` | The **spec chain**, then the code |
-| **Reconciliation** | Code changed deliberately outside the workflow — hotfix, upstream refactor, another team | `/sdd:reconcile` | Decided **per difference**, by a human |
+| **Drift** | Implementation diverged from an approved spec by mistake | `/sdd-validate` | The **code** |
+| **Amendment** | A requirement genuinely changed | `/sdd-change` | The **spec chain**, then the code |
+| **Reconciliation** | Code changed deliberately outside the workflow — hotfix, upstream refactor, another team | `/sdd-change` | Decided **per difference**, by a human |
 
-`/sdd:reconcile` never edits anything on its own: it classifies each difference and proposes
+`/sdd-change` never edits anything on its own: it classifies each difference and proposes
 a direction, and a human approves each one. Auto-accepting its proposals turns it into a
 laundering machine for drift — see `references/anti-patterns.md → Anti-Pattern 21`.
 
