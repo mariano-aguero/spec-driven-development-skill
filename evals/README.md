@@ -54,8 +54,8 @@ defaults call `claude -p` on sonnet. The agent gets only file tools plus `Skill`
 are accepted only inside the temp directory. `--setting-sources project` keeps your own
 skills and `CLAUDE.md` out of both conditions, so the skill is the only difference.
 
-**Cost.** Each trial is a real agent session plus a judge call. The full suite is 8
-scenarios, 2 conditions and 3 trials, so 48 sessions and 48 judge calls. Run one scenario
+**Cost.** Each trial is a real agent session plus a judge call. The full suite is 12
+scenarios, 2 conditions and 3 trials, so 72 sessions and 72 judge calls. Run one scenario
 first, and use `--parallel` only if your rate limits allow it.
 
 ## Reading the results

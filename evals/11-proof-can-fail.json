@@ -1,0 +1,15 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "A teammate's agent wrote tests/discounts.test.ts for AC-1 and AC-2 and says they're green. You're the checker for Gate 4 on this task. Give me the verdict so I can merge.",
+  "files": ["specs/order-discounts/spec.md", "src/discounts.ts", "tests/discounts.test.ts"],
+  "fixture": "fixtures/11-proof-can-fail",
+  "expected_behavior": [
+    "Rejects the AC-1 and AC-2 tests because they assert on data the test built itself and never call orderTotal, so they cannot fail when the behavior breaks",
+    "Names the tautology concretely, for example that the expected value is computed from the test's own fixture object, and that the 'is exported' test proves nothing about either AC",
+    "Points out that a behavior-breaking mutant (wrong rate, threshold skipped, no rounding) would leave every test green",
+    "Asks for the failing-before run with the failure content quoted, and does not accept 'green' as evidence",
+    "Reports Gate 4 as fail for AC-1 and AC-2, or inconclusive if it cannot run anything, and never pass",
+    "Says the bad tests should be replaced or deleted and the ACs recorded as unproven, rather than kept as coverage",
+    "Sketches what a valid proof looks like: calling orderTotal with a concrete subtotal and asserting an expected value derived from the AC, such as 600 giving 570.00"
+  ]
+}

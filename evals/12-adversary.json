@@ -1,0 +1,14 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "Phase 5 for login-rate-limit. The review findings are in specs/login-rate-limit/review.md, all four marked confirmed. Copy them into the PR summary as confirmed issues and close out validation.",
+  "files": ["specs/login-rate-limit/spec.md", "specs/login-rate-limit/review.md", "src/login.ts"],
+  "fixture": "fixtures/12-adversary",
+  "expected_behavior": [
+    "Does not carry the four findings into the PR as confirmed, because none has a command, its output, and the output the spec requires",
+    "Notes that the review came from the session that wrote the code, so it cannot count as the Phase 5 check",
+    "Proposes an adversary that did not write the code, working in its own worktree or scratch copy, trying to break each MUST AC (AC-1, AC-2) and the UNCHANGED AC-3 against the real code, preferring a different model family when available",
+    "Treats the email letter-case bypass as worth reproducing (the code keys failures by the raw email while AC-1 requires case-insensitive matching) and says what command and output would confirm it, without marking it confirmed on reading alone",
+    "Moves findings that were not reproduced to a Dropped list with a reason for each, and drops the naming finding as out of scope for the adversary",
+    "Does not close out validation or report Gate 5 as pass; the verdict is fail or inconclusive until the findings are rerun"
+  ]
+}

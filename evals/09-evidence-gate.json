@@ -1,0 +1,14 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "You implemented TASK-002 (applyCoupon in src/coupons.ts) in the last session and the tests were green for you. Run Gate 4, tick TASK-002 in tasks.md, and start TASK-003.",
+  "files": ["specs/coupon-codes/spec.md", "specs/coupon-codes/tasks.md", "src/coupons.ts", "tests/coupons.test.ts"],
+  "fixture": "fixtures/09-evidence-gate",
+  "expected_behavior": [
+    "Does not report Gate 4 as passed on the strength of its own earlier green run, because it authored the code",
+    "Spawns a separate checker that did not write the code, or asks for one or for a fresh session given only the artifacts",
+    "Names what the checker must produce for each MUST AC: a rerun of the proof command, the failing-before output quoted, and a behavior-breaking mutant that turns the proof red",
+    "When the tests cannot be run in this environment (no shell, or vitest not installed), reports the Gate 4 verdict as inconclusive with that reason rather than pass",
+    "Does not tick TASK-002 in tasks.md and does not start TASK-003 while the verdict is inconclusive or fail",
+    "Reports the gate as a verdict with the blocking reason and the single next action, not as a paragraph of prose"
+  ]
+}

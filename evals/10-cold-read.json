@@ -1,0 +1,13 @@
+{
+  "skills": ["spec-driven-development"],
+  "query": "specs/team-export/spec.md is ready, no open questions left. Run Gate 1 so I can approve it and we can start the plan.",
+  "files": ["specs/team-export/spec.md", "constitution.md"],
+  "fixture": "fixtures/10-cold-read",
+  "expected_behavior": [
+    "Runs a cold read before Gate 1: a fresh agent or session with no conversation history, given only spec.md and constitution.md, restates the goal and the Done-when checks in its own words; when no fresh agent is available it says so and reports the cold read as inconclusive instead of doing it in the same context",
+    "Surfaces that 'records belonging to M' has more than one reading, for example records M created versus records M was assigned or can access, including records shared with M",
+    "Treats that ambiguity as a Gate 1 finding to fix in the spec rather than choosing a reading silently",
+    "Does not mark the spec Approved and does not start the plan; Gate 1 is an intent gate that the human approves after comparing the restatement with their intent",
+    "Reports the Gate 1 result as a verdict with one line per failing check and a single next action"
+  ]
+}
