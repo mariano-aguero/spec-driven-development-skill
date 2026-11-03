@@ -10,6 +10,16 @@ Last updated: 2026-10-29
 
 Orders over a threshold get a volume discount applied at checkout.
 
+## Handoff
+
+Goal: Orders of 500.00 or more get 5% off, rounded to cents; smaller orders pay the subtotal.
+Done when:
+
+- [ ] `pnpm test tests/discounts.test.ts` exits 0 (AC-1, AC-2)
+Isolation: branch `feature/order-discounts` off `main`
+Permissions: edit `src/discounts.ts` and `tests/` only
+Stop if: the discount needs data beyond the subtotal. Then stop and write why in decision_log.md
+
 ## Acceptance Criteria
 
 ### AC-1: Volume discount [MUST]

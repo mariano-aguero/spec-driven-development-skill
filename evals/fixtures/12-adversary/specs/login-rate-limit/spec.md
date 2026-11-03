@@ -11,6 +11,17 @@ Last updated: 2026-10-31
 
 Failed password logins are limited per account to stop credential stuffing.
 
+## Handoff
+
+Goal: An account with five failed logins in 15 minutes is refused with `429` until the window passes.
+Done when:
+
+- [ ] `pnpm test tests/rate-limit.test.ts` exits 0 (AC-1, AC-2)
+- [ ] `pnpm test tests/login.test.ts -t session` exits 0 (AC-3)
+Isolation: branch `feature/login-rate-limit` off `main`
+Permissions: edit `src/` and `tests/` only
+Stop if: the limit needs a new table. Then stop and write why in decision_log.md
+
 ## Acceptance Criteria
 
 ### AC-1: Lock after five failures [ADDED] [MUST]

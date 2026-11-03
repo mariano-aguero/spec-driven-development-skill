@@ -12,11 +12,14 @@ Shoppers can apply one coupon code at checkout to reduce the order total.
 
 ## Handoff
 
-- **Goal:** a valid coupon reduces the checkout total; an invalid one is rejected with a reason.
-- **Done when:** `pnpm test tests/coupons.test.ts` passes; `validation.md` shows every `[MUST]` AC `pass`.
-- **Permissions:** see Boundaries.
-- **Isolation:** branch `feature/coupon-codes` off `main`.
-- **Stop condition:** if a coupon rule needs a schema change, stop and write why in `decision_log.md`.
+Goal: A valid coupon reduces the checkout total; an invalid one is rejected with a reason.
+Done when:
+
+- [ ] `pnpm test tests/coupons.test.ts` exits 0 (AC-1, AC-2, AC-3)
+- [ ] `validation.md` shows every `[MUST]` AC as `pass` (AC-1, AC-2, AC-3)
+Isolation: branch `feature/coupon-codes` off `main`
+Permissions: Boundaries section below
+Stop if: a coupon rule needs a schema change. Then stop and write why in decision_log.md
 
 ## Boundaries
 

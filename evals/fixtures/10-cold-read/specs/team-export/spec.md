@@ -13,11 +13,14 @@ seat is removed, so the work is not lost.
 
 ## Handoff
 
-- **Goal:** an admin downloads one CSV with all of a departing member's records.
-- **Done when:** `pnpm test tests/team-export` passes; `GET /teams/:teamId/members/:memberId/export` returns `200` with `text/csv` for an admin and `403` for anyone else.
-- **Permissions:** see Boundaries.
-- **Isolation:** branch `feature/team-export` off `main`.
-- **Stop condition:** if the export needs a new table, stop and write why in `decision_log.md`.
+Goal: An admin downloads one CSV with all of a departing member's records.
+Done when:
+
+- [ ] `pnpm test tests/team-export` exits 0 (AC-1, AC-2, AC-3, AC-4, AC-E1)
+- [ ] `GET /teams/:teamId/members/:memberId/export` returns `200` with `text/csv` for an admin and `403` for anyone else (AC-1, AC-3)
+Isolation: branch `feature/team-export` off `main`
+Permissions: Boundaries section below
+Stop if: the export needs a new table. Then stop and write why in decision_log.md
 
 ## User Stories
 
