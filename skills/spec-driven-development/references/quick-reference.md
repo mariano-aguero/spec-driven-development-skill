@@ -212,11 +212,11 @@ Then [observable outcome]
 
 **Gate 0 (constitution.md):** Stack locked? 5+ security rules? No vague banned patterns? Structure documented?
 **Gate R (research.md):** Every claim cited? Citations spot-checked? Files complete? Purely descriptive? Gaps declared?
-**Gate 1 (spec.md):** Testable ACs? No tech details? No open questions? Scope defined? No blocking constitution `[PENDING]`?
-**Gate 2 (plan.md + contracts):** AC traceability? All errors defined? Schema complete? Risks with mitigations?
+**Gate 1 (spec.md):** Testable ACs? No tech details? No open questions? Scope defined? No blocking constitution `[PENDING]`? Every Done-when line a check, no time box? Cold read matches intent (M, L)?
+**Gate 2 (plan.md + contracts):** Checker: AC traceability? All errors defined? Schema complete? Human: risks with mitigations? Two designs compared (L)?
 **Gate 3 (tasks.md):** Tests before implementation? Task size OK? No dependency cycles?
 **Gate 4 (per task):** Tests pass on a checker's rerun? Seen failing first, failure quoted? At M and L, a mutant per `[MUST]` AC killed and no tautologies? Signatures match? Scope adhered to?
-**Gate 5 (final):** Traceability matrix complete? Zero drift? User story walkthrough done?
+**Gate 5 (final):** Checker: traceability matrix complete? Zero drift? Stories exercised, artifacts attached? Adversary findings fixed (M, L)? Mutation survivors listed (L)? Human: verdict audited, walkthrough read?
 **Gate C (comprehension):** Linear walkthrough written and read? Debuggable by someone else? Every abstraction justified?
 
 ---

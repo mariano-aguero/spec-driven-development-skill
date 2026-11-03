@@ -54,12 +54,14 @@ By phase · File list
 - Phase 1 — Surface assumptions (pre-spec) → `prompt-patterns.md#assumptions-surface-prompt`
 - Phase 1 — Specify prompts → `prompt-patterns.md#phase-1--specify-prompts`
 - Phase 1 — Post-Clarify spec update → `prompt-patterns.md#post-clarify-spec-update-prompt`
+- Phase 1, Cold Read (fresh agent restates the spec before Gate 1) → `prompt-patterns.md#cold-read-prompt-before-gate-1`
 - Phase 2 — Plan prompts → `prompt-patterns.md#phase-2--plan-prompts`
 - Phase 3 — Tasks prompts → `prompt-patterns.md#phase-3--tasks-prompts`
 - Phase 4 — Implement prompts → `prompt-patterns.md#phase-4--implementation-prompts`
 - Phase 4 — Context handover / session resume → `prompt-patterns.md#context-handover-prompt-run-before-a-context-reset-not-after`
 - Phase 5 — Validate prompts → `prompt-patterns.md#phase-5--validate-prompts`
 - Phase 5 — Linear walkthrough (comprehension) → `prompt-patterns.md#linear-walkthrough-prompt`
+- Phase 5, Adversary (non-author agent tries to break each AC, M and L) → `prompt-patterns.md#adversary-prompt-phase-5-levels-m-and-l`
 - Status (`/sdd:status`) → `prompt-patterns.md#status-prompt-sddstatus--run-any-time`
 - Multi-agent review (standardized output) → `prompt-patterns.md#multi-agent-review-pattern`
 - Delta specification (brownfield) → `prompt-patterns.md#delta-specification-prompt-brownfield-changes`
@@ -79,6 +81,7 @@ By phase · File list
 - Phase 2 — Plan → `workflow-phases.md#phase-2--plan`
 - Phase 3 — Tasks → `workflow-phases.md#phase-3--tasks`
 - Phase 4 — Implement → `workflow-phases.md#phase-4--implement`
+- When to stop and amend the plan (repeated workarounds, casts) → `workflow-phases.md#when-to-stop-and-amend-the-plan`
 - Phase 5 — Validate → `workflow-phases.md#phase-5--validate`
 
 ### Output formats (what the user reads)
@@ -110,6 +113,7 @@ By phase · File list
 ### Quality and review
 
 - Which gates apply at which ceremony level → `quality-gates.md#which-gates-apply-at-which-ceremony-level`
+- Intent gates vs. evidence gates (who passes each) → `quality-gates.md#which-gates-apply-at-which-ceremony-level`
 - Generated checklists — unit tests for the spec → `quality-gates.md#generated-checklists--unit-tests-for-the-spec`
 - Per-phase checklists (incl. delta-mode Gate 1) → `quality-gates.md#per-phase-checklists`
 - Confidence-based review thresholds → `quality-gates.md#confidence-based-review-thresholds`
@@ -121,9 +125,11 @@ By phase · File list
 - Context management (single-task rule) → `ai-agent-patterns.md#context-management`
 - Context engineering (compaction, budget, progressive disclosure) → `ai-agent-patterns.md#context-engineering`
 - Subagent review pattern → `ai-agent-patterns.md#subagent-review-pattern`
+- No-subagent fallback (evidence gates in a fresh session) → `ai-agent-patterns.md#no-subagent-fallback`
 - Phase 0.5 Research Verifier critic → `ai-agent-patterns.md#phase-05-critic-agent`
 - Phase 2 Risks Critic → `ai-agent-patterns.md#phase-2-critic-agents`
 - Parallel task execution → `ai-agent-patterns.md#parallel-task-execution`
+- Coordinator rule (dispatches and checks, never writes code) → `ai-agent-patterns.md#parallel-task-rules`
 - AI tool selection per phase → `ai-agent-patterns.md#ai-tool-selection-per-phase`
 - Handling AI resistance → `ai-agent-patterns.md#handling-ai-resistance`
 - Spec regeneration (when requirements change) → `ai-agent-patterns.md#spec-regeneration-pattern`
