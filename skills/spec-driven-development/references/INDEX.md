@@ -147,6 +147,11 @@ By phase · File list
 - Reconciling drift instead of fixing it → `anti-patterns.md#anti-pattern-21-reconciling-drift-instead-of-fixing-it`
 - Running one ceremony level for everything → `anti-patterns.md#anti-pattern-22-running-one-ceremony-level-for-everything`
 - Mechanizing the gates away → `anti-patterns.md#anti-pattern-23-mechanizing-the-gates-away`
+- Tests that cannot fail → `anti-patterns.md#anti-pattern-24-tests-that-cannot-fail`
+- Unreproduced review findings → `anti-patterns.md#anti-pattern-25-unreproduced-review-findings`
+- Polishing an abstract plan → `anti-patterns.md#anti-pattern-26-polishing-an-abstract-plan`
+- The author passes its own gate → `anti-patterns.md#anti-pattern-27-the-author-passes-its-own-gate`
+- Time box as a finish condition → `anti-patterns.md#anti-pattern-28-time-box-as-a-finish-condition`
 
 ---
 

@@ -29,6 +29,11 @@ The most common SDD failure modes, their symptoms, and how to fix them.
 | 21 | Reconciling drift instead of fixing it | reconcile |
 | 22 | Running one ceremony level for everything | 0 |
 | 23 | Mechanizing the gates away | any gate |
+| 24 | Tests that cannot fail | 4 |
+| 25 | Unreproduced review findings | 5 |
+| 26 | Polishing an abstract plan | 2 |
+| 27 | The author passes its own gate | any gate |
+| 28 | Time box as a finish condition | 1 |
 
 ---
 
@@ -825,3 +830,129 @@ about that.
 **The one-sentence version:** automation raises the floor and never the ceiling — it stops
 you shipping what you already knew was wrong, and has nothing to say about what you haven't
 thought of yet.
+
+---
+
+## Anti-Pattern 24: Tests That Cannot Fail
+
+**Symptoms:**
+
+- A new test passed on its first run, before the code it tests existed
+- The expected value comes from calling the function under test
+- The test asserts on an object it built two lines earlier
+- `validation.md` has an empty Before or Mutant column
+
+**Example (wrong):**
+
+```ts
+const fixture = { ttlMinutes: 15 }
+expect(fixture.ttlMinutes).toBe(15) // never runs the token code
+```
+
+**Example (correct):**
+
+```ts
+const token = await issueToken(user, { now: t0 })
+expect(await verify(token, { now: t0 + 16 * MIN })).toEqual({ error: 'TOKEN_EXPIRED' })
+// before the change: expected { error: 'TOKEN_EXPIRED' }, received { ok: true }
+// mutant TTL x2: red
+```
+
+**Fix:** Gate 4 requires the failing-before run with the failure quoted and one killed
+mutant per `[MUST]` AC, and rejects the four tautologies
+(`quality-gates.md → Gate 4`). A test that cannot fail gets deleted, and the AC is recorded
+as unproven.
+
+---
+
+## Anti-Pattern 25: Unreproduced Review Findings
+
+**Symptoms:**
+
+- A code review lists ten `[CONFIRMED]` findings and none has a command
+- Fixing a finding changes nothing a test or a user can observe
+- Review threads argue about whether a bug exists
+
+**Example (wrong):**
+
+> `[ISSUE] [AC-4] Security [Risk] [CONFIRMED] possible race in token verification`
+
+**Example (correct):**
+
+> `[ISSUE] [AC-4] Adversary [Broken] [CONFIRMED]` with the command, the output `200`, and
+> the required `410`, rerun by the coordinator. The race claim had no command, so it sits in
+> the Dropped list with that reason.
+
+**Fix:** For code, `[CONFIRMED]` needs the command, its output, and the output the spec
+requires, and the coordinator reruns it (`output-formats.md → Critic Findings`). Everything
+else is dropped and listed with the reason.
+
+---
+
+## Anti-Pattern 26: Polishing an Abstract Plan
+
+**Symptoms:**
+
+- Plan review runs three rounds of critics on prose, and each round finds new risks
+- Risks cite behavior of a library nobody has called yet
+- The plan grows while no line of it has been checked against the tree
+
+**Example (wrong):**
+
+> "Critic round 3: the queue library may reorder messages under load. Adding a sequencing
+> layer to the plan."
+
+**Example (correct):**
+
+> "Open question: does the queue reorder under load? A 40-line prototype outside the branch
+> sent 10k messages, zero reordered. Cited in plan.md, sequencing layer dropped."
+
+**Fix:** Answer anything running something could answer with a throwaway prototype outside
+the feature branch. Plan critics report only what they can check against the current tree.
+
+---
+
+## Anti-Pattern 27: The Author Passes Its Own Gate
+
+**Symptoms:**
+
+- The agent that wrote the code reports "Gate 4 passed" from its own test run
+- `validation.md` has no Checked by column, or it names the implementer
+- A gate passed when a tool was missing, with no `inconclusive`
+
+**Example (wrong):**
+
+> "All tests green. Gate 4 passed, marking TASK-007 complete."
+
+**Example (correct):**
+
+> "Tests green on my run. Handing TASK-007 to a checker for Gate 4." The checker reruns,
+> quotes the failing-before output, kills a mutant, and returns `pass`.
+
+**Fix:** Evidence gates are passed by an agent that did not produce the artifact, intent
+gates by a human (`quality-gates.md → Which Gates Apply`). With no subagents, use a fresh
+session from the artifacts alone, or report `inconclusive`
+(`ai-agent-patterns.md → No-Subagent Fallback`).
+
+---
+
+## Anti-Pattern 28: Time Box as a Finish Condition
+
+**Symptoms:**
+
+- The handoff's Done when reads "work on this for 4 hours" or "until morning"
+- An overnight run ends on the clock with a long summary and no passing check
+- Nobody can tell whether the run succeeded
+
+**Example (wrong):**
+
+> Done when: spend the night on the export feature.
+
+**Example (correct):**
+
+> Done when: `pnpm test tests/export` passes, `GET /export/:id` returns 200 with a CSV
+> matching `contracts/export.md`, and `validation.md` shows every `[MUST]` AC `pass`.
+
+**Fix:** Every Done-when line is a check that can pass or fail: a command or an observable
+artifact. A duration is a budget for the run, never its finish condition. Gate 1 rejects a
+handoff whose only finish condition is time.

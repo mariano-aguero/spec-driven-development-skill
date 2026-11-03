@@ -117,6 +117,7 @@ Run before Phase 2. All items must pass. On pass: `Status: Approved`.
 | Non-functional requirements | Performance and security requirements stated with specific values |
 | Boundaries (optional) | If feature has complex AI behavior constraints, Boundaries section is populated |
 | Stakeholder alignment | Relevant stakeholders have reviewed and agreed |
+| Done when checkable | Every Handoff Done-when line is a command or an observable artifact that can pass or fail; a time box ("work on this for 4 hours") is rejected |
 | Cold read (M, L) | A fresh agent given only `spec.md` and `constitution.md` restated the goal and Done-when checks, and the human confirms it matches intent (`prompt-patterns.md → Cold Read Prompt`) |
 
 **Additional checks when `Mode: Delta`:**
