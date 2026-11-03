@@ -68,3 +68,6 @@ jobs:
 
       - name: Test the contract lock hook
         run: node --test .github/scripts/contract-lock.test.mjs
+
+      - name: Test the spec validator
+        run: node --test .github/scripts/sdd-check.test.mjs
