@@ -39,7 +39,7 @@ a hook written for a hypothetical failure is configuration nobody understands si
 
 | Rule | Rung available | Mechanism |
 |------|---------------|-----------|
-| `contracts/` frozen after Gate 2 | **3 — Block** | PreToolUse hook rejecting writes to `contracts/` when the spec is Approved |
+| `contracts/` frozen after Gate 2 | **3 — Block** | PreToolUse hook rejecting writes to `contracts/` when the spec is `Planned` or later |
 | No `[NEEDS CLARIFICATION]` past Gate 1 | **2 — Check** | CI grep (already in `quality-gates.md`) |
 | Every AC has test coverage | **2 — Check** | CI AC-ID grep (already in `quality-gates.md`) |
 | Research citations resolve | **2 — Check** | CI citation check (already in `quality-gates.md`) |
@@ -65,8 +65,10 @@ The single highest-value promotion available. `contracts/` are declared frozen a
 but a declaration in a markdown file does not stop an agent mid-task from "fixing" a response
 shape — and Anti-Pattern 2 exists because that is exactly what happens.
 
-**Rule:** once `spec.md` reads `Status: Approved`, writes to `specs/*/contracts/**` are
-rejected unless the change is part of an explicit `/sdd:amend` run.
+**Rule:** once `spec.md` reads `Status: Planned` or later (Gate 2 passed, see the Status
+Lifecycle in `artifact-templates.md`), writes to `specs/*/contracts/**` are rejected unless the
+change is part of an explicit `/sdd:amend` run. At `Draft` and `Approved` the lock is off,
+because Phase 2 writes the contracts.
 
 Claude Code implementation, in `.claude/settings.json`:
 
@@ -104,14 +106,19 @@ spec="$feature_dir/spec.md"
 # An amend run unlocks the contract deliberately.
 [[ -f "$feature_dir/.amend-in-progress" ]] && exit 0
 
-if grep -qE '^Status:[[:space:]]*Approved' "$spec"; then
-  echo "BLOCKED: $path is a locked contract (spec Status: Approved)." >&2
+status=$(grep -m1 -E '^Status:' "$spec" || true)
+if grep -qE '^Status:[[:space:]]*(Planned|In Progress|Validated|Archived)' "$spec"; then
+  echo "BLOCKED: $path is a locked contract (spec ${status})." >&2
   echo "Changing a contract during implementation is spec drift." >&2
   echo "To change it deliberately: run /sdd:amend, which updates spec -> plan -> contract" >&2
   echo "-> data model together and records the decision." >&2
   exit 2   # non-zero blocks the tool call and returns stderr to the agent
 fi
 ```
+
+The amend run creates `specs/<feature>/.amend-in-progress` when it starts and removes it when
+it ends, including on abort. Add `.amend-in-progress` to the project's `.gitignore` so the
+sentinel is never committed.
 
 The error message matters as much as the block. It states the cause, the rule's rationale,
 and the sanctioned path forward — an agent that is only told "no" will try a different way
