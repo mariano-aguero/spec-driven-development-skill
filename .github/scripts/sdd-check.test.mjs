@@ -65,3 +65,17 @@ test('several paths are all checked', () => {
   const r = spawnSync('node', [script, join(repo, 'skills/spec-driven-development/examples/specs'), join(fixtures, 'clean'), '--json'], { encoding: 'utf8' })
   assert.equal(JSON.parse(r.stdout).features, 3)
 })
+
+test('done-when-checkable sees a time box next to inline code', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'sdd-timebox-'))
+  cpSync(join(fixtures, 'clean'), dir, { recursive: true })
+  const path = join(dir, 'sample/spec.md')
+  const text = readFileSync(path, 'utf8')
+  const withItem = (item) => text.replace('- [ ] `npm test` exits 0 (AC-1)', `- [ ] ${item}`)
+
+  writeFileSync(path, withItem('keep `pnpm test` running and work on this for 4 hours (AC-1)'))
+  assert.deepEqual(run(dir).findings.map((f) => f.rule), ['done-when-checkable'])
+
+  writeFileSync(path, withItem("`pnpm test -t 'expires after 15 minutes'` exits 0 (AC-1)"))
+  assert.deepEqual(run(dir).findings, [])
+})

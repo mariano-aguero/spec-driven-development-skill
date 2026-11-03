@@ -253,7 +253,7 @@ export const rules = [
     id: 'done-when-checkable',
     run: ({ spec }) =>
       (spec.handoff?.doneWhen ?? [])
-        .filter((item) => DURATION.test(item.text) && !item.text.includes('`'))
+        .filter((item) => DURATION.test(item.text.replace(/`[^`]*`/g, '')))
         .map((item) => find(spec.path, item.line, `Done-when "${item.text}" is a time box, name a check that can pass or fail`)),
   },
   {
