@@ -671,11 +671,13 @@ Present the impact assessment to the human for approval before proceeding to Ste
 The following impact was approved: [paste approved impact assessment]
 
 Update the affected artifacts in this order:
-1. spec.md — update ACs; annotate changes with <!-- AMENDED [date]: [reason] -->
-2. plan.md — update affected component descriptions
-3. contracts/ — update affected endpoint definitions and error codes
-4. data-model.md — update affected entities; add migration entry if schema changed
-5. tasks.md — regenerate from TASK-[first affected ID] forward
+1. Create specs/[feature]/.amend-in-progress (this unlocks contracts/ for this run)
+2. spec.md — update ACs; annotate changes with <!-- AMENDED [date]: [reason] -->
+3. plan.md — update affected component descriptions
+4. contracts/ — update affected endpoint definitions and error codes
+5. data-model.md — update affected entities; add migration entry if schema changed
+6. tasks.md — regenerate from TASK-[first affected ID] forward
+7. Remove specs/[feature]/.amend-in-progress, also if you stop or abort partway
 
 Do NOT modify artifacts not listed in the approved impact assessment.
 Return a summary of what changed in each file.
