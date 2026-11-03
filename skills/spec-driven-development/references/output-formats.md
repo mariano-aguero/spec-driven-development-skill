@@ -6,7 +6,7 @@ files; this file defines what to show the person running the workflow.
 ## Contents
 
 - Principles — write vs. show, verdict first, line budgets, binary confidence
-- Gate verdict — the format for every gate (0, R, 1–5, C)
+- Gate verdict: the format for every gate (0, R, 1 to 5, C), and the three verdicts
 - Critic findings — issue lines with confidence markers
 - Checklist — `/sdd:checklist [domain]`
 - Traceability matrix — `/sdd:validate`
@@ -84,8 +84,17 @@ Rules:
 - Passed checks collapse onto shared lines; they are context, not content
 - End with the single next action, and say explicitly what is blocked
 - On a full pass, the body collapses to one line: `Gate 2 — PASS (8/8). Next: /sdd:tasks`
-- Never report a gate as passed when a check was skipped — report it as `SKIPPED` with the
-  reason, which is a fail for the purposes of proceeding
+- Never report a gate as passed when a check was skipped. Report it as `inconclusive` with
+  the reason (see Verdicts below)
+
+**Verdicts.** Every evidence check, in a gate or in `validation.md`, ends in one of three
+values, defined here once:
+
+| Verdict | Meaning |
+|---------|---------|
+| `pass` | The check ran and met its criterion |
+| `fail` | The check ran and did not meet its criterion |
+| `inconclusive` | The check could not run (missing tool, no subagents, flaky environment). The reason is stated, and the next phase does not start |
 
 ---
 
@@ -118,29 +127,32 @@ and summarized in the response.
 
 Date: [YYYY-MM-DD] · Commit: [sha]
 
-| AC | Priority | Test | Implementation | Status |
-|----|----------|------|----------------|--------|
-| AC-1 | MUST | `tests/auth/magic-link.test.ts:24` | `src/app/auth/magic-link/route.ts:12` | ✓ PASS |
-| AC-2 | MUST | `tests/auth/verify.test.ts:11` | `src/app/auth/magic-link/verify/route.ts:20` | ✓ PASS |
-| AC-4 | MUST | — | `src/lib/tokens.ts:30` | ✗ NO TEST |
-| AC-5 | SHOULD | `tests/ui/sign-in.test.tsx:8` | `src/app/sign-in/page.tsx:15` | ✓ PASS |
-| AC-6 | COULD | — | — | ○ NOT IMPLEMENTED |
-| AC-7 | WONT | — | — | ○ OUT OF SCOPE |
+| AC | Proof | Before (failure quoted) | Mutant | After | Verdict | Checked by |
+|----|-------|-------------------------|--------|-------|---------|------------|
+| AC-1 | test: `pnpm test tests/auth/magic-link.test.ts` | `expected 202, received 404` | skip enqueue, red | green | pass | checker-1 |
+| AC-2 | test: `pnpm test tests/auth/verify.test.ts` | `expected cookie "session", received none` | skip createSession, red | green | pass | checker-1 |
+| AC-4 | test: `pnpm test tests/auth/expiry.test.ts` | `expected 410, received 200` | TTL x2, green | green | fail | checker-2 |
+| AC-5 | artifact: sign-in page after expiry | n/a | n/a | n/a | inconclusive | checker-2 |
 
-**MUST coverage: 3/4.** AC-4 implemented without a test — blocking.
+Columns: **Proof** is the kind and command from the AC's `Proof:` line. **Before** is the run
+before the change, quoting the failure content, not only the assertion line. **Mutant** is one
+behavior-breaking edit and the color it produced. **After** is the run with the change.
+**Verdict** is `pass | fail | inconclusive` as defined under Gate Verdict. **Checked by** names
+the agent that is not the author. Rows exist for `[MUST]` and `[SHOULD]` ACs. Used by Gate 5.
+
+**MUST coverage: 2/3.** AC-4 survived a mutant, so its test does not prove it. Blocking.
 **Unmapped code:** none.
 ```
 
 Response summary (3 lines):
 
 ```text
-Validation — FAIL. MUST coverage 3/4.
-✗ AC-4 implemented at src/lib/tokens.ts:30 with no test
+Validation — FAIL. MUST coverage 2/3.
+✗ AC-4 survived mutant "TTL x2": tests/auth/expiry.test.ts proves nothing
 Full matrix: specs/magic-link-login/validation.md
 ```
 
-Status vocabulary is fixed: `✓ PASS`, `✗ FAIL`, `✗ NO TEST`, `○ NOT IMPLEMENTED`,
-`○ OUT OF SCOPE`. A `[MUST]` AC in any state other than `✓ PASS` blocks Gate 5.
+A `[MUST]` AC with any verdict other than `pass` blocks Gate 5.
 
 ---
 
@@ -232,22 +244,22 @@ Reconcile — magic-link-login vs HEAD (baseline a3f9c21, 14 commits since)
 6 differences: 2 intentional, 1 external, 2 drift, 1 ambiguous
 
 INTENTIONAL  Token TTL is 5min in code, spec AC-4 says 15min
-             evidence: commit 7d21e0f "hotfix: shorten magic link TTL after INC-482"
+             evidence L2: commit 7d21e0f "hotfix: shorten magic link TTL after INC-482"
              → update spec                                          [CONFIRMED]
 INTENTIONAL  Verify endpoint returns 410 on reuse; contract says 409
-             evidence: PR #218 "align reuse response with expiry semantics"
+             evidence L2: PR #218 "align reuse response with expiry semantics"
              → update contract                                      [CONFIRMED]
 EXTERNAL     Session cookie now SameSite=Strict, spec says Lax
-             cause: framework 4.2 changed the default — CHANGELOG.md:88
+             evidence L2: framework 4.2 changed the default, CHANGELOG.md:88
              → update spec, record cause                            [CONFIRMED]
 DRIFT        Rate limit key is per-IP in code; AC-E3 specifies per-email
-             evidence: none found in 14 commits
+             evidence L4: ran 4 requests from 2 IPs, 4th was not limited
              → fix code                                             [CONFIRMED]
 DRIFT        Endpoint DELETE /auth/sessions exists, absent from spec
-             evidence: none found
+             evidence L2: src/app/auth/sessions/route.ts:9
              → fix code or specify                                  [CONFIRMED]
 AMBIGUOUS    Email template omits the expiry notice from AC-5
-             evidence: commit 1b904cc "copy tweaks" — does not mention expiry
+             evidence L2: commit 1b904cc "copy tweaks" — does not mention expiry
              → human decides (defaults to DRIFT)                    [VERIFY]
 
 Nothing has been changed. Approve items individually.
@@ -258,6 +270,8 @@ Rules:
 
 - **Every `INTENTIONAL` and `EXTERNAL` row carries a quoted evidence line.** A row without
   quoted evidence is `DRIFT` — never `INTENTIONAL` on the strength of the code existing.
+- Every difference carries an evidence level L1 to L5, from the ladder in
+  `artifact-templates.md` under `research.md`.
 - Evidence is quoted, not summarized. `commit 7d21e0f "hotfix: shorten TTL after INC-482"`
   is evidence; "appears deliberate" is not.
 - The closing two lines are mandatory. They are what stop a reader from treating the report
