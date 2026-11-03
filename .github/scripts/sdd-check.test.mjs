@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
+import { cpSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
@@ -47,4 +49,14 @@ test('text output is file:line: rule-id: message', () => {
 test('a missing path exits 1', () => {
   const r = spawnSync('node', [script, join(fixtures, 'nope')], { encoding: 'utf8' })
   assert.equal(r.status, 1)
+})
+
+test('no-open-questions ignores the marker inside inline code', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'sdd-inline-'))
+  cpSync(join(fixtures, 'clean'), dir, { recursive: true })
+  const spec = readdirSync(dir, { recursive: true }).map(String).find((f) => f.endsWith('spec.md'))
+  const path = join(dir, spec)
+  const approved = readFileSync(path, 'utf8').replace(/^Status: Draft$/m, 'Status: Approved')
+  writeFileSync(path, approved + '\nThe validator rejects `[NEEDS CLARIFICATION]` past Gate 1.\n')
+  assert.deepEqual(run(dir).findings, [])
 })

@@ -127,7 +127,9 @@ function parseSpec(path, featureDir) {
     baseline: baseline && { line: baseline.line, ...resolveBaseline(baseline.raw, featureDir) },
     acs: parseAcs(lines),
     handoff: parseHandoff(lines),
-    clarifications: lines.filter((l) => l.text.includes('[NEEDS CLARIFICATION]')).map((l) => l.n),
+    clarifications: lines
+      .filter((l) => l.text.replace(/`[^`]*`/g, '').includes('[NEEDS CLARIFICATION]'))
+      .map((l) => l.n),
   }
 }
 
