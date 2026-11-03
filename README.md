@@ -84,7 +84,7 @@ everything. Choose per change:
 | Use when | 1 session, ≤3 files, no schema/contract/auth change, revertible | New endpoint, table, or user-visible behavior | Auth, payments, migrations, regulated domains, unfamiliar code |
 | Artifacts | ACs in the PR body | `spec.md`, `plan.md`, `contracts/`, `tasks.md` | + `research.md`, `decision_log.md`, `walkthrough.md` |
 
-Gates per level: [quality-gates.md](references/quality-gates.md#which-gates-apply-at-which-ceremony-level).
+Gates per level: [quality-gates.md](skills/spec-driven-development/references/quality-gates.md#which-gates-apply-at-which-ceremony-level).
 
 Start at M. Drop to S only if every S condition holds; move to L if any L condition holds.
 The tiebreaker is **reversibility, not size** — a one-line change to a permission check
@@ -157,7 +157,7 @@ Being explicit, since nobody else is:
 | | |
 |---|---|
 | Loaded on every conversation (skill metadata) | ~120 tokens |
-| Loaded when the skill activates (`SKILL.md`) | ~3,700 tokens |
+| Loaded when the skill activates (`skills/spec-driven-development/SKILL.md`) | ~3,700 tokens |
 | A full feature, all reference files loaded | ~23,000 tokens of skill |
 
 That last figure excludes your code and the artifacts the workflow generates. Industry
@@ -165,29 +165,29 @@ reports put spec-driven workflows at roughly 20–40% higher token spend than un
 prompting — offset by fewer discarded implementation cycles, not by being cheaper per turn.
 
 Reference files load on demand, so a feature that skips research or stops at Phase 3 costs
-proportionally less. If you only want the cheat sheet, `references/quick-reference.md` is
+proportionally less. If you only want the cheat sheet, `skills/spec-driven-development/references/quick-reference.md` is
 ~1,700 tokens on its own.
 
 ## What's Included
 
 | File | Contents |
 |------|---------|
-| `SKILL.md` | Entry point: full workflow, spec levels, context model, comprehension debt, reference index |
-| `references/artifact-templates.md` | Templates for `constitution.md`, `research.md`, `spec.md`, `plan.md`, `data-model.md`, `contracts/`, `tasks.md`, `progress.md`, `decision_log.md` |
-| `references/prompt-patterns.md` | Prompts for every phase + Codebase Research, Assumptions Surface, Clarify, Critics, Context Handover, Linear Walkthrough, `/sdd:analyze`, `/sdd:amend` |
-| `references/workflow-phases.md` | Step-by-step instructions for Phases 0, 0.5, and 1–5 |
-| `references/quality-gates.md` | Gate 0, R, 1–5 and C checklists + CI/CD integration (AC coverage, drift detection) |
-| `references/output-formats.md` | Formats and line budgets for everything the user reads: gate verdicts, checklists, traceability matrix, drift report, status, walkthrough |
-| `references/enforcement.md` | Making rules bind: the ask/check/block ladder, a pre-write hook that really locks `contracts/`, worktrees for parallel tasks, and deriving `AGENTS.md` from `constitution.md` |
-| `references/ai-agent-patterns.md` | Context engineering (compaction, budget, progressive disclosure), multi-agent orchestration, critic subagents, capability profiles |
-| `references/anti-patterns.md` | 23 common failure modes with wrong/correct examples and fixes |
-| `references/quick-reference.md` | One-page cheat sheet |
-| `references/INDEX.md` | Topic navigation across all references |
+| `skills/spec-driven-development/SKILL.md` | Entry point: full workflow, spec levels, context model, comprehension debt, reference index |
+| `skills/spec-driven-development/references/artifact-templates.md` | Templates for `constitution.md`, `research.md`, `spec.md`, `plan.md`, `data-model.md`, `contracts/`, `tasks.md`, `progress.md`, `decision_log.md` |
+| `skills/spec-driven-development/references/prompt-patterns.md` | Prompts for every phase + Codebase Research, Assumptions Surface, Clarify, Critics, Context Handover, Linear Walkthrough, `/sdd:analyze`, `/sdd:amend` |
+| `skills/spec-driven-development/references/workflow-phases.md` | Step-by-step instructions for Phases 0, 0.5, and 1–5 |
+| `skills/spec-driven-development/references/quality-gates.md` | Gate 0, R, 1–5 and C checklists + CI/CD integration (AC coverage, drift detection) |
+| `skills/spec-driven-development/references/output-formats.md` | Formats and line budgets for everything the user reads: gate verdicts, checklists, traceability matrix, drift report, status, walkthrough |
+| `skills/spec-driven-development/references/enforcement.md` | Making rules bind: the ask/check/block ladder, a pre-write hook that really locks `contracts/`, worktrees for parallel tasks, and deriving `AGENTS.md` from `constitution.md` |
+| `skills/spec-driven-development/references/ai-agent-patterns.md` | Context engineering (compaction, budget, progressive disclosure), multi-agent orchestration, critic subagents, capability profiles |
+| `skills/spec-driven-development/references/anti-patterns.md` | 23 common failure modes with wrong/correct examples and fixes |
+| `skills/spec-driven-development/references/quick-reference.md` | One-page cheat sheet |
+| `skills/spec-driven-development/references/INDEX.md` | Topic navigation across all references |
 | `evals/` | Behavioral scenarios for verifying the skill actually changes agent behavior |
 
 ## Complete Example
 
-See [`examples/`](examples/) for a full end-to-end demonstration of every SDD artifact:
+See [`skills/spec-driven-development/examples/`](skills/spec-driven-development/examples/) for a full end-to-end demonstration of every SDD artifact:
 a magic-link login feature with `constitution.md`, `spec.md`, `plan.md`, `data-model.md`,
 locked `contracts/`, and a dependency-mapped `tasks.md`. Use it as a reference or as a
 starter you can clone into a new project.

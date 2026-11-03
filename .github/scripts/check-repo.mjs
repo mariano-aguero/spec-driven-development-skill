@@ -7,8 +7,9 @@ import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const skipAnywhere = new Set(['.git', 'node_modules'])
-const skipAtRoot = new Set(['specs'])
-const matrixHome = 'references/quality-gates.md'
+const skill = 'skills/spec-driven-development'
+const skillMd = `${skill}/SKILL.md`
+const matrixHome = `${skill}/references/quality-gates.md`
 
 const problems = []
 const fail = (file, line, rule, msg) => problems.push(`${file}:${line}: ${rule}: ${msg}`)
@@ -16,11 +17,10 @@ const fail = (file, line, rule, msg) => problems.push(`${file}:${line}: ${rule}:
 function listMarkdown(dir = root) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const full = join(dir, e.name)
-    const rel = relative(root, full).split('\\').join('/')
     if (e.isDirectory()) {
-      return skipAnywhere.has(e.name) || skipAtRoot.has(rel) ? [] : listMarkdown(full)
+      return skipAnywhere.has(e.name) ? [] : listMarkdown(full)
     }
-    return e.name.endsWith('.md') ? [rel] : []
+    return e.name.endsWith('.md') ? [relative(root, full).split('\\').join('/')] : []
   })
 }
 
@@ -40,24 +40,24 @@ function proseLines(f) {
 }
 
 function checkDescription() {
-  const lines = linesOf('SKILL.md')
+  const lines = linesOf(skillMd)
   const start = lines.findIndex((l) => l.startsWith('description:'))
-  if (start === -1) return fail('SKILL.md', 1, 'description-length', 'no description in frontmatter')
+  if (start === -1) return fail(skillMd, 1, 'description-length', 'no description in frontmatter')
   let value = lines[start].slice('description:'.length)
   for (let i = start + 1; /^\s+\S/.test(lines[i] ?? ''); i++) value += ' ' + lines[i]
   const collapsed = value.replace(/^\s*[>|][+-]?/, '').split(/\s+/).filter(Boolean).join(' ')
   if (collapsed.length > 1024) {
-    fail('SKILL.md', start + 1, 'description-length', `${collapsed.length} chars, limit 1024`)
+    fail(skillMd, start + 1, 'description-length', `${collapsed.length} chars, limit 1024`)
   }
 }
 
 function checkSkillLength() {
-  const count = text.get('SKILL.md').replace(/\n$/, '').split('\n').length
-  if (count >= 500) fail('SKILL.md', count, 'skill-length', `${count} lines, limit is under 500`)
+  const count = text.get(skillMd).replace(/\n$/, '').split('\n').length
+  if (count >= 500) fail(skillMd, count, 'skill-length', `${count} lines, limit is under 500`)
 }
 
 function checkContents() {
-  for (const f of files.filter((f) => /^references\/[^/]+\.md$/.test(f))) {
+  for (const f of files.filter((f) => f.startsWith(`${skill}/references/`) && f.endsWith('.md'))) {
     const lines = linesOf(f)
     const count = text.get(f).replace(/\n$/, '').split('\n').length
     if (count > 100 && !lines.slice(0, 20).includes('## Contents')) {
@@ -133,9 +133,9 @@ function checkGateMatrix() {
 
 function checkCommands() {
   const cmdRe = /(?<![\w/])\/sdd:([a-z][a-z-]*)/g
-  const mustList = ['SKILL.md', 'references/quick-reference.md']
+  const mustList = [skillMd, `${skill}/references/quick-reference.md`]
   const scope = files.filter(
-    (f) => f === 'SKILL.md' || f === 'README.md' || f.startsWith('references/') || f.startsWith('examples/'),
+    (f) => f === 'README.md' || f.startsWith(`${skill}/`),
   )
   const reported = new Set()
   for (const f of scope) {

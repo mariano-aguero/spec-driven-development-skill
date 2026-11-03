@@ -29,7 +29,7 @@ scenario manually or wire it into your own harness:
 3. Score each `expected_behavior` item as pass or fail — no partial credit
 4. Record the score; a scenario passes only when every item passes
 
-Re-run the full set after any change to `SKILL.md` or to the frontmatter `description`.
+Re-run the full set after any change to `skills/spec-driven-development/SKILL.md` or to the frontmatter `description`.
 Those two files are what determine discovery and first-turn behavior, so they carry the
 highest regression risk.
 

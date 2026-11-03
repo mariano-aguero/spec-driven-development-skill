@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Skill moved to `skills/spec-driven-development/`. Dev files (evals, CI, planning specs) no longer ship to users.
+
 ## [1.8.0] - 2026-11-02
 
 Lifecycle and CI release. The contract lock now matches the workflow it protects, and the

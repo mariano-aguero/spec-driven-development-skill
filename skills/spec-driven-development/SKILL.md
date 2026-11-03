@@ -1,5 +1,6 @@
 ---
 name: spec-driven-development
+license: MIT
 description: >
   Structures feature work for AI coding agents into gated phases — research, spec, plan,
   tasks, implement, validate — each producing a short reviewable artifact that constrains

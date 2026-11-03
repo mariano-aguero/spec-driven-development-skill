@@ -7,25 +7,27 @@ Install: `npx skills add mariano-aguero/spec-driven-development-skill`
 
 ```
 spec-driven-development-skill/
-├── SKILL.md                           # Entry point — workflow overview, phase descriptions
-├── CLAUDE.md                          # This file — architecture and maintenance guide
+├── CLAUDE.md                          # This file, architecture and maintenance guide
 ├── README.md                          # User-facing documentation
 ├── CHANGELOG.md                       # Keep-a-Changelog release history
 ├── package.json                       # npm metadata for skills.sh discovery
 ├── evals/                             # Behavioral scenarios (≥3 required before release)
-├── examples/                          # Worked end-to-end example (magic-link login)
+├── specs/                             # Planning specs for this repo, not shipped
 ├── .github/scripts/                   # check-repo.mjs and contract-lock tests, run by CI
-└── references/
-    ├── INDEX.md                       # Topic navigation map
-    ├── quick-reference.md             # One-page cheat sheet
-    ├── artifact-templates.md          # Copy-paste templates for all artifacts
-    ├── prompt-patterns.md             # Prompts for every phase and scenario
-    ├── workflow-phases.md             # Step-by-step phase instructions
-    ├── quality-gates.md               # Per-phase checklists, CI/CD integration
-    ├── output-formats.md              # Formats and line budgets for what the user reads
-    ├── enforcement.md                 # Hooks, contract locks, worktrees, AGENTS.md bridge
-    ├── ai-agent-patterns.md           # Multi-agent patterns, context management
-    └── anti-patterns.md               # Failure modes and fixes
+└── skills/spec-driven-development/    # The installable skill, the only shipped folder
+    ├── SKILL.md                       # Entry point, workflow overview, phase descriptions
+    ├── examples/                      # Worked end-to-end example (magic-link login)
+    └── references/
+        ├── INDEX.md                   # Topic navigation map
+        ├── quick-reference.md         # One-page cheat sheet
+        ├── artifact-templates.md      # Copy-paste templates for all artifacts
+        ├── prompt-patterns.md         # Prompts for every phase and scenario
+        ├── workflow-phases.md         # Step-by-step phase instructions
+        ├── quality-gates.md           # Per-phase checklists, CI/CD integration
+        ├── output-formats.md          # Formats and line budgets for what the user reads
+        ├── enforcement.md             # Hooks, contract locks, worktrees, AGENTS.md bridge
+        ├── ai-agent-patterns.md       # Multi-agent patterns, context management
+        └── anti-patterns.md           # Failure modes and fixes
 ```
 
 ## Reference File Responsibilities
@@ -94,11 +96,11 @@ Measure before releasing:
 
 ```bash
 # description and body size
-python3 -c "import re;s=open('SKILL.md').read();d=' '.join(re.search(r'description:\s*>?\s*\n?(.*?)(?=\n[a-z_-]+:|\Z)',s.split('---')[1],re.S).group(1).split());print(f'description {len(d)} chars ~{len(d)//4} tok')"
-wc -l SKILL.md
+python3 -c "import re;s=open('skills/spec-driven-development/SKILL.md').read();d=' '.join(re.search(r'description:\s*>?\s*\n?(.*?)(?=\n[a-z_-]+:|\Z)',s.split('---')[1],re.S).group(1).split());print(f'description {len(d)} chars ~{len(d)//4} tok')"
+wc -l skills/spec-driven-development/SKILL.md
 
 # every reference file must have a TOC
-for f in references/*.md; do head -20 "$f" | grep -q "^## Contents" || echo "MISSING TOC: $f"; done
+for f in skills/spec-driven-development/references/*.md; do head -20 "$f" | grep -q "^## Contents" || echo "MISSING TOC: $f"; done
 ```
 
 Reference files may cross-link for convenience, but no piece of information may *require*

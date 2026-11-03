@@ -7,7 +7,7 @@ import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-const doc = readFileSync(join(repo, 'references/enforcement.md'), 'utf8')
+const doc = readFileSync(join(repo, 'skills/spec-driven-development/references/enforcement.md'), 'utf8')
 
 // The tested hook is the one the doc tells people to copy.
 const block = [...doc.matchAll(/```bash\n([\s\S]*?)```/g)].find((m) =>
