@@ -1,11 +1,11 @@
 # v2: Agent-Native Spec-Driven Development
 
-Status: In Progress
+Status: Validated
 Version: 0.3
 Mode: Delta
 Baseline: specs/v2-agent-native/research.md F-1..F-10, P-1..P-8 (v1.7.0, `939b1e7`)
 Level: L (changes gate semantics and artifact formats; major version)
-Last updated: 2026-11-02
+Last updated: 2026-11-05
 
 ## Change Summary
 
